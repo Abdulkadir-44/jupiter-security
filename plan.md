@@ -170,6 +170,7 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 - **İçerik:** süreç adımı "Montaj ve kablolama" → "Montaj" (kullanıcı değiştirdi).
 - **og.jpg** ve **apple-touch-icon.png** yeşil palette yeniden üretildi.
 - **"Hizmet verdiğimiz yerler" mobil:** ilçeler 2 sütunlu, satır başına ip hattı; her kart sarı pinli bir iple asılı ve hafif yatık. Kaydırınca yukarıdan düşüp sarkaç gibi sallanarak oturur (CSS + küçük script, `Areas.astro`). Masaüstü/tablet aynı. Yayında (`cb0cfc8`).
+- **Yeni bölüm: güneş enerjili 4G kameralar** (müşteri isteği; bağ, bahçe, yayla, yazlık): `RemoteSites.astro`, "Nereyi korumak istiyorsunuz?" ile "Hazır paketler" arasında. Sol: metin, yer etiketleri, avantajlar, sarı WhatsApp butonu. Sağ: animasyonlu sistem kartı (güneş, tepeler, direkte panel + kamera, baz istasyonuna sinyal) + "Güneş paneli → Batarya → 4G kamera → Telefon" zinciri. Saf CSS animasyon. Google'a giden hizmet listesine de eklendi.
 - Geri dönüş noktaları: mavi palet `bd4b283`, yeşil palet ilk hali `4bc8bb7`.
 
 ## Sıradaki adımlar (önerilen sıra)
@@ -194,6 +195,8 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 | 9 | Kampanya var mı? | Sayfa üstündeki kampanya şeridi (hazır, şu an kapalı) | `announcement` + `HomePage.astro`'ya geri ekleme |
 | 10 | Kurulum fotoğrafları (en az 6, mümkünse hangi ilçe/mekân olduğu yazılı) | "Yaptığımız kamera kurulumları" kareleri, ileride ilçe sayfaları | `work.items` + görseller `src/assets/` |
 | 11 | Alan adı tercihi (öneri: `.com.tr`, örn. `jupiterkamera.com.tr`) | Her şey (bkz. bölüm 6a/4) | `astro.config.mjs` → `site` |
+
+| 12 | **Güneş enerjili 4G kamera bölümü** için onay: metindeki iddialar (gece/bulutlu havada çalışma, kesintiden etkilenmeme, bildirim, gece görüşü) müşterinin kullandığı ürünle uyumlu mu; varsa marka/model, örnek fiyat ve bu tür kurulumların fotoğrafları | "Elektrik yok, internet yok, sorun değil" bölümü | `remote`, iki dilde |
 
 **B) Bilerek boş bırakılanlar (gerçek bilgi gelmeden EKLENMEYECEK)**
 - **Google'da yorum yıldızları:** Sitedeki yorumlarla eklenmez (Google kendi sitesindeki yorumları yıldız olarak göstermiyor, sahte yorumla eklemek ceza sebebi). Yıldızlar Google İşletme Profili'ndeki gerçek yorumlardan gelir (bölüm 6a/3).
@@ -282,8 +285,8 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [x] **Güvenlik başlıkları** (yapıldı): Content-Security-Policy `astro.config.mjs` → `security.csp` (Astro her sayfaya `<meta>` ekler, kendi satır içi scriptlerini otomatik hash'ler; izinli dış kaynak sadece Cloudflare Web Analytics). Diğerleri `public/_headers`: HSTS, X-Content-Type-Options, X-Frame-Options + frame-ancestors, Referrer-Policy, Permissions-Policy, COOP. Tarayıcıda test edildi, CSP ihlali yok.
   - ⚠️ **Yeni bir dış kaynak eklenirse** (Google Fonts, harita, YouTube, dış görsel, form servisi vb.) `security.csp` içine izin eklenmeli, yoksa tarayıcı engeller.
   - Not: CSP `<meta>` ile; tüm script kurallarının HTTP başlığına taşınması (daha katı) ileride sunucu tarafı render'a geçilirse.
-- [ ] Bağımlılık taraması (`npm audit`), gereksiz paketlerin temizliği
-- [ ] Gizli bilgiler: `.dev.vars` / `wrangler secret` (asla repoya değil)
+- [x] Bağımlılık taraması (20.11.2026): `npm audit` → 0 açık. Gereksiz paket yok (`@astrojs/check`, `typescript`, `react-dom`, `@types/*` araç olarak gerekli). Ara ara `npm audit` tekrar çalıştırılmalı.
+- [x] Gizli bilgiler kontrolü: repoda ve kodda gizli anahtar yok; `.env*` ve `.dev.vars` gitignore'da. Analytics token'ı gizli değil (HTML'de herkese görünür). Backend gelince şifre/anahtarlar sadece `wrangler secret` ile (asla repoya değil).
 
 **c) Veritabanı ve depolama (Cloudflare ücretsiz katman)**
 - [ ] D1 (SQLite): tablolar (iletişim ayarları, paketler, yorumlar, yapılan işler, kampanya); `site.tr.ts`/`site.en.ts` yapısıyla uyumlu (iki dil alanı)

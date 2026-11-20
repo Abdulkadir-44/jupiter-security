@@ -66,6 +66,15 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
           "@type": "Offer",
           itemOffered: { "@type": "Service", name: it.title, description: it.text, areaServed: "Hatay" },
         })),
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: s.remote.eyebrow,
+            description: `${s.remote.title}. ${s.remote.lead}`,
+            areaServed: "Hatay",
+          },
+        },
         ...s.packages.items.map((p) => ({
           "@type": "Offer",
           itemOffered: {

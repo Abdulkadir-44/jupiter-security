@@ -1,5 +1,9 @@
 import {
+  BatteryCharging,
   Building2,
+  Cctv,
+  RadioTower,
+  SolarPanel,
   ClipboardList,
   Factory,
   House,
@@ -22,6 +26,10 @@ const map = {
   store: Store,
   factory: Factory,
   building: Building2,
+  solar: SolarPanel,
+  battery: BatteryCharging,
+  cctv: Cctv,
+  tower: RadioTower,
 } satisfies Record<IconName, unknown>;
 
 export function Icon({ name, ...props }: { name: IconName } & LucideProps) {

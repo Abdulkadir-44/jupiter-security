@@ -140,6 +140,30 @@ export const site: SiteContent = {
     ],
   },
 
+  remote: {
+    eyebrow: "Solar-powered 4G cameras",
+    title: "No power, no internet, no problem",
+    lead:
+      "Vineyards, gardens, highland houses or summer homes... We install cameras that run on solar power and connect to the internet with a SIM card. No cables, no sockets, and you watch from your phone.",
+    places: ["Vineyards & gardens", "Highland houses", "Summer homes", "Fields & land", "Barns & farms", "Building sites"],
+    steps: [
+      { icon: "solar", title: "Solar panel", text: "Charges from the sun all day" },
+      { icon: "battery", title: "Battery", text: "Keeps running at night and on cloudy days" },
+      { icon: "cctv", title: "4G camera", text: "Connects to the internet with its SIM card" },
+      { icon: "smartphone", title: "Your phone", text: "Live view and motion alerts" },
+    ],
+    features: [
+      "No sockets, cables or fixed internet needed",
+      "Unaffected by power cuts",
+      "Motion alerts straight to your phone",
+      "Night vision in a weatherproof outdoor housing",
+    ],
+    note: "Before installing, we check the mobile signal on site.",
+    cta: "Ask about my land",
+    whatsappMessage: "Hello, I'd like information about a solar-powered 4G camera. Location: ",
+    screen: { label: "CAM 07 · LAND", signal: "4G", battery: "86%" },
+  },
+
   coverage: {
     title: "We place cameras by plan, not by guesswork",
     lead:

@@ -19,7 +19,11 @@ export type IconName =
   | "home"
   | "store"
   | "factory"
-  | "building";
+  | "building"
+  | "solar"
+  | "battery"
+  | "cctv"
+  | "tower";
 
 export interface SiteContent {
   /** Dil bilgisi (html lang, paylaşım dili, dil değiştirici) */
@@ -100,6 +104,20 @@ export interface SiteContent {
       setup: string[];
       cameras: string;
     }[];
+  };
+  /** Elektrik/internet olmayan yerler: güneş enerjili 4G (SIM kartlı) kameralar */
+  remote: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    places: string[];
+    steps: { icon: IconName; title: string; text: string }[];
+    features: string[];
+    note: string;
+    cta: string;
+    whatsappMessage: string;
+    /** Sağdaki çizimin üst şeridi */
+    screen: { label: string; signal: string; battery: string };
   };
   coverage: {
     title: string;
@@ -328,6 +346,30 @@ export const site: SiteContent = {
         cameras: "6–16 kamera",
       },
     ],
+  },
+
+  remote: {
+    eyebrow: "Güneş enerjili 4G kameralar",
+    title: "Elektrik yok, internet yok, sorun değil",
+    lead:
+      "Bağ, bahçe, yayla evi ya da yazlık... Şehirden uzak yerlere güneş paneliyle çalışan, SIM kartla internete bağlanan kameralar kuruyoruz. Kablo çekmeden, prize ihtiyaç duymadan telefonunuzdan izlersiniz.",
+    places: ["Bağ ve bahçe", "Yayla evi", "Yazlık", "Tarla ve arazi", "Ahır ve çiftlik", "Şantiye"],
+    steps: [
+      { icon: "solar", title: "Güneş paneli", text: "Gün boyu güneşten şarj olur" },
+      { icon: "battery", title: "Batarya", text: "Gece ve bulutlu havada da çalışır" },
+      { icon: "cctv", title: "4G kamera", text: "İçindeki SIM kartla internete bağlanır" },
+      { icon: "smartphone", title: "Telefonunuz", text: "Canlı izleme ve hareket bildirimi" },
+    ],
+    features: [
+      "Prize, kabloya ve sabit internete gerek yok",
+      "Elektrik kesintisinden etkilenmez",
+      "Hareket algılayınca telefonunuza bildirim gelir",
+      "Gece görüşlü, her mevsime dayanıklı dış mekân kasası",
+    ],
+    note: "Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
+    cta: "Arazim için bilgi al",
+    whatsappMessage: "Merhaba, güneş enerjili 4G kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
+    screen: { label: "CAM 07 · ARAZİ", signal: "4G", battery: "%86" },
   },
 
   coverage: {
