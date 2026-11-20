@@ -193,7 +193,7 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
   | Ev ve dükkan | 4 × 5 MP gece görüşlü | 500 GB | Telefondan izleme, hareket algılama bildirimi | **14.999 TL'den başlayan** |
   | İşletme | 8 × 5 MP gece görüşlü | 1 TB | Uzaktan çoklu kullanıcı erişimi (yıllık bakım ziyareti **kaldırıldı**) | **29.999 TL'den başlayan** |
   - "Telefondan izleme **kurulumu**" → "Telefondan izleme".
-- **Markalar:** Dahua, Hikvision, ZTEC (?), IOMA (?); güneş enerjili: O-KAM (?), IOMA (yazımlar teyit edilecek).
+- ✅ **Markalar** (yazımlar müşteri onaylı): Dahua, Hikvision, ZTEC, IOMA; güneş enerjili: O-KAM, IOMA. `site.tr.ts` → `brands`. Gösterim: paketlerin altında "Kullandığımız markalar", güneş enerjili bölümde avantajların altında; Google verisinde `brand`.
 - ✅ **Güneş enerjili bölüm:** içerik doğru; **inşaat şantiyesi** vurgusu eklendi (açıklama + ikinci etiket). Sağdaki animasyonlu çizim **kaldırıldı** (git geçmişinde: `48fd8ff`), yerine `PhotoSlider` (vurgu sarı, 4G sinyal ikonu) geldi: şimdilik 3 yer tutucu slayt (Bağ, Bahçe, İnşaat şantiyesi). Fotoğraf eklemek: `public/medya/gunes/` + `site.*.ts` → `remote.slides[].image`.
 - ✅ **Yeni bölüm: Wi-Fi (kablosuz) kameralar** (ŞABLON, `WifiCameras.astro`): güneş enerjili bölümün altında, aynı düzen (solda içerik, sağda fotoğraf slider kartı); vurgu rengi yeşil (güneş enerjili sarı). Metin taslak, müşteri ürün özelliklerini (iki yönlü konuşma vb.) teyit edecek. Slider: `PhotoSlider.astro` (yeniden kullanılabilir; kaydırma, oklar, noktalar, otomatik ilerleme). Fotoğraf eklemek: `public/medya/wifi/` + `site.*.ts` → `wifi.slides[].image`.
 - **Yeni bölüm: Ürünler slider'ı:** müşterinin kendi çektiği ürün fotoğraflarıyla (telif sorunu yok).
@@ -204,16 +204,16 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 
 ### B) Açık sorular (kullanıcıyla tek tek konuşulacak)
 1. ✅ **Alan adı:** `jupiterguvenlik.com` (Türkçe karakterli IDN alan adı yerine; e-posta ve yazım sorunları yüzünden).
-2. **Marka adı:** sitede "JÜPİTER **Kamera** Güvenlik Sistemleri", kaşede "Jüpiter Güvenlik Sistemleri", alan adı "jupiterguvenlik". Google için ad her yerde birebir aynı olmalı (NAP). Sitedeki ad kaşedekiyle aynı mı yapılsın?
-3. **Fiyatlar KDV ve montaj dahil mi?** Türkiye'de tüketiciye gösterilen fiyatın vergiler dahil olması gerekir; "montaj dahil" yazmak da güven verir.
+2. ✅ **Resmi ad: "Jüpiter Güvenlik Sistemleri"** (kaşe ve alan adıyla aynı; iki dilde de aynı ad). Sitede tam ad, Google verisi, paylaşım etiketleri, footer © satırı, 404 başlığı güncellendi. Logo ve görünen yazı "JÜPİTER" kalıyor. **Google İşletme Profili, Instagram ve haritalarda da birebir bu ad kullanılmalı.**
+3. ✅ **Fiyatlar KDV ve montaj dahil.** Her paket kartında fiyatın altında "KDV ve montaj dahil" (EN: "VAT and installation included"); Google verisinde `valueAddedTaxIncluded: true`.
 4. ✅ **Paket kartı:** fiyat (büyük) + "Bu paketi sor" WhatsApp butonu birlikte.
 5. ✅ **Çalışma saatleri:** "Esnek saatler, WhatsApp'tan randevuyla" (EN: "Flexible hours, book on WhatsApp"); saat müşteriyle WhatsApp'tan belirleniyor. Google verisine saat yazılmıyor (`openingHours: []`).
 6. ⏸ **Sahte yorumlar:** kullanıcı kararı: şimdilik **kalacak**, gerçek yorumlar gelince değiştirilecek. (Not: alan adına geçip site Google'a açılmadan önce mutlaka değiştirilmeli.)
 7. ⏸ **Instagram:** kullanıcı kararı: şimdilik **kalacak**, hesap açılınca gerçek adresle değiştirilecek.
 8. **Ürünler slider'ı:** hangi ürünler, her üründe ne yazacak (ad, marka, model, kısa özellik, fiyat?), sayfada nerede (öneri: "Hazır paketler"in hemen altı)?
-9. ✅ **Güneş enerjili bölüm:** animasyonlu çizim ve adım zinciri kaldırıldı, yerine slider. Hâlâ eksik: örnek fiyat ve SIM kartı bilgisi (kamerayla mı geliyor, müşteri mi alıyor).
-10. **Wi-Fi bölümü:** marka/model, fiyat, hangi müşterilere (ev içi, bebek/evcil hayvan, küçük dükkan)? Görsel tekrarı olmasın diye **ters düzen** (solda slider, sağda metin) önerilir; müşteri "aynı düzen" dedi.
-11. **Slider fotoğrafları panelden mi yönetilecek?** Öneri: evet; admin panelindeki galeri, kategorili olur (yapılan işler / güneş enerjili / Wi-Fi / ürünler). Bu, admin tasarım dokümanını etkiler.
+9. ✅ **Güneş enerjili bölüm:** animasyonlu çizim kaldırıldı, yerine slider. **SIM kartı Jüpiter temin edip kuruyor** (avantajlara eklendi). Hâlâ eksik: örnek fiyat.
+10. ✅ **Wi-Fi bölümü:** metin müşteri tarafından **onaylandı**, olduğu gibi kalıyor. Eksik: marka/model ve fiyat (sonra), fotoğraflar.
+11. ✅ **Slider fotoğrafları admin panelinden yönetilecek** → admin tasarım dokümanında galeri kategorili olacak: yapılan işler / güneş enerjili / Wi-Fi / ürünler.
 12. **Logo:** mevcut gezegen logosu beğenilmedi mi, yoksa onun daha şık/animasyonlu bir hali mi isteniyor? Tamamen yeni bir konsept mi (ör. gezegen + kamera merceği)?
 13. **Yazışma adresi neden gerekli?** (müşteri sordu) KVKK aydınlatma metninde "veri sorumlusu"nun adresi yazılmak zorunda; Google İşletme Profili doğrulaması da adres ister (sitede ve haritada gizli kalabilir). Tam resmi unvan için vergi levhasındaki ad gerekli ("... Ltd. Şti." dahil).
 14. **E-posta:** alan adı alınınca `info@jupiterguvenlik.com` gibi bir adres, Cloudflare Email Routing (ücretsiz) ile müşterinin Gmail'ine yönlendirilebilir; e-posta göndermek için ek ayar ya da ücretli posta servisi gerekir.
@@ -374,7 +374,7 @@ Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşa�
 |---|---|
 | `settings` (tek satır) | telefon (görünen + E.164), WhatsApp, Instagram, Facebook, çalışma saatleri (TR/EN metin + gün/saat), ilçeler (liste), WhatsApp karşılama mesajı (TR/EN) |
 | `campaign` (tek satır) | açık/kapalı, metin (TR/EN), buton metni (TR/EN), bitiş tarihi (opsiyonel, geçince otomatik kapanır) |
-| `works` (yapılan işler) | başlık/yer (TR/EN), ilçe/semt, tür (ev, dükkan, fabrika, site, arazi), fotoğraf anahtarları (480/960/1600 WebP + genişlik/yükseklik), alt metin (TR/EN), sıra, yayında mı, tarih |
+| `works` (galeri: yapılan işler + slider'lar) | **kategori** (yapılan işler / güneş enerjili / Wi-Fi / ürünler), başlık/yer (TR/EN), ilçe/semt, tür (ev, dükkan, fabrika, site, arazi), fotoğraf anahtarları (480/960/1600 WebP + genişlik/yükseklik), alt metin (TR/EN), sıra, yayında mı, tarih |
 | `packages` | ad, kamera sayısı, kimler için, özellikler (liste), fiyat metni (TR/EN), öne çıkan mı, sıra, yayında mı |
 | `reviews` | alıntı (TR/EN), isim (Mehmet K.), unvan/semt (TR/EN), sıra, yayında mı |
 | `admin_user` (tek satır) | e-posta, şifre hash + salt, TOTP gizli anahtarı, yedek kod hash'leri |
@@ -387,7 +387,7 @@ Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşa�
 *Panel sayfaları*
 - `/admin/giris` (e-posta + şifre → 2FA kodu), ilk girişte `/admin/2fa-kurulum` (QR + yedek kodlar).
 - `/admin` **Genel bakış**: kampanya aç/kapa, içerik sayıları, son değişiklikler, haftalık ziyaretçi (Cloudflare analytics API, sunucu tarafında; bunun için kısıtlı bir API token'ı `wrangler secret` olarak).
-- `/admin/yapilan-isler`: ızgara görünüm, sürükle-bırak ya da ok ile sıralama, yayında/gizli, ekle/düzenle/sil; fotoğraf seçince tarayıcıda WebP'ye çevirme + önizleme + yükleme ilerlemesi.
+- `/admin/yapilan-isler` (galeri; kategori sekmeleri: yapılan işler, güneş enerjili slider, Wi-Fi slider, ürünler slider): ızgara görünüm, sürükle-bırak ya da ok ile sıralama, yayında/gizli, ekle/düzenle/sil; fotoğraf seçince tarayıcıda WebP'ye çevirme + önizleme + yükleme ilerlemesi.
 - `/admin/iletisim`, `/admin/paketler`, `/admin/yorumlar`, `/admin/kampanya`: liste + düzenleme formu.
 - Her formda: Türkçe alanlar + "İngilizceye çevir" butonu + İngilizce alanlar (düzenlenebilir), kaydedilmemiş değişiklik uyarısı, başarılı kayıtta küçük bildirim, form hataları (alan altında, anlaşılır Türkçe).
 - Tasarım: sitenin paleti (koyu yeşil sidebar, açık içerik alanı), sitenin fontları, hafif geçişler; masaüstünde sol sidebar, mobilde üstte menü düğmesi + açılır sidebar. Büyük dokunma alanları (telefondan kullanım).

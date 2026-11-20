@@ -12,7 +12,7 @@ export const site: SiteContent = {
 
   brand: {
     name: "JÜPİTER",
-    fullName: "JÜPİTER Security Camera Systems",
+    fullName: "Jüpiter Güvenlik Sistemleri",
     tagline: "Camera systems, turnkey",
   },
 
@@ -23,9 +23,11 @@ export const site: SiteContent = {
     region: "İskenderun and surroundings, Hatay",
   },
 
+  brands: tr.brands,
+
   seo: {
     ogImage: "/og-en.jpg",
-    title: "CCTV Installation in İskenderun | JÜPİTER Security Cameras",
+    title: "CCTV Installation in İskenderun | Jüpiter Güvenlik Sistemleri",
     description:
       "Turnkey CCTV installation for homes, shops, factories and apartments in İskenderun and Hatay. Site visit, equipment, installation and phone setup.",
   },
@@ -151,6 +153,7 @@ export const site: SiteContent = {
       "Unaffected by power cuts",
       "Motion alerts straight to your phone",
       "Night vision in a weatherproof outdoor housing",
+      "We supply and set up the SIM card, no separate line needed",
     ],
     note: "Before installing, we check the mobile signal on site.",
     cta: "Ask about my land",
@@ -220,6 +223,8 @@ export const site: SiteContent = {
     lead: "We don't quote a final price without seeing your place. These packages give you an idea; we finalise the details together during the site visit.",
     priceNote: "Final price is set after the site visit",
     priceTemplate: "From {price}",
+    priceIncludes: "VAT and installation included",
+    brandsLabel: "Brands we use",
     items: [
       {
         name: "Starter",
@@ -320,7 +325,7 @@ export const site: SiteContent = {
   },
 
   notFound: {
-    pageTitle: "Page not found (404) | JÜPİTER Security Cameras",
+    pageTitle: "Page not found (404) | Jüpiter Güvenlik Sistemleri",
     code: "Error 404",
     titleLines: ["This is a", "blind spot"],
     text: "The page you are looking for may have moved or never existed. Head back to the homepage or give us a call and we will install your cameras.",
@@ -351,7 +356,7 @@ export const site: SiteContent = {
     optionalSetup: "As needed",
     packageMessage: 'Hello, I\'d like to get information about the "{name}" package ({cameras}).',
     campaignMessage: "Hello, I'd like to get information about the offer: {text}",
-    ogImageAlt: "JÜPİTER Security Camera Systems: We leave no blind spots",
+    ogImageAlt: "Jüpiter Güvenlik Sistemleri: We leave no blind spots",
     sliderPrev: "Previous photo",
     sliderNext: "Next photo",
     sliderGoTo: "Go to photo {n}",

@@ -36,6 +36,7 @@ function PackageCard({
   askLabel,
   message,
   priceTemplate,
+  priceIncludes,
   numberLocale,
 }: {
   it: Pkg;
@@ -45,6 +46,7 @@ function PackageCard({
   askLabel: string;
   message: string;
   priceTemplate: string;
+  priceIncludes: string;
   numberLocale: string;
 }) {
   const featured = !!it.featured;
@@ -197,6 +199,7 @@ function PackageCard({
               {part}
             </span>
           ))}
+          <span className="mt-1 block text-xs">{priceIncludes}</span>
         </p>
         <motion.a
           href={whatsappHref(contact, message)}
@@ -223,6 +226,7 @@ export default function PackagesMotion({
   askLabel,
   messageTemplate,
   priceTemplate,
+  priceIncludes,
   numberLocale,
 }: {
   items: Pkg[];
@@ -231,6 +235,7 @@ export default function PackagesMotion({
   /** WhatsApp mesaj şablonu: {name} ve {cameras} paket bilgisiyle değişir */
   messageTemplate: string;
   priceTemplate: string;
+  priceIncludes: string;
   numberLocale: string;
 }) {
   const reduced = useReducedMotion() ?? false;
@@ -241,6 +246,7 @@ export default function PackagesMotion({
           askLabel={askLabel}
           message={fill(messageTemplate, { name: it.name, cameras: it.cameras })}
           priceTemplate={priceTemplate}
+          priceIncludes={priceIncludes}
           numberLocale={numberLocale}
         />
       ))}

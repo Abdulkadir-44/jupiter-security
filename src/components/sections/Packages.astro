@@ -15,11 +15,16 @@ const p = s.packages;
 
     <PackagesMotion client:visible={{ rootMargin: "300px" }} items={p.items} contact={s.contact} askLabel={s.ui.askPackage} messageTemplate={s.ui.packageMessage}
       priceTemplate={p.priceTemplate}
+      priceIncludes={p.priceIncludes}
       numberLocale={s.locale.numberLocale}
     />
 
-    <p class="mt-10 text-sm text-ink-soft">
-      {p.priceNote}. {p.allLink}: {s.ui.soon}.
-    </p>
+    <div class="mt-10 flex flex-col gap-3 text-sm text-ink-soft md:flex-row md:items-center md:justify-between">
+      <p>{p.priceNote}. {p.allLink}: {s.ui.soon}.</p>
+      <p>
+        {p.brandsLabel}:
+        <span class="font-semibold text-ink">{s.brands.cctv.join(" · ")}</span>
+      </p>
+    </div>
   </div>
 </section>

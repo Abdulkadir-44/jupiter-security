@@ -44,6 +44,11 @@ const r = s.remote;
           }
         </ul>
 
+        <p class="mt-6 text-sm text-mist">
+          {s.packages.brandsLabel}:
+          <span class="font-semibold text-paper">{s.brands.solar.join(" · ")}</span>
+        </p>
+
         <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
           <a
             href={whatsappHref(s.contact, r.whatsappMessage)}

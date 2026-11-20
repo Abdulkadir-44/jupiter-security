@@ -41,6 +41,7 @@ export interface SiteContent {
   };
   brand: {
     name: string;
+    /** Resmi ad: sitede, Google İşletme Profili'nde, Instagram'da ve haritalarda BİREBİR aynı olmalı */
     fullName: string;
     tagline: string;
   };
@@ -63,6 +64,8 @@ export interface SiteContent {
     region: string;
     serviceAreas: string[];
   };
+  /** Kullanılan markalar (paketler ve güneş enerjili bölümde gösterilir, Google verisine de eklenir) */
+  brands: { cctv: string[]; solar: string[] };
   seo: {
     title: string;
     description: string;
@@ -165,6 +168,10 @@ export interface SiteContent {
     priceNote: string;
     /** Fiyat yazısı şablonu; {price} büyük yazılan tutarla değişir (örn. "{price}'den başlayan") */
     priceTemplate: string;
+    /** Fiyatın altındaki not (örn. "KDV ve montaj dahil") */
+    priceIncludes: string;
+    /** "Kullandığımız markalar" satırı */
+    brandsLabel: string;
     items: {
       name: string;
       cameras: string;
@@ -250,7 +257,7 @@ export const site: SiteContent = {
 
   brand: {
     name: "JÜPİTER",
-    fullName: "JÜPİTER Kamera Güvenlik Sistemleri",
+    fullName: "Jüpiter Güvenlik Sistemleri",
     tagline: "Kamera sistemleri, anahtar teslim",
   },
 
@@ -265,6 +272,11 @@ export const site: SiteContent = {
     openingHours: [],
     region: "İskenderun ve çevresi, Hatay",
     serviceAreas: ["İskenderun", "Arsuz", "Payas", "Dörtyol", "Belen", "Antakya"],
+  },
+
+  brands: {
+    cctv: ["Dahua", "Hikvision", "ZTEC", "IOMA"],
+    solar: ["O-KAM", "IOMA"],
   },
 
   seo: {
@@ -395,6 +407,7 @@ export const site: SiteContent = {
       "Elektrik kesintisinden etkilenmez",
       "Hareket algılayınca telefonunuza bildirim gelir",
       "Gece görüşlü, her mevsime dayanıklı dış mekân kasası",
+      "SIM kartı biz temin edip kuruyoruz, ayrıca hat almanıza gerek yok",
     ],
     note: "Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
     cta: "Arazim için bilgi al",
@@ -461,6 +474,8 @@ export const site: SiteContent = {
     lead: "Mekânınızı görmeden kesin fiyat vermiyoruz. Bu paketler size bir fikir versin, keşifte birlikte netleştirelim.",
     priceNote: "Fiyat keşiften sonra netleşir",
     priceTemplate: "{price}'den başlayan",
+    priceIncludes: "KDV ve montaj dahil",
+    brandsLabel: "Kullandığımız markalar",
     items: [
       {
         name: "Başlangıç",
@@ -562,7 +577,7 @@ export const site: SiteContent = {
   },
 
   notFound: {
-    pageTitle: "Sayfa bulunamadı (404) | JÜPİTER Kamera",
+    pageTitle: "Sayfa bulunamadı (404) | Jüpiter Güvenlik Sistemleri",
     code: "Hata 404",
     titleLines: ["Burası", "kör nokta"],
     text: "Aradığınız sayfa taşınmış ya da hiç var olmamış olabilir. Ana sayfaya dönün ya da bizi arayın, kameranızı kuralım.",
@@ -593,7 +608,7 @@ export const site: SiteContent = {
     optionalSetup: "İhtiyaca göre",
     packageMessage: 'Merhaba, "{name}" paketi ({cameras}) hakkında bilgi almak istiyorum.',
     campaignMessage: "Merhaba, kampanya hakkında bilgi almak istiyorum: {text}",
-    ogImageAlt: "JÜPİTER Kamera Güvenlik Sistemleri: Kör nokta bırakmıyoruz",
+    ogImageAlt: "Jüpiter Güvenlik Sistemleri: Kör nokta bırakmıyoruz",
     sliderPrev: "Önceki fotoğraf",
     sliderNext: "Sonraki fotoğraf",
     sliderGoTo: "{n}. fotoğrafa git",

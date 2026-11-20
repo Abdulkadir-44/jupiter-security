@@ -94,11 +94,18 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
             name: `${p.name} (${p.cameras})`,
             description: p.features.join(", "),
           },
-          // "...TL'den başlayan" fiyat (KDV/montaj bilgisi netleşince valueAddedTaxIncluded eklenecek)
-          priceSpecification: { "@type": "PriceSpecification", minPrice: p.priceFrom, priceCurrency: "TRY" },
+          // "...TL'den başlayan" fiyat; KDV ve montaj dahil (müşteri onaylı)
+          priceSpecification: {
+            "@type": "PriceSpecification",
+            minPrice: p.priceFrom,
+            priceCurrency: "TRY",
+            valueAddedTaxIncluded: true,
+          },
         })),
       ],
     },
+    // Kullanılan markalar (müşteri onaylı yazımlar)
+    brand: [...new Set([...s.brands.cctv, ...s.brands.solar])].map((name) => ({ "@type": "Brand", name })),
     sameAs: [s.contact.instagram.url, ...(s.contact.facebook ? [s.contact.facebook.url] : [])],
   };
 
