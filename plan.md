@@ -201,17 +201,71 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [x] Mobil düzeltmelerin ve yeni paletin yayına alınması
 - [ ] Gerçek telefonda test (iPhone + Android)
 - [ ] Google İşletme Profili (gezici işletme için "hizmet bölgesi" olarak açılabilir; yerel aramalarda çok etkili)
-- [ ] Google Search Console: alan adı bağlanınca site doğrulanıp `sitemap-index.xml` gönderilecek
+- [ ] Google Search Console: alan adı bağlanınca (ayrıntı: bölüm 6a/4)
 - [ ] Yerel SEO içerik: gerçek fotoğraflar (açıklamalı), Google'da müşteri yorumları, ileride ilçe/hizmet bazlı sayfalar
 
-### 5. Faz 2 (sonra)
-- [ ] Ürünler sayfası ve Yapılan İşler sayfası (gerçek içerik gelince)
-- [ ] Backend: Cloudflare D1 (veritabanı) + R2 (fotoğraf depolama)
-- [ ] Admin paneli (tek kullanıcı): yapılan işler galerisi, iletişim ayarları, ürün/paketler, yorumlar, kampanya
-- [ ] Formlar (iletişim/teklif) + gelen mesajlar modülü
+### 5. Faz 1 kapanışı: tasarım ve responsive BİTTİ ✅ (20.11.2026)
+- [x] Tasarım (v2 + adaçayı yeşili palet), animasyonlar, mobil/tablet/masaüstü düzen
 - [x] İngilizce dil desteği (`/en/`): içerik `src/content/site.en.ts`, iletişim bilgileri Türkçe dosyadan paylaşılır; header'da TR/EN düğmesi; hreflang + sitemap dil etiketleri. Yeni dil = yeni `site.xx.ts` + `src/lib/data.ts` ve `astro.config.mjs` dil listesi + `src/pages/xx/index.astro`.
-- [ ] Arapça (şimdilik istenmiyor; sağdan sola düzen ve Arapça font gerekir)
-- [ ] Açık/koyu tema seçeneği (karar bekliyor)
+- [x] Tema kararı: **açık/koyu tema seçeneği olmayacak**, mevcut tek tema kalıyor.
+- Arapça şimdilik istenmiyor (gerekirse: sağdan sola düzen + Arapça font).
+- Geri kalan tek "içerik" işi: bölüm 1'deki gerçek bilgiler (müşteriden).
+
+### 6. Faz 2: teknik işler (SIRADAKİ)
+Önerilen sıra (her biri ayrı konuşulup planlanacak):
+
+**a) SEO stratejisi: İskenderun'da öne çıkmak** (müşteri için öncelikli)
+
+Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "3'lü paketten" gelir; onu belirleyen **Google İşletme Profili + yorumlar**. Web sitesi bunu destekleyen ikinci ayak. İkisi birlikte kurulacak.
+
+*1) Alan adından önce, içerik beklemeden (teknik):*
+- [x] **noindex**: geçici adres (`*.workers.dev`) Google'a kapalı (sahte telefon/yorum dizine girmesin, alan adı gelince içerik iki adreste olmasın). `BaseLayout.astro`'da otomatik: `astro.config.mjs` → `site` gerçek alan adı olunca kendiliğinden `index, follow` olur. robots.txt'de bilerek `Disallow` yok (Google noindex'i görebilsin).
+- [ ] **H1 ve başlıklar**: H1'de "İskenderun" yok ve görünmez (`sr-only`). Hero'ya görünür üst etiket ("İskenderun Kamera Montajı") + anahtar kelimeli görünür H1; bölüm başlıklarına doğal anahtar kelimeler (örn. "Hazır kamera sistemi paketleri"). Slogan tasarımı aynı kalır.
+- [ ] **Title / meta açıklama**: anahtar kelime araştırmasına göre yeniden (iki dilde).
+- [ ] **JSON-LD zenginleştirme**: `@id`, hizmet listesi (`hasOfferCatalog`), hizmet bölgesi, çalışma saatleri, `priceRange`, `sameAs`, her dilde kendi dilinde. Sahte yorumlarla `Review`/`AggregateRating` EKLENMEZ (Google cezalandırır; yıldızlar İşletme Profili'nden gelir).
+- [ ] **404 sayfası**: iki dilde, tasarıma uygun, ana bölümlere ve telefona yönlendiren.
+- [ ] **Lighthouse tekrar ölçümü** (yeşil palet, hero animasyonu JS'e bağlı slogan, `/en/`); gerekirse CSS satır içi.
+- [ ] **İngilizce paylaşım görseli** (`og-en.jpg`).
+- [ ] **Cloudflare Web Analytics** (ücretsiz, çerezsiz, KVKK dostu): ziyaret + "Ara"/"WhatsApp" tıklamaları.
+
+*2) Anahtar kelimeler ve site yapısı (gerçek içerikle birlikte):*
+- Hedef aramalar: konum ("iskenderun kamera montajı", "iskenderun güvenlik kamerası", "hatay kamera sistemleri"), ilçe ("dörtyol / arsuz / payas / belen / antakya kamera"), fiyat ("4 kameralı sistem fiyatı", "ev kamera sistemi fiyatları"), mekân ("dükkan / apartman kamera sistemi"), bilgi ("kamera kaç gün kayıt yapar", "işyerinde kamera KVKK").
+- Hedef yapı: ana sayfa = İskenderun; **hizmet sayfaları** (ev, dükkan/işyeri, fabrika/depo, site/apartman); **ilçe sayfaları** (Arsuz, Dörtyol, Payas, Belen, Antakya); **rehber yazıları** (özellikle "İşyerinde kamera ve KVKK").
+- ⚠️ İlçe sayfaları şablon kopya olursa "doorway page" cezası. Her birinde o ilçeden gerçek iş fotoğrafı ve gerçek bilgi olmalı; gerçek içerik gelince açılacak.
+- [ ] Sık sorulan sorular bölümü (gerçek sorularla; zengin sonuç beklentisi yok ama uzun aramalarda değerli).
+- Fiyat notu: "Fiyat için arayın" fiyat aramalarında dezavantaj; en azından "başlayan fiyatlar" yazmak SEO'ya yardım eder (müşteri kararı).
+
+*3) Google İşletme Profili (alan adı beklemeden, müşterinin kendi Google hesabıyla):*
+- [ ] **Hizmet bölgesi işletmesi** olarak açılış (adres gizli, ilçeler ekli); kategori "Güvenlik sistemi kurulum hizmeti"; doğrulama genelde video ile (iş aracı, ekipman). Claude adım adım rehber hazırlayabilir.
+- [ ] **Yorum stratejisi**: her kurulumdan sonra yorum linkine giden QR kart. Yorum sayısı ve tazeliği harita sıralamasında belirleyici.
+- [ ] Haftada bir yapılan iş fotoğrafı paylaşımı.
+- [ ] **NAP tutarlılığı** (ad, telefon, bölge her yerde birebir aynı): Yandex Haritalar, Apple Business Connect, Bing Places, Instagram, Facebook.
+
+*4) Alan adı alınınca:*
+- Alan adı önerisi: `.com.tr` (artık belgesiz; Türkiye sinyali), örn. `jupiterkamera.com.tr`.
+- [ ] `astro.config.mjs` → `site` = alan adı (noindex otomatik kalkar; canonical, hreflang, sitemap, og otomatik güncellenir)
+- [ ] `*.workers.dev` → alan adı **301 kalıcı yönlendirme**
+- [ ] Google Search Console + Bing Webmaster Tools doğrulama, `sitemap-index.xml` gönderimi
+- [ ] İşletme Profili'ne web sitesi linki
+
+**b) Güvenlik (backend'den önce temel)**
+- [ ] Güvenlik başlıkları: Content-Security-Policy, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy (`public/_headers` veya Worker)
+- [ ] Bağımlılık taraması (`npm audit`), gereksiz paketlerin temizliği
+- [ ] Gizli bilgiler: `.dev.vars` / `wrangler secret` (asla repoya değil)
+
+**c) Veritabanı ve depolama (Cloudflare ücretsiz katman)**
+- [ ] D1 (SQLite): tablolar (iletişim ayarları, paketler, yorumlar, yapılan işler, kampanya); `site.tr.ts`/`site.en.ts` yapısıyla uyumlu (iki dil alanı)
+- [ ] R2: kurulum fotoğrafları; yüklemeden önce tarayıcıda sıkıştırma
+- [ ] `src/lib/data.ts` → D1'den okuyacak (bileşenler değişmez); sayfa statik mi kalır, sunucuda mı üretilir kararı (önbellek stratejisi)
+
+**d) Admin paneli (tek kullanıcı, rol yok)**
+- [ ] Giriş: şifre hash'i (PBKDF2/Argon2), güvenli oturum çerezi (HttpOnly, Secure, SameSite), giriş denemesi sınırlaması, CSRF koruması
+- [ ] Modüller: yapılan işler galerisi, iletişim ayarları, paketler, yorumlar, kampanya şeridi
+- [ ] Değişiklik sonrası sitenin güncellenmesi (yeniden build veya sunucu tarafı okuma)
+
+**e) Sonra**
+- [ ] Ürünler ve Yapılan İşler ayrı sayfaları (gerçek içerik gelince)
+- [ ] Formlar (iletişim/teklif) + gelen mesajlar modülü + spam koruması (Cloudflare Turnstile)
 - [ ] Google Maps (gerekirse)
 
 ### Not: Windows yol sorunu (çözüldü)
