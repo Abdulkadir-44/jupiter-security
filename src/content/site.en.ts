@@ -24,6 +24,7 @@ export const site: SiteContent = {
   },
 
   seo: {
+    ogImage: "/og-en.jpg",
     title: "CCTV Installation in İskenderun | JÜPİTER Security Cameras",
     description:
       "Turnkey CCTV installation for homes, shops, factories and apartments in İskenderun and Hatay. Site visit, equipment, installation and phone setup.",

@@ -245,8 +245,15 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [x] **Title / meta açıklama** (yapıldı): TR "İskenderun Kamera Montajı ve Güvenlik Kamerası | JÜPİTER", EN "CCTV Installation in İskenderun | JÜPİTER Security Cameras"; açıklamalar ~150 karakter.
 - [x] **JSON-LD zenginleştirme** (yapıldı, `src/lib/schema.ts`; açılış saatleri `site.tr.ts` → `contact.openingHours`): `@id`, hizmet listesi (`hasOfferCatalog`), hizmet bölgesi, çalışma saatleri, `priceRange`, `sameAs`, her dilde kendi dilinde. Sahte yorumlarla `Review`/`AggregateRating` EKLENMEZ (Google cezalandırır; yıldızlar İşletme Profili'nden gelir).
 - [x] **404 sayfası** (yapıldı; tasarım `src/components/NotFound.astro`): "Sinyal yok" kamera ekranı + "Burası kör nokta"; ana sayfa / ara / WhatsApp butonları. **Dil adresten belirlenir:** `/` altındaki her bulunamayan adres → Türkçe 404 (`src/pages/404.astro`), `/en/` altındakiler → İngilizce 404 (`src/pages/en/404.astro`). Google'a kapalı, sitemap'te yok. Gerçek 404 durum kodu için `wrangler.jsonc` → `assets.not_found_handling: "404-page"`; `/en/404.html` üretilsin diye `astro.config.mjs` → `build.format: "preserve"` (sitemap'te `/en/` için `serialize`; `trailingSlash: "always"` KULLANILMAZ, dev sunucusunda Astro'nun kendi 404'ünü gösteriyor). İleride çok sayfalı yapıya geçilirse adres yapısı yeniden ele alınacak.
-- [ ] **Lighthouse tekrar ölçümü** (yeşil palet, hero animasyonu JS'e bağlı slogan, `/en/`); gerekirse CSS satır içi.
-- [ ] **İngilizce paylaşım görseli** (`og-en.jpg`).
+- [x] **Lighthouse tekrar ölçümü** (20.11.2026, yerel preview; canlıda tekrar ölçülecek):
+  - Bulunan ve düzeltilen: **CLS 0.41 → 0** (slogan fontu geç yükleniyordu → Big Shoulders latin dosyası `preload`; tarama çubuğu `left` yerine transform ile kayıyor), dil düğmesinin erişilebilir adı "EN"i içermiyordu.
+  - Masaüstü: Performans 96 / Erişilebilirlik 100 / En iyi uygulamalar 100. SEO 69 **beklenen**: noindex yüzünden ("sayfa dizine kapalı"); alan adıyla 100'e döner.
+  - Mobil yerelde 61-71: yerel sunucu dosyaları sıkıştırmıyor (canlıda Cloudflare sıkıştırır), gerçek sayı için canlı ölçüm gerekli.
+- [ ] **Hero sloganını JS'siz (saf CSS) animasyona çevirmek** (öneri): şu an slogan React + Framer Motion ile sayfa açılır açılmaz ~200 KB JS yüklüyor; mobilde ilk görüntüyü ve etkileşimi geciktiriyor. Aynı görünüm CSS ile yapılabilir, slogan JS beklemeden görünür.
+- [x] **İngilizce paylaşım görseli** (`public/og-en.jpg`, "WE LEAVE NO / BLIND SPOTS"); dil başına görsel `site.*.ts` → `seo.ogImage`.
+- [x] **favicon.ico** (16/32/48 px, `public/favicon.ico`; eski tarayıcılar ve bazı araçlar için, SVG ikon da duruyor).
+- [ ] **Gizlilik / KVKK aydınlatma metni** sayfası + footer linki (gerçek firma unvanı ve iletişim bilgisi gelince; yayından önce müşterinin muhasebeci/avukatına gösterilmeli). Kullanım koşulları: form/admin paneli gelince.
+- Kontrol listesi (20 madde, 20.11.2026): 12 tamam; form gelince yapılacak 3 (yükleme durumu, form hataları, teşekkür sayfası); çerez banner'ı gerekmiyor (site çerez kullanmıyor; Google Analytics eklenirse gerekir).
 - [ ] **Cloudflare Web Analytics** (ücretsiz, çerezsiz, KVKK dostu): ziyaret + "Ara"/"WhatsApp" tıklamaları.
 
 *2) Anahtar kelimeler ve site yapısı (gerçek içerikle birlikte):*

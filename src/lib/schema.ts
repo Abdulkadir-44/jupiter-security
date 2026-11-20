@@ -97,7 +97,7 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
     inLanguage: s.locale.numberLocale,
     isPartOf: { "@id": websiteId },
     about: { "@id": businessId },
-    primaryImageOfPage: { "@type": "ImageObject", url: new URL("/og.jpg", site).href, width: 1200, height: 630 },
+    primaryImageOfPage: { "@type": "ImageObject", url: new URL(s.seo.ogImage, site).href, width: 1200, height: 630 },
   };
 
   return { "@context": "https://schema.org", "@graph": [business, website, webpage] };

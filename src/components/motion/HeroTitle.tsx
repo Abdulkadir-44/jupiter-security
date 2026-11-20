@@ -76,14 +76,17 @@ export default function HeroTitle({ lines }: { lines: string[] }) {
             {ch === " " ? " " : ch}
           </motion.span>
         ))}
-        {/* Tarama çubuğu */}
+        {/*
+          Tarama çubuğu. Satır genişliğindeki görünmez bir kutu transform (x: 0% → 100%) ile kayar;
+          `left` animasyonu her karede düzen kayması (CLS) sayıldığı için kullanılmaz.
+        */}
         <motion.span
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-y-[0.06em] w-[3px] rounded-full bg-teal-soft shadow-[0_0_18px_4px_color-mix(in_srgb,var(--color-teal)_75%,transparent)]"
-          initial={{ left: "0%", opacity: 0 }}
-          animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
+          className="pointer-events-none absolute -inset-y-[0.06em] inset-x-0"
+          initial={{ x: "0%", opacity: 0 }}
+          animate={{ x: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
           transition={{
-            left: { duration: SCAN_DURATION, ease: "linear", delay: SCAN_START, repeat: Infinity, repeatDelay: 5 },
+            x: { duration: SCAN_DURATION, ease: "linear", delay: SCAN_START, repeat: Infinity, repeatDelay: 5 },
             opacity: {
               duration: SCAN_DURATION,
               times: [0, 0.08, 0.9, 1],
@@ -92,7 +95,9 @@ export default function HeroTitle({ lines }: { lines: string[] }) {
               repeatDelay: 5,
             },
           }}
-        />
+        >
+          <span className="absolute inset-y-0 left-0 w-[3px] rounded-full bg-teal-soft shadow-[0_0_18px_4px_color-mix(in_srgb,var(--color-teal)_75%,transparent)]" />
+        </motion.span>
       </span>
 
       {/* Vizör köşelikleri */}

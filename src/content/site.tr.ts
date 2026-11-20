@@ -58,6 +58,8 @@ export interface SiteContent {
   seo: {
     title: string;
     description: string;
+    /** Paylaşım görseli (public/ içinde, 1200x630) */
+    ogImage: string;
   };
   nav: { label: string; href: string; soon?: boolean }[];
   hero: {
@@ -212,6 +214,7 @@ export const site: SiteContent = {
   },
 
   seo: {
+    ogImage: "/og.jpg",
     title: "İskenderun Kamera Montajı ve Güvenlik Kamerası | JÜPİTER",
     description:
       "İskenderun ve Hatay'da ev, dükkan, fabrika ve siteler için anahtar teslim güvenlik kamerası montajı. Keşif, malzeme, kurulum ve telefondan izleme tek elden.",

@@ -2,6 +2,9 @@
 import "@/styles/global.css";
 import { defaultLocale, getSiteContent, localePath, locales } from "@/lib/data";
 import { buildJsonLd } from "@/lib/schema";
+// Hero sloganının yazı tipi önceden yüklenir: geç gelirse slogan boyut değiştirip hero'yu kaydırıyor (CLS).
+// Sadece latin alt kümesi ("KÖR NOKTA BIRAKMIYORUZ" ve İngilizce slogan bununla çiziliyor).
+import bigShouldersLatin from "@fontsource-variable/big-shoulders/files/big-shoulders-latin-opsz-normal.woff2?url";
 
 interface Props {
   /** Sayfa başlığı (verilmezse ana sayfa SEO başlığı) */
@@ -16,8 +19,8 @@ const { title, utility = false } = Astro.props;
 
 const s = getSiteContent(Astro.currentLocale);
 const canonical = new URL(Astro.url.pathname, Astro.site);
-// Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi): public/og.jpg, 1200x630
-const ogImage = new URL("/og.jpg", Astro.site).href;
+// Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi), dile göre: public/og.jpg, public/og-en.jpg (1200x630)
+const ogImage = new URL(s.seo.ogImage, Astro.site).href;
 const ogAlt = s.ui.ogImageAlt;
 
 // SEO: Geçici adreste (*.workers.dev) site Google'a KAPALI (noindex). İçerik henüz yer tutucu
@@ -40,6 +43,8 @@ const jsonLd = buildJsonLd(s, Astro.site!, canonical);
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title ?? s.seo.title}</title>
+    <link rel="preload" as="font" type="font/woff2" href={bigShouldersLatin} crossorigin />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#2b3828" />
