@@ -17,10 +17,10 @@ const p = getSiteContent().process;
       Mobil/tablet (lg altı): her adım ayrı kart, sırayla sola/sağa yatık ve kaydırılmış.
       Masaüstü (lg): eski düzen, 5 sütun ve ince ayırıcı çizgiler (max-lg: ile ayrıldı).
     -->
-    <ol class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-0 lg:border-t lg:border-ink/15">
+    <ol data-steps class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-0 lg:border-t lg:border-ink/15">
       {
         p.steps.map((st, i) => (
-          <li class="grid grid-cols-[3.25rem_1fr] gap-x-4 max-lg:rounded-[1.25rem] max-lg:bg-paper max-lg:p-5 max-lg:shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] max-lg:ring-1 max-lg:ring-ink/10 max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg] lg:block lg:border-l lg:border-ink/15 lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
+          <li style={`--drop-rot:${i % 2 ? 10 : -10}deg`} class="grid grid-cols-[3.25rem_1fr] gap-x-4 max-lg:rounded-[1.25rem] max-lg:bg-paper max-lg:p-5 max-lg:shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] max-lg:ring-1 max-lg:ring-ink/10 max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg] lg:block lg:border-l lg:border-ink/15 lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
             <span class="font-tall text-[3rem] leading-none text-teal-ink lg:text-[4rem]">{i + 1}</span>
             <div class="lg:mt-8">
               <h3 class="flex items-center gap-2 text-[1.15rem] font-semibold">
@@ -35,3 +35,48 @@ const p = getSiteContent().process;
     </ol>
   </div>
 </section>
+
+<style>
+  /*
+   * Mobil/tablet: kartlar kaydırınca yukarıdan düşüp yatık hâline yaylanarak oturur.
+   * data-drop sadece JS çalışınca eklenir (JS yoksa kartlar normal görünür).
+   */
+  @media (width < 64rem) and (prefers-reduced-motion: no-preference) {
+    [data-drop] > li {
+      transition:
+        translate 0.75s cubic-bezier(0.34, 1.56, 0.64, 1),
+        rotate 0.75s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s ease-out;
+    }
+    [data-drop] > li:not(.is-in) {
+      opacity: 0;
+      translate: 0 -4rem;
+      rotate: var(--drop-rot);
+    }
+  }
+</style>
+
+<script>
+  const list = document.querySelector<HTMLElement>("[data-steps]");
+  const mobile = matchMedia("(width < 64rem)").matches;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (list && mobile && !reduced && "IntersectionObserver" in window) {
+    const cards = [...list.querySelectorAll<HTMLElement>(":scope > li")];
+    // Sayfa açıldığında zaten geçilmiş (ekranın üstünde kalmış) kartları gizleme
+    cards.forEach((c) => c.getBoundingClientRect().bottom < 0 && c.classList.add("is-in"));
+    list.setAttribute("data-drop", "");
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add("is-in");
+          io.unobserve(e.target);
+        }
+      },
+      { rootMargin: "0px 0px -15% 0px", threshold: 0.2 },
+    );
+    cards.forEach((c) => io.observe(c));
+  }
+</script>
