@@ -153,13 +153,23 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 - **Müşterilerimiz ne diyor** (`src/components/motion/ReviewsMotion.tsx`): kartlar sağdan/soldan yaylanarak gelir, alıntılar kelime kelime belirir, 850+ kartı dairesel açılır ve sayar, fareyle 3D eğilme.
 - **Hazır paketler** (`src/components/motion/PackagesMotion.tsx`): kartlar aşağıdan yükselir, kamera sayıları kayarak gelir, tikler çizilerek belirir, öne çıkan pakette parlama, fareyi takip eden ışık.
 
-## Durum (20.11.2026): Mobil düzenlemeler ✅ (GitHub'a gönderildi, henüz yayına alınmadı)
+## Durum (20.11.2026): Mobil düzenlemeler ✅ (yayında)
 - **Kenar boşluğu:** mobilde tüm içerik ekran kenarından 32px içeride (`wrap` = 2rem; panel içinde 0.5rem margin + 1.5rem padding). Masaüstü değişmedi.
 - **Hero:** başlık mobilde küçültüldü (`clamp(3rem,15vw,4.5rem)`, 320px'te bile taşmıyor); Bölge/Hizmet/Destek mobilde ortalı.
 - **Footer:** panel değil, tam genişlik ve köşesiz; mobilde içerik ortalı.
 - **Kullanım alanları sekmeleri:** mobilde 2×2 ızgara (yatay kaydırma kaldırıldı), küçük yazı/buton; masaüstünde dikey liste aynı.
-- **Önerilen kamera kutusu → NVR kanal ızgarası** (`UseCaseTabs.tsx` içinde `ChannelGrid`): 32 kanallık ızgarada alt sınır dolu turkuaz, üst sınıra kadar "ihtiyaca göre" çerçeveli; sekme değişince kanallar sırayla yanar, tarama çizgisi geçer. Aralık `site.tr.ts` → `cameras` ("2–4 kamera") alanından okunur.
+- **Önerilen kamera kutusu → NVR kanal ızgarası** (`UseCaseTabs.tsx` içinde `ChannelGrid`): 32 kanallık ızgarada alt sınır dolu sarı, üst sınıra kadar "ihtiyaca göre" çerçeveli; sekme değişince kanallar sırayla yanar, tarama çizgisi geçer. Aralık `site.tr.ts` → `cameras` ("2–4 kamera") alanından okunur.
 - Kontrol: Playwright ile 320 / 390 / 1440px, yatay taşma yok. Yayına almak için: `npm run deploy`.
+
+## Durum (20.11.2026): Yeni palet ve son düzenlemeler ✅ (yayında)
+- **Palet: adaçayı yeşili** (kullanıcı onayladı, "eski mavi halinden daha iyi"). Kullanıcının renkleri: #5C7057 #89A482 #ACC5A6 #D1EDD3; koyu tonlar #5C7057'den türetildi (#2B3828 zemin, #364633 kart, #1A2418 koyu metin). Token adları (navy, teal, cream) eskisi gibi, değerleri yeşil. Tüm renkler `src/styles/global.css` `@theme` içinde; bileşenlerde sabit renk kodu yok.
+- **Sarı vurgu `sun` #E8C872:** "çalışan kamera" rengi. Kamera planındaki ışık konileri ve NVR kanal ızgarası. NVR kutusu koyu ekran görünümünde.
+- **Hero sloganı animasyonu** (`src/components/motion/HeroTitle.tsx`): "KÖR NOKTA" harfleri bulanıktan netleşir, "BIRAKMIYORUZ" tarama çubuğuyla açılır (6 sn'de bir tekrar geçer), köşelere vizör çerçevesi oturur.
+- **Masaüstü:** paneller (süreç, paketler, yapılan işler) kenardan kenara ve köşesiz; kapanış başlığı ve footer logosu küçültüldü, logo ortalı.
+- **"Nasıl çalışıyoruz" mobil/tablet:** her adım ayrı kart, sırayla sola/sağa yatık; kaydırınca yukarıdan düşüp yaylanarak oturur (hafif script + CSS, `Process.astro`). Masaüstü aynı.
+- **İçerik:** süreç adımı "Montaj ve kablolama" → "Montaj" (kullanıcı değiştirdi).
+- **og.jpg** ve **apple-touch-icon.png** yeşil palette yeniden üretildi.
+- Geri dönüş noktaları: mavi palet `bd4b283`, yeşil palet ilk hali `4bc8bb7`.
 
 ## Sıradaki adımlar (önerilen sıra)
 
@@ -188,7 +198,7 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [x] SEO: sitemap (`@astrojs/sitemap`), `robots.txt`, paylaşım görseli `public/og.jpg` (1200x630), Open Graph + X etiketleri, apple-touch-icon. Alan adı gelince sadece `astro.config.mjs` → `site` değişecek; hepsi otomatik güncellenir.
 - [x] Lighthouse (20.11.2026, canlı site): Mobil Performans 97 / Erişilebilirlik 100 / En iyi uygulamalar 100 / SEO 100. Masaüstü 100/100/100/100. Mobil LCP 1.7 sn, CLS 0.
 - [x] Mobil görünüm düzeltmeleri (kenar boşlukları, hero, footer, sekmeler); Playwright ile 320/390px kontrol
-- [ ] Mobil düzeltmelerin yayına alınması (`npm run deploy`)
+- [x] Mobil düzeltmelerin ve yeni paletin yayına alınması
 - [ ] Gerçek telefonda test (iPhone + Android)
 - [ ] Google İşletme Profili (gezici işletme için "hizmet bölgesi" olarak açılabilir; yerel aramalarda çok etkili)
 - [ ] Google Search Console: alan adı bağlanınca site doğrulanıp `sitemap-index.xml` gönderilecek
@@ -199,7 +209,10 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [ ] Backend: Cloudflare D1 (veritabanı) + R2 (fotoğraf depolama)
 - [ ] Admin paneli (tek kullanıcı): yapılan işler galerisi, iletişim ayarları, ürün/paketler, yorumlar, kampanya
 - [ ] Formlar (iletişim/teklif) + gelen mesajlar modülü
-- [ ] Çoklu dil (Arapça / İngilizce), Google Maps (gerekirse)
+- [x] İngilizce dil desteği (`/en/`): içerik `src/content/site.en.ts`, iletişim bilgileri Türkçe dosyadan paylaşılır; header'da TR/EN düğmesi; hreflang + sitemap dil etiketleri. Yeni dil = yeni `site.xx.ts` + `src/lib/data.ts` ve `astro.config.mjs` dil listesi + `src/pages/xx/index.astro`.
+- [ ] Arapça (şimdilik istenmiyor; sağdan sola düzen ve Arapça font gerekir)
+- [ ] Açık/koyu tema seçeneği (karar bekliyor)
+- [ ] Google Maps (gerekirse)
 
 ### Not: Windows yol sorunu (çözüldü)
 Proje küçük harfli sürücüyle (`c:\...`, VS Code bazen böyle açıyor) açıldığında Vite, build'deki HTML'e CSS bağlantısı eklemiyordu; canlı site stilsiz görünüyordu. `scripts/astro.mjs` sarmalayıcısı sürücü harfini büyütüp Astro'yu öyle başlatıyor; `npm run dev/build/preview/deploy` bu sarmalayıcıyı kullanır. `npx astro ...` yerine her zaman `npm run ...` kullanın.

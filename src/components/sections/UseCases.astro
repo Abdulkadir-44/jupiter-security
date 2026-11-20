@@ -2,7 +2,9 @@
 import UseCaseTabs from "@/components/motion/UseCaseTabs";
 import { getSiteContent } from "@/lib/data";
 
-const u = getSiteContent().useCases;
+const s = getSiteContent(Astro.currentLocale);
+const u = s.useCases;
+const labels = { tabs: s.ui.useCasesTabs, recommended: s.ui.recommended, base: s.ui.baseSetup, optional: s.ui.optionalSetup };
 ---
 
 <section id="alanlar" aria-labelledby="alanlar-baslik" class="border-t border-paper/10">
@@ -12,7 +14,7 @@ const u = getSiteContent().useCases;
       <p class="max-w-[42ch] text-[1.1rem] text-mist">{u.lead}</p>
     </div>
     <div class="mt-12 md:mt-16">
-      <UseCaseTabs client:visible items={u.items} />
+      <UseCaseTabs client:visible items={u.items} labels={labels} />
     </div>
   </div>
 </section>

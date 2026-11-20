@@ -22,6 +22,18 @@ export type IconName =
   | "building";
 
 export interface SiteContent {
+  /** Dil bilgisi (html lang, paylaşım dili, dil değiştirici) */
+  locale: {
+    lang: "tr" | "en";
+    /** Open Graph dili, örn. tr_TR */
+    ogLocale: string;
+    /** Sayı biçimi, örn. tr-TR */
+    numberLocale: string;
+    /** Kısa ad (diğer dildeki sayfanın dil değiştiricisinde görünür) */
+    short: string;
+    /** Dilin kendi adı, örn. "Türkçe" */
+    name: string;
+  };
   brand: {
     name: string;
     fullName: string;
@@ -141,10 +153,31 @@ export interface SiteContent {
     whatsappFloat: string;
     askPackage: string;
     skipToContent: string;
+    /** Logo linki için ekran okuyucu metni ("sayfa başı") */
+    backToTop: string;
+    mainNav: string;
+    mobileNav: string;
+    /** Dil değiştirici linkinin ekran okuyucu metni (diğer dile geçiş) */
+    switchLanguage: string;
+    useCasesTabs: string;
+    campaign: string;
+    footerMenu: string;
+    footerContact: string;
+    footerSocial: string;
+    /** NVR kanal kutusu */
+    recommended: string;
+    baseSetup: string;
+    optionalSetup: string;
+    /** WhatsApp mesaj şablonları: {name}, {cameras}, {text} değişir */
+    packageMessage: string;
+    campaignMessage: string;
+    ogImageAlt: string;
   };
 }
 
 export const site: SiteContent = {
+  locale: { lang: "tr", ogLocale: "tr_TR", numberLocale: "tr-TR", short: "TR", name: "Türkçe" },
+
   brand: {
     name: "JÜPİTER",
     fullName: "JÜPİTER Kamera Güvenlik Sistemleri",
@@ -218,7 +251,7 @@ export const site: SiteContent = {
       },
       {
         icon: "wrench",
-        title: "Montaj ve kablolama",
+        title: "Montaj",
         text: "Kabloları düzgünce gizler, kameraları sağlam şekilde sabitler, açıları tek tek ayarlarız.",
       },
       {
@@ -406,5 +439,20 @@ export const site: SiteContent = {
     whatsappFloat: "WhatsApp'tan yazın",
     askPackage: "Bu paketi sor",
     skipToContent: "İçeriğe geç",
+    backToTop: "sayfa başı",
+    mainNav: "Ana menü",
+    mobileNav: "Mobil menü",
+    switchLanguage: "Sayfanın İngilizce sürümü",
+    useCasesTabs: "Kullanım alanları",
+    campaign: "Kampanya",
+    footerMenu: "Menü",
+    footerContact: "İletişim",
+    footerSocial: "Sosyal",
+    recommended: "Önerilen",
+    baseSetup: "Temel kurulum",
+    optionalSetup: "İhtiyaca göre",
+    packageMessage: 'Merhaba, "{name}" paketi ({cameras}) hakkında bilgi almak istiyorum.',
+    campaignMessage: "Merhaba, kampanya hakkında bilgi almak istiyorum: {text}",
+    ogImageAlt: "JÜPİTER Kamera Güvenlik Sistemleri: Kör nokta bırakmıyoruz",
   },
 };

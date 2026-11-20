@@ -2,7 +2,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const w = s.work;
 ---
 

@@ -3,7 +3,7 @@ import Logo from "@/components/Logo.astro";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const year = new Date().getFullYear();
 ---
 
@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
   <div class="wrap pt-14 pb-8 md:pt-20">
     <div class="grid gap-10 text-center md:grid-cols-3 md:text-left">
       <div>
-        <p class="text-sm text-ink-soft">Menü</p>
+        <p class="text-sm text-ink-soft">{s.ui.footerMenu}</p>
         <ul class="mt-4 grid gap-2.5">
           {
             s.nav.map((n) => (
@@ -25,7 +25,7 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <p class="text-sm text-ink-soft">İletişim</p>
+        <p class="text-sm text-ink-soft">{s.ui.footerContact}</p>
         <ul class="mt-4 grid gap-2.5">
           <li>
             <a href={telHref(s.contact)} class="font-medium tabular-nums hover:text-teal-ink">{s.contact.phoneDisplay}</a>
@@ -35,7 +35,7 @@ const year = new Date().getFullYear();
         </ul>
       </div>
       <div>
-        <p class="text-sm text-ink-soft">Sosyal</p>
+        <p class="text-sm text-ink-soft">{s.ui.footerSocial}</p>
         <ul class="mt-4 grid gap-2.5">
           <li>
             <a href={whatsappHref(s.contact)} target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-medium hover:text-teal-ink">

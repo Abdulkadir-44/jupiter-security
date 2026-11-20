@@ -2,7 +2,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { getSiteContent } from "@/lib/data";
 
-const p = getSiteContent().process;
+const p = getSiteContent(Astro.currentLocale).process;
 ---
 
 <section id="surec" aria-labelledby="surec-baslik" class="panel bg-cream text-ink">

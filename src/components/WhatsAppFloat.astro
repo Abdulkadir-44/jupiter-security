@@ -2,7 +2,7 @@
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 ---
 
 <a

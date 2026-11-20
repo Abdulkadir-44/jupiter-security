@@ -1,7 +1,7 @@
 ---
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 ---
 
 <section aria-label={s.contactSection.areasTitle} class="bg-navy">

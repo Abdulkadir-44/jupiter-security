@@ -3,7 +3,7 @@ import { Clock, Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const c = s.closing;
 ---
 

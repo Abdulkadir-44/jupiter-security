@@ -1,9 +1,15 @@
 ---
-import { Menu, X } from "lucide-react";
+import { Globe, Menu, X } from "lucide-react";
 import Logo from "@/components/Logo.astro";
-import { getSiteContent, telHref } from "@/lib/data";
+import { getSiteContent, localePath, otherLocales, telHref } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
+// Dil değiştirici: diğer dilin ana sayfasına gider (şimdilik tek sayfa olduğu için)
+const langs = otherLocales(Astro.currentLocale).map((l) => ({
+  href: localePath(l),
+  short: getSiteContent(l).locale.short,
+  lang: l,
+}));
 ---
 
 <!--
@@ -13,11 +19,11 @@ const s = getSiteContent();
 -->
 <header id="site-header" data-compact="false" class="site-header fixed inset-x-0 top-0 z-50 px-2 md:px-3 lg:px-0">
   <div class="nav-bar mx-auto flex items-center justify-between gap-6">
-    <a href="#top" aria-label={`${s.brand.fullName}, sayfa başı`} class="nav-logo rounded-md">
+    <a href="#top" aria-label={`${s.brand.fullName}, ${s.ui.backToTop}`} class="nav-logo rounded-md">
       <Logo />
     </a>
 
-    <nav aria-label="Ana menü" class="hidden lg:block">
+    <nav aria-label={s.ui.mainNav} class="hidden lg:block">
       <ul class="flex items-center gap-1">
         {
           s.nav.map((n) => (
@@ -32,6 +38,19 @@ const s = getSiteContent();
     </nav>
 
     <div class="flex items-center gap-2">
+      {
+        langs.map((l) => (
+          <a
+            href={l.href}
+            hreflang={l.lang}
+            aria-label={s.ui.switchLanguage}
+            class="inline-flex h-11 items-center gap-1.5 rounded-full border border-paper/20 px-3.5 text-[13px] font-semibold tracking-wide text-paper transition-colors duration-200 hover:border-paper/50 hover:bg-paper/10"
+          >
+            <Globe className="size-4" strokeWidth={1.8} aria-hidden="true" />
+            {l.short}
+          </a>
+        ))
+      }
       <a href={telHref(s.contact)} class="nav-cta">
         <span>{s.hero.primaryCta}</span>
         <svg class="nav-cta-arrow size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
@@ -54,7 +73,7 @@ const s = getSiteContent();
   </div>
 
   <div id="mobile-menu" hidden class="mx-auto mt-2 max-w-[1040px] rounded-[1.5rem] bg-navy/95 p-5 shadow-2xl ring-1 ring-paper/10 backdrop-blur-md lg:hidden">
-    <nav aria-label="Mobil menü">
+    <nav aria-label={s.ui.mobileNav}>
       <ul class="grid">
         {
           s.nav.map((n) => (

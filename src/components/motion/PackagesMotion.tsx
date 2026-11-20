@@ -1,7 +1,7 @@
 import { useState, type MouseEvent } from "react";
 import { motion, useMotionTemplate, useMotionValue, useReducedMotion, type Variants } from "motion/react";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
-import { whatsappHref } from "@/lib/data";
+import { fill, whatsappHref } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import type { SiteContent } from "@/content/site.tr";
 
@@ -34,12 +34,14 @@ function PackageCard({
   reduced,
   contact,
   askLabel,
+  message,
 }: {
   it: Pkg;
   index: number;
   reduced: boolean;
   contact: SiteContent["contact"];
   askLabel: string;
+  message: string;
 }) {
   const featured = !!it.featured;
   const [seen, setSeen] = useState(reduced);
@@ -181,7 +183,7 @@ function PackageCard({
 
         <p className={cn("relative mt-8 text-sm", featured ? "text-mist" : "text-ink-soft")}>{it.price}</p>
         <motion.a
-          href={whatsappHref(contact, 'Merhaba, "' + it.name + '" paketi (' + it.cameras + ") hakkında bilgi almak istiyorum.")}
+          href={whatsappHref(contact, message)}
           target="_blank"
           rel="noopener"
           whileHover={reduced ? undefined : { scale: 1.03 }}
@@ -203,16 +205,22 @@ export default function PackagesMotion({
   items,
   contact,
   askLabel,
+  messageTemplate,
 }: {
   items: Pkg[];
   contact: SiteContent["contact"];
   askLabel: string;
+  /** WhatsApp mesaj şablonu: {name} ve {cameras} paket bilgisiyle değişir */
+  messageTemplate: string;
 }) {
   const reduced = useReducedMotion() ?? false;
   return (
     <ul className="mt-12 grid gap-4 md:mt-16 lg:grid-cols-3 lg:items-stretch">
       {items.map((it, i) => (
-        <PackageCard key={it.name} it={it} index={i} reduced={reduced} contact={contact} askLabel={askLabel} />
+        <PackageCard key={it.name} it={it} index={i} reduced={reduced} contact={contact}
+          askLabel={askLabel}
+          message={fill(messageTemplate, { name: it.name, cameras: it.cameras })}
+        />
       ))}
     </ul>
   );

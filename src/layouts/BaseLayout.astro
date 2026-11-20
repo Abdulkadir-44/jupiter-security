@@ -1,12 +1,17 @@
 ---
 import "@/styles/global.css";
-import { getSiteContent } from "@/lib/data";
+import { defaultLocale, getSiteContent, localePath, locales } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi): public/og.jpg, 1200x630
 const ogImage = new URL("/og.jpg", Astro.site).href;
-const ogAlt = "JÜPİTER Kamera Güvenlik Sistemleri: Kör nokta bırakmıyoruz";
+const ogAlt = s.ui.ogImageAlt;
+
+// Dil sürümleri: Google'a aynı sayfanın diğer dillerini bildirir (hreflang)
+const alternates = locales.map((l) => ({ lang: l, href: new URL(localePath(l), Astro.site).href }));
+const xDefault = new URL(localePath(defaultLocale), Astro.site).href;
+const otherOgLocales = locales.filter((l) => l !== s.locale.lang).map((l) => getSiteContent(l).locale.ogLocale);
 
 // Yerel işletme yapılandırılmış verisi (Google için)
 const jsonLd = {
@@ -25,7 +30,7 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="tr">
+<html lang={s.locale.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -34,13 +39,16 @@ const jsonLd = {
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#2b3828" />
     <meta name="robots" content="index, follow" />
 
     <!-- Paylaşım önizlemesi (Open Graph: WhatsApp, Facebook, LinkedIn) -->
     <meta property="og:type" content="website" />
-    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:locale" content={s.locale.ogLocale} />
+    {otherOgLocales.map((l) => <meta property="og:locale:alternate" content={l} />)}
     <meta property="og:site_name" content={s.brand.fullName} />
     <meta property="og:title" content={s.seo.title} />
     <meta property="og:description" content={s.seo.description} />

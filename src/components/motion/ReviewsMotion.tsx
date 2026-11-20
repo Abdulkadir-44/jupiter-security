@@ -122,12 +122,12 @@ function ReviewCard({ item, index, reduced }: { item: Reviews["items"][number]; 
 }
 
 /** "850+" gibi değerleri sayarak gösterir */
-function CountUp({ value, reduced, play }: { value: string; reduced: boolean; play: boolean }) {
+function CountUp({ value, reduced, play, locale }: { value: string; reduced: boolean; play: boolean; locale: string }) {
   const match = value.match(/^(\d+)(.*)$/);
   const target = match ? Number(match[1]) : 0;
   const suffix = match ? match[2] : value;
   const n = useMotionValue(reduced || !match ? target : 0);
-  const text = useTransform(n, (v) => Math.round(v).toLocaleString("tr-TR"));
+  const text = useTransform(n, (v) => Math.round(v).toLocaleString(locale));
 
   useEffect(() => {
     if (!play || reduced || !match) return;
@@ -154,7 +154,17 @@ function CountUp({ value, reduced, play }: { value: string; reduced: boolean; pl
   );
 }
 
-function StatCard({ stat, reduced, index }: { stat: Reviews["stat"]; reduced: boolean; index: number }) {
+function StatCard({
+  stat,
+  reduced,
+  index,
+  locale,
+}: {
+  stat: Reviews["stat"];
+  reduced: boolean;
+  index: number;
+  locale: string;
+}) {
   const [seen, setSeen] = useState(reduced);
   return (
     <motion.li
@@ -184,7 +194,7 @@ function StatCard({ stat, reduced, index }: { stat: Reviews["stat"]; reduced: bo
           <circle cx="100" cy="100" r="44" fill="currentColor" />
         </motion.svg>
         <p className="relative font-tall text-[clamp(5rem,12vw,8.5rem)]">
-          <CountUp value={stat.value} reduced={reduced} play={seen} />
+          <CountUp value={stat.value} reduced={reduced} play={seen} locale={locale} />
         </p>
         <motion.p
           className="relative max-w-[34ch] text-[1.05rem] font-medium"
@@ -199,7 +209,7 @@ function StatCard({ stat, reduced, index }: { stat: Reviews["stat"]; reduced: bo
   );
 }
 
-export default function ReviewsMotion({ reviews }: { reviews: Reviews }) {
+export default function ReviewsMotion({ reviews, numberLocale }: { reviews: Reviews; numberLocale: string }) {
   const reduced = useReducedMotion() ?? false;
   const items = reviews.items.slice(0, 3);
 
@@ -208,7 +218,7 @@ export default function ReviewsMotion({ reviews }: { reviews: Reviews }) {
       {items.map((it, i) => (
         <ReviewCard key={it.name} item={it} index={i} reduced={reduced} />
       ))}
-      <StatCard stat={reviews.stat} reduced={reduced} index={items.length} />
+      <StatCard stat={reviews.stat} reduced={reduced} index={items.length} locale={numberLocale} />
     </ul>
   );
 }

@@ -10,7 +10,7 @@ import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
  * Fotoğraf: Unsplash (ücretsiz Unsplash lisansı), "Security cameras mounted on a pole against clouds"
  * https://unsplash.com/photos/8fLnkZ8Y0eM
  */
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const h = s.hero;
 ---
 
@@ -54,10 +54,10 @@ const h = s.hero;
 
       <div class="lg:max-w-[26rem]">
         <p class="text-[1.1rem] text-paper/90">{h.lead}</p>
-        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
             href={telHref(s.contact)}
-            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-paper px-6 font-semibold text-ink transition-colors duration-200 hover:bg-cream-2"
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-paper px-6 whitespace-nowrap font-semibold text-ink transition-colors duration-200 hover:bg-cream-2"
           >
             <Phone className="size-[1.05rem] text-teal-ink" strokeWidth={2.4} aria-hidden="true" />
             {h.primaryCta}
@@ -66,7 +66,7 @@ const h = s.hero;
             href={whatsappHref(s.contact)}
             target="_blank"
             rel="noopener"
-            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold text-paper transition-colors duration-200 hover:border-paper hover:bg-paper/10"
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 whitespace-nowrap font-semibold text-paper transition-colors duration-200 hover:border-paper hover:bg-paper/10"
           >
             <WhatsAppIcon className="size-[1.1rem]" />
             {h.secondaryCta}

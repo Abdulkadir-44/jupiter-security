@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import type { SiteContent } from "@/content/site.tr";
 
 type Item = SiteContent["useCases"]["items"][number];
+/** Arayüz metinleri (dile göre içerik dosyasından gelir) */
+type Labels = { tabs: string; recommended: string; base: string; optional: string };
 
 const CHANNELS = 32; // Ölçek tüm sekmelerde aynı: alanlar birbiriyle kıyaslanabilsin
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -14,7 +16,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  * Kayıt cihazı (NVR) kanal ızgarası: önerilen kamera aralığını gösterir.
  * Alt sınıra kadar kanallar dolu yanar, üst sınıra kadar olanlar "ihtiyaca göre" (çerçeveli).
  */
-function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: string; reduced: boolean }) {
+function ChannelGrid({ cameras, labels, reduced }: { cameras: string; labels: Labels; reduced: boolean }) {
   const m = cameras.match(/^(\d+)\D+(\d+)\s*(.*)$/);
   const min = m ? Number(m[1]) : 0;
   const max = m ? Number(m[2]) : 0;
@@ -36,7 +38,7 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
         <span>CH 01–{String(max).padStart(2, "0")}</span>
       </div>
 
-      <p className="mt-4 text-sm text-mist">{label}</p>
+      <p className="mt-4 text-sm text-mist">{labels.recommended}</p>
       <p className="mt-0.5 flex items-baseline gap-2 overflow-hidden">
         <motion.span
           className="font-tall text-[3.25rem] leading-[0.9] text-paper"
@@ -91,10 +93,10 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
       {/* Açıklama */}
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-mist">
         <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-[3px] bg-sun" /> Temel kurulum
+          <span className="size-2.5 rounded-[3px] bg-sun" /> {labels.base}
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-[3px] border border-sun/60 bg-sun/10" /> İhtiyaca göre
+          <span className="size-2.5 rounded-[3px] border border-sun/60 bg-sun/10" /> {labels.optional}
         </span>
       </div>
     </div>
@@ -102,7 +104,7 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
 }
 
 /** Kullanım alanları: erişilebilir sekme yapısı (ok tuşlarıyla gezilebilir). */
-export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { items: Item[]; camerasLabel?: string }) {
+export default function UseCaseTabs({ items, labels }: { items: Item[]; labels: Labels }) {
   const [active, setActive] = useState(0);
   const reduced = useReducedMotion() ?? false;
   const baseId = useId();
@@ -125,7 +127,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
     <div className="grid gap-6 lg:grid-cols-[18rem_1fr] lg:gap-10">
       <div
         role="tablist"
-        aria-label="Kullanım alanları"
+        aria-label={labels.tabs}
         onKeyDown={onKey}
         className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:flex-col lg:flex-nowrap"
       >
@@ -191,7 +193,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
                 ))}
               </ul>
             </div>
-            <ChannelGrid cameras={current.cameras} label={camerasLabel} reduced={reduced} />
+            <ChannelGrid cameras={current.cameras} labels={labels} reduced={reduced} />
           </motion.div>
         </AnimatePresence>
       </div>

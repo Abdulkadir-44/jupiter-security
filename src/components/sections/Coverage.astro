@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import CoverageScene from "@/components/motion/CoverageScene";
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent();
+const s = getSiteContent(Astro.currentLocale);
 const c = s.coverage;
 const scene = s.hero.scene;
 ---
