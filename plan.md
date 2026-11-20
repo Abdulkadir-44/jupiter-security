@@ -279,7 +279,9 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [ ] İşletme Profili'ne web sitesi linki
 
 **b) Güvenlik (backend'den önce temel)**
-- [ ] Güvenlik başlıkları: Content-Security-Policy, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy (`public/_headers` veya Worker)
+- [x] **Güvenlik başlıkları** (yapıldı): Content-Security-Policy `astro.config.mjs` → `security.csp` (Astro her sayfaya `<meta>` ekler, kendi satır içi scriptlerini otomatik hash'ler; izinli dış kaynak sadece Cloudflare Web Analytics). Diğerleri `public/_headers`: HSTS, X-Content-Type-Options, X-Frame-Options + frame-ancestors, Referrer-Policy, Permissions-Policy, COOP. Tarayıcıda test edildi, CSP ihlali yok.
+  - ⚠️ **Yeni bir dış kaynak eklenirse** (Google Fonts, harita, YouTube, dış görsel, form servisi vb.) `security.csp` içine izin eklenmeli, yoksa tarayıcı engeller.
+  - Not: CSP `<meta>` ile; tüm script kurallarının HTTP başlığına taşınması (daha katı) ileride sunucu tarafı render'a geçilirse.
 - [ ] Bağımlılık taraması (`npm audit`), gereksiz paketlerin temizliği
 - [ ] Gizli bilgiler: `.dev.vars` / `wrangler secret` (asla repoya değil)
 

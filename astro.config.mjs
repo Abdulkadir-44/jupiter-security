@@ -19,6 +19,30 @@ export default defineConfig({
   // "preserve": src/pages/en/404.astro → dist/client/en/404.html (Cloudflare /en/ altındaki
   // bulunamayan adreslerde bunu bulur). index sayfalarının adresleri değişmez (/ ve /en/).
   build: { format: "preserve" },
+  // Güvenlik: Content-Security-Policy. Astro her sayfaya <meta> ekler ve kendi satır içi
+  // script/stillerini otomatik izinli (hash) yapar. Diğer başlıklar: public/_headers.
+  // Yeni bir dış kaynak (font, harita, video vb.) eklenirse buraya izin eklenmeli, yoksa tarayıcı engeller.
+  security: {
+    csp: {
+      directives: [
+        "default-src 'self'",
+        "img-src 'self' data:",
+        "font-src 'self'",
+        "connect-src 'self' https://cloudflareinsights.com", // Cloudflare Web Analytics veri gönderimi
+        "base-uri 'self'",
+        "form-action 'self'",
+        "object-src 'none'",
+        "upgrade-insecure-requests",
+      ],
+      scriptDirective: {
+        resources: ["'self'", "https://static.cloudflareinsights.com"], // Cloudflare Web Analytics betiği
+      },
+      styleDirective: {
+        // style="..." öznitelikleri (animasyon değişkenleri, Framer Motion başlangıç değerleri) için
+        resources: ["'self'", { resource: "'unsafe-inline'", kind: "attribute" }],
+      },
+    },
+  },
   integrations: [
     react(),
     sitemap({
