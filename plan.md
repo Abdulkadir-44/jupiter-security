@@ -173,6 +173,59 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 - **Yeni bölüm: güneş enerjili 4G kameralar** (müşteri isteği; bağ, bahçe, yayla, yazlık): `RemoteSites.astro`, "Nereyi korumak istiyorsunuz?" ile "Hazır paketler" arasında. Sol: metin, yer etiketleri, avantajlar, sarı WhatsApp butonu. Sağ: animasyonlu sistem kartı (güneş, tepeler, direkte panel + kamera, baz istasyonuna sinyal) + "Güneş paneli → Batarya → 4G kamera → Telefon" zinciri. Saf CSS animasyon. Google'a giden hizmet listesine de eklendi.
 - Geri dönüş noktaları: mavi palet `bd4b283`, yeşil palet ilk hali `4bc8bb7`.
 
+## Müşteri bilgileri geldi: içerik ve yeni bölümler planı (TASLAK, KONUŞULUYOR)
+
+Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'da, GitHub'a gitmez**). Bu bölüm kullanıcıyla konuşulup netleşince uygulanıyor.
+
+**Alınan kararlar:**
+- ✅ **Alan adı: `jupiterguvenlik.com`** (Türkçe karakter yok; Natro'dan alınacak). Bölüm 6a/4'teki `.com.tr` önerisinin yerine geçer.
+- ✅ **Görseller:** kullanıcı fotoğrafları kategorilere ayırıp verecek; o zamana kadar slider'lı bölümler **şablon** (yer tutucu) olarak kalır.
+- ✅ **Sıra:** önce kesin bilgiler (A) güncellenir, açık sorular (B) sonra tek tek konuşulur.
+
+### A) Net olanlar (onaylanınca doğrudan uygulanacak)
+- **Telefon / WhatsApp:** gerçek numara (WhatsApp aynı numara), `musteri-bilgileri.txt`'te.
+- **İstatistik:** 3 yıl tecrübe, **600+** kurulum (sitedeki "850+" → "600+"), **2 yıl destek ve garanti**.
+- **İlçeler:** mevcut liste kalıyor (İskenderun, Arsuz, Payas, Dörtyol, Belen, Antakya).
+- **Paketler (fiyatlı):**
+  | Paket | Kamera | Kayıt | Diğer | Fiyat |
+  |---|---|---|---|---|
+  | Başlangıç | 2 × 5 MP gece görüşlü | 500 GB | Telefondan izleme, **hareket algılama bildirimi (yeni)** | **9.999 TL'den başlayan** |
+  | Ev ve dükkan | 4 × 5 MP gece görüşlü | 500 GB | Telefondan izleme, hareket algılama bildirimi | **14.999 TL'den başlayan** |
+  | İşletme | 8 × 5 MP gece görüşlü | 1 TB | Uzaktan çoklu kullanıcı erişimi (yıllık bakım ziyareti **kaldırıldı**) | **29.999 TL'den başlayan** |
+  - "Telefondan izleme **kurulumu**" → "Telefondan izleme".
+- **Markalar:** Dahua, Hikvision, ZTEC (?), IOMA (?); güneş enerjili: O-KAM (?), IOMA (yazımlar teyit edilecek).
+- **Güneş enerjili bölüm:** içerik doğru; **inşaat şantiyeleri** vurgusu eklenecek; sağdaki animasyonlu çizim **kaldırılıp** yerine **gerçek fotoğraf slider'ı** (bağ, bahçe, inşaat şantiyesi) gelecek.
+- **Yeni bölüm: Wi-Fi (kablosuz) kameralar:** güneş enerjili bölümün altında, aynı düzen (solda içerik, sağda gerçek fotoğraf slider kartı). İçerik Claude yazacak, müşteri teyit edecek.
+- **Yeni bölüm: Ürünler slider'ı:** müşterinin kendi çektiği ürün fotoğraflarıyla (telif sorunu yok).
+- **Kampanya:** kampanya olduğunda header'ın üstünde banner; olmadığında görünmez (admin panelinden aç/kapa).
+- **Alan adı:** `jupiterguvenlik.com`, Natro'dan alınacak.
+- **Logo:** "JÜPİTER" yazısının yanına şık ve animasyonlu yeni bir logo işareti.
+- **Firma:** kaşede "Jüpiter Güvenlik Sistemleri", limited şirket. E-posta ve sosyal medya hesapları açılacak.
+
+### B) Açık sorular (kullanıcıyla tek tek konuşulacak)
+1. ✅ **Alan adı:** `jupiterguvenlik.com` (Türkçe karakterli IDN alan adı yerine; e-posta ve yazım sorunları yüzünden).
+2. **Marka adı:** sitede "JÜPİTER **Kamera** Güvenlik Sistemleri", kaşede "Jüpiter Güvenlik Sistemleri", alan adı "jupiterguvenlik". Google için ad her yerde birebir aynı olmalı (NAP). Sitedeki ad kaşedekiyle aynı mı yapılsın?
+3. **Fiyatlar KDV ve montaj dahil mi?** Türkiye'de tüketiciye gösterilen fiyatın vergiler dahil olması gerekir; "montaj dahil" yazmak da güven verir.
+4. **Paket kartında hem fiyat hem "Bu paketi sor" (WhatsApp) butonu kalsın mı?** Öneri: ikisi birden (fiyat bilgi verir, buton harekete geçirir).
+5. **Çalışma saatleri "esnek":** sitede ne yazsın? Öneri: "Her gün, randevuyla" ya da "Esnek saatler, önceden arayın". Google verisinde sabit saat yazılmaz.
+6. **Sahte yorumlar:** gerçek yorumlar gelene kadar sitedeki 4 uydurma yorum kaldırılsın mı? Öneri: yorum kartları gizlenir, sadece "600+ kurulum" kartı ve "Yorumlar yakında" yerine bölüm tamamen sade tutulur; gerçek 2-3 yorum gelince açılır.
+7. **Instagram/sosyal medya yokken:** butonlar gizlensin mi? Öneri: hesap açılana kadar Instagram butonları ve linkleri görünmez.
+8. **Ürünler slider'ı:** hangi ürünler, her üründe ne yazacak (ad, marka, model, kısa özellik, fiyat?), sayfada nerede (öneri: "Hazır paketler"in hemen altı)?
+9. **Güneş enerjili bölüm:** animasyonlu çizim tamamen mi kalksın, yoksa slider'ın altında "Güneş paneli → Batarya → 4G kamera → Telefon" zinciri kalsın mı? Örnek fiyat ve SIM kartı (kamerayla mı geliyor, müşteri mi alıyor) bilgisi hâlâ eksik.
+10. **Wi-Fi bölümü:** marka/model, fiyat, hangi müşterilere (ev içi, bebek/evcil hayvan, küçük dükkan)? Görsel tekrarı olmasın diye **ters düzen** (solda slider, sağda metin) önerilir; müşteri "aynı düzen" dedi.
+11. **Slider fotoğrafları panelden mi yönetilecek?** Öneri: evet; admin panelindeki galeri, kategorili olur (yapılan işler / güneş enerjili / Wi-Fi / ürünler). Bu, admin tasarım dokümanını etkiler.
+12. **Logo:** mevcut gezegen logosu beğenilmedi mi, yoksa onun daha şık/animasyonlu bir hali mi isteniyor? Tamamen yeni bir konsept mi (ör. gezegen + kamera merceği)?
+13. **Yazışma adresi neden gerekli?** (müşteri sordu) KVKK aydınlatma metninde "veri sorumlusu"nun adresi yazılmak zorunda; Google İşletme Profili doğrulaması da adres ister (sitede ve haritada gizli kalabilir). Tam resmi unvan için vergi levhasındaki ad gerekli ("... Ltd. Şti." dahil).
+14. **E-posta:** alan adı alınınca `info@jupiterguvenlik.com` gibi bir adres, Cloudflare Email Routing (ücretsiz) ile müşterinin Gmail'ine yönlendirilebilir; e-posta göndermek için ek ayar ya da ücretli posta servisi gerekir.
+
+### C) Önerilen sıra (konuşmaya göre değişebilir)
+1. **Net içerik güncellemeleri** (telefon, istatistik, paketler + fiyatlar, sahte yorumların kaldırılması, Instagram gizleme, saat metni) → hemen, kod dosyalarından.
+2. **Yeni bölümlerin iskeleti:** güneş enerjili slider, Wi-Fi bölümü, ürünler slider'ı; fotoğraflar gelene kadar şık yer tutucularla.
+3. **Logo** (konsept netleşince).
+4. **Alan adı + Cloudflare bağlantısı** (Natro'da DNS → Cloudflare), noindex kalkar, Search Console, e-posta yönlendirme.
+5. **Admin paneli** (tasarım dokümanına slider galerileri eklenerek).
+6. **KVKK sayfası** (unvan + adres gelince), Google İşletme Profili.
+
 ## Sıradaki adımlar (önerilen sıra)
 
 ### 1. Gerçek içerik: müşteriden bilgi gelince yapılacaklar
@@ -194,7 +247,7 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 | 8 | Fiyat aralığı (fiyat yazılacaksa; örn. "4 kamera 15.000 TL'den başlayan") | Paketler + Google'daki fiyat bilgisi (`priceRange`, şu an bilerek boş) | `packages.items[].price` + `src/lib/schema.ts` |
 | 9 | Kampanya var mı? | Sayfa üstündeki kampanya şeridi (hazır, şu an kapalı) | `announcement` + `HomePage.astro`'ya geri ekleme |
 | 10 | Kurulum fotoğrafları (en az 6, mümkünse hangi ilçe/mekân olduğu yazılı) | "Yaptığımız kamera kurulumları" kareleri, ileride ilçe sayfaları | `work.items` + görseller `src/assets/` |
-| 11 | Alan adı tercihi (öneri: `.com.tr`, örn. `jupiterkamera.com.tr`) | Her şey (bkz. bölüm 6a/4) | `astro.config.mjs` → `site` |
+| 11 | ✅ Alan adı: `jupiterguvenlik.com` | Her şey (bkz. bölüm 6a/4) | `astro.config.mjs` → `site` |
 
 | 12 | **Güneş enerjili 4G kamera bölümü** için onay: metindeki iddialar (gece/bulutlu havada çalışma, kesintiden etkilenmeme, bildirim, gece görüşü) müşterinin kullandığı ürünle uyumlu mu; varsa marka/model, örnek fiyat ve bu tür kurulumların fotoğrafları | "Elektrik yok, internet yok, sorun değil" bölümü | `remote`, iki dilde |
 
@@ -275,7 +328,7 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [ ] **NAP tutarlılığı** (ad, telefon, bölge her yerde birebir aynı): Yandex Haritalar, Apple Business Connect, Bing Places, Instagram, Facebook.
 
 *4) Alan adı alınınca:*
-- Alan adı önerisi: `.com.tr` (artık belgesiz; Türkiye sinyali), örn. `jupiterkamera.com.tr`.
+- Alan adı: **`jupiterguvenlik.com`** (karar verildi).
 - [ ] `astro.config.mjs` → `site` = alan adı (noindex otomatik kalkar; canonical, hreflang, sitemap, og otomatik güncellenir)
 - [ ] `*.workers.dev` → alan adı **301 kalıcı yönlendirme**
 - [ ] Google Search Console + Bing Webmaster Tools doğrulama, `sitemap-index.xml` gönderimi
@@ -293,10 +346,67 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [ ] R2: kurulum fotoğrafları; yüklemeden önce tarayıcıda sıkıştırma
 - [ ] `src/lib/data.ts` → D1'den okuyacak (bileşenler değişmez); sayfa statik mi kalır, sunucuda mı üretilir kararı (önbellek stratejisi)
 
-**d) Admin paneli (tek kullanıcı, rol yok)**
-- [ ] Giriş: şifre hash'i (PBKDF2/Argon2), güvenli oturum çerezi (HttpOnly, Secure, SameSite), giriş denemesi sınırlaması, CSRF koruması
-- [ ] Modüller: yapılan işler galerisi, iletişim ayarları, paketler, yorumlar, kampanya şeridi
-- [ ] Değişiklik sonrası sitenin güncellenmesi (yeniden build veya sunucu tarafı okuma)
+**Admin paneli tasarım kararları (karar defteri, 20.11.2026'dan itibaren)**
+Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşağıdaki **tasarım dokümanında**; kullanıcı onayından sonra uygulama aşamalarına geçilecek.
+1. **Kapsam:** Panelden 5 bölüm yönetilecek: yapılan işler galerisi, iletişim bilgileri, paketler, müşteri yorumları, kampanya şeridi.
+2. **Görünüm:** Basit, göze hoş, hafif animasyonlu; **özellikle responsive** (telefondan da rahat kullanılmalı).
+3. **Düzen (masaüstü):** Solda **sidebar**, her başlık **ayrı sayfa** (tek sayfaya her şey konmaz). Örn. `/admin/yapilan-isler`, `/admin/iletisim`, `/admin/paketler`, `/admin/yorumlar`, `/admin/kampanya`. Mobilde sidebar açılır menüye dönüşür.
+4. **İlk açılış:** `/admin` = **"Genel bakış"**: kampanya şeridi durumu + tek tıkla aç/kapa, içerik sayıları (iş fotoğrafı, yorum, paket; tıklanınca ilgili sayfa), son değişiklikler, bu haftanın ziyaretçi sayısı (Cloudflare Web Analytics), "Siteyi görüntüle".
+5. **Yansıma: B, anında.** Sayfalar her istekte güncel veriyi D1'den okur (Astro sunucu tarafı render, Cloudflare Workers). Panelde kaydedilen değişiklik sayfa yenilenince görünür; build/deploy gerekmez. Gerekirse kısa süreli önbellek. Ücretsiz katman yeterli (günde 100.000 istek, 5 milyon D1 okuma).
+6. **Resimler: tarayıcıda optimizasyon.** Panel, fotoğrafı yüklemeden önce müşterinin cihazında **WebP**'ye çevirir ve 3 boyut üretir (~480 / 960 / 1600 px); sitede `srcset` ile ekrana uygun olan yüklenir. Ücretli Cloudflare Images gerekmez. Dönüştürme sırasında **EXIF/GPS konum bilgisi silinir** (KVKK). AVIF tarayıcıda üretilemediği için WebP.
+7. **Fotoğraf deposu: R2.** Kullanıcı kendi Cloudflare hesabına **düşük limitli sanal kart** ekleyecek (R2'yi açmak için gerekli; ücretsiz sınırlar altında para çekilmez). Kullanıcı yapacak: R2'yi etkinleştirme + kart, Billing → Notifications'ta kullanım uyarısı. Claude yapacak: bucket oluşturma, fotoğrafları Worker + Cloudflare önbelleği üzerinden sunma (önbellekten dönen istekler R2 kotasından düşmez, kötüye kullanıma karşı koruma). Not: hesap şimdilik kullanıcıda; ileride müşteriye devir düşünülebilir.
+8. **Giriş: e-posta + şifre + 2FA (TOTP).** Şifre hash'li saklanır (PBKDF2, Web Crypto), 5 hatalı denemede geçici kilit, oturum çerezi HttpOnly + Secure + SameSite, CSRF koruması. 2FA: Google/Microsoft Authenticator; ilk girişte QR ile kurulum, 10 tek kullanımlık yedek kod. Kurtarma: `npm` komutuyla şifre/2FA sıfırlama (komut satırından). Kullanıcı 2FA'yı bilmiyor → panel bitince müşteri için adım adım **"Panele ilk giriş" rehberi** yazılacak.
+9. **İki dil: Türkçe yazılır, "İngilizceye çevir" butonu.** Çeviri Cloudflare Workers AI ile (ücretsiz günlük kota); sonuç elle düzeltilebilir. İngilizce alan boşsa İngilizce sayfada Türkçe metin gösterilir. Maliyet güvencesi: buton sadece giriş yapmış admin'de çalışır + kodda günlük üst sınır (örn. 200 çeviri/gün). Kullanıcı ücret çıkmasından endişeli: uygulamada Cloudflare'in güncel fiyatlandırması tekrar doğrulanacak (ücretsiz planda kota aşımı = hata, ücret değil).
+10. **Sabit metinler kodda kalır** (hero, bölüm başlıkları/açıklamaları, süreç adımları, kullanım alanı sekmeleri, güneş enerjili 4G bölümü). Değişiklik gerekirse Claude/geliştirici `site.tr.ts` / `site.en.ts` üzerinden yapar. Panel sade kalır, müşteri tasarımı bozamaz.
+
+**d) Admin paneli: tasarım dokümanı (ONAY BEKLİYOR)**
+
+*Mimari*
+- Astro sunucu tarafı render (`@astrojs/cloudflare`, Workers). Halka açık sayfalar (`/`, `/en/`) her istekte veriyi **D1**'den okur; sabit metinler yine `site.tr.ts`/`site.en.ts`'ten gelir. `src/lib/data.ts` tek veri katmanı: D1 verisi + sabit metinleri birleştirir (bileşenler değişmez).
+- D1 boşsa / hata verirse: içerik dosyasındaki değerlere düşer (site asla boş görünmez).
+- Fotoğraflar **R2**'de; site `/medya/...` adresinden Worker üzerinden sunar, Cloudflare önbelleği ile (uzun süreli önbellek, R2 kotası korunur).
+- Panel `/admin/...` altında: her sayfa **noindex**, sitemap'te yok, sitede hiçbir yerden link yok. Tüm `/admin` istekleri oturum kontrolünden geçer (Astro middleware).
+- CSP: panelin ihtiyaçları (`blob:` görseller, form gönderimi) `security.csp`'ye eklenecek; dış kaynak yok.
+- Panel dili: **sadece Türkçe**.
+
+*Veri modeli (D1 tabloları, taslak)*
+| Tablo | Alanlar |
+|---|---|
+| `settings` (tek satır) | telefon (görünen + E.164), WhatsApp, Instagram, Facebook, çalışma saatleri (TR/EN metin + gün/saat), ilçeler (liste), WhatsApp karşılama mesajı (TR/EN) |
+| `campaign` (tek satır) | açık/kapalı, metin (TR/EN), buton metni (TR/EN), bitiş tarihi (opsiyonel, geçince otomatik kapanır) |
+| `works` (yapılan işler) | başlık/yer (TR/EN), ilçe/semt, tür (ev, dükkan, fabrika, site, arazi), fotoğraf anahtarları (480/960/1600 WebP + genişlik/yükseklik), alt metin (TR/EN), sıra, yayında mı, tarih |
+| `packages` | ad, kamera sayısı, kimler için, özellikler (liste), fiyat metni (TR/EN), öne çıkan mı, sıra, yayında mı |
+| `reviews` | alıntı (TR/EN), isim (Mehmet K.), unvan/semt (TR/EN), sıra, yayında mı |
+| `admin_user` (tek satır) | e-posta, şifre hash + salt, TOTP gizli anahtarı, yedek kod hash'leri |
+| `sessions` | oturum id hash, son kullanma, IP/cihaz özeti |
+| `login_attempts` | IP, zaman (5 hatalı → 15 dk kilit) |
+| `activity_log` | ne değişti, ne zaman (Genel bakış'taki "son değişiklikler") |
+| `ai_usage` | gün, çeviri sayısı (günlük üst sınır) |
+- İlk kurulumda mevcut içerik (`site.tr.ts`/`site.en.ts`'teki paketler, yorumlar, iletişim) D1'e aktarılır (seed); site görünümü değişmez.
+
+*Panel sayfaları*
+- `/admin/giris` (e-posta + şifre → 2FA kodu), ilk girişte `/admin/2fa-kurulum` (QR + yedek kodlar).
+- `/admin` **Genel bakış**: kampanya aç/kapa, içerik sayıları, son değişiklikler, haftalık ziyaretçi (Cloudflare analytics API, sunucu tarafında; bunun için kısıtlı bir API token'ı `wrangler secret` olarak).
+- `/admin/yapilan-isler`: ızgara görünüm, sürükle-bırak ya da ok ile sıralama, yayında/gizli, ekle/düzenle/sil; fotoğraf seçince tarayıcıda WebP'ye çevirme + önizleme + yükleme ilerlemesi.
+- `/admin/iletisim`, `/admin/paketler`, `/admin/yorumlar`, `/admin/kampanya`: liste + düzenleme formu.
+- Her formda: Türkçe alanlar + "İngilizceye çevir" butonu + İngilizce alanlar (düzenlenebilir), kaydedilmemiş değişiklik uyarısı, başarılı kayıtta küçük bildirim, form hataları (alan altında, anlaşılır Türkçe).
+- Tasarım: sitenin paleti (koyu yeşil sidebar, açık içerik alanı), sitenin fontları, hafif geçişler; masaüstünde sol sidebar, mobilde üstte menü düğmesi + açılır sidebar. Büyük dokunma alanları (telefondan kullanım).
+- Ayrıca: "Çıkış yap", "Siteyi görüntüle", şifre değiştirme.
+
+*Güvenlik*
+- Şifre: PBKDF2-SHA256 (Web Crypto, yüksek iterasyon) + salt. TOTP: RFC 6238 (30 sn, 6 hane), yedek kodlar hash'li.
+- Oturum çerezi: `__Host-` önekli, HttpOnly, Secure, SameSite=Strict; 7 gün; çıkışta silinir.
+- Tüm değiştiren istekler: oturum + CSRF token + Origin kontrolü. Girdi doğrulama (zod), dosya türü/boyut kontrolü (sadece WebP, en fazla birkaç MB).
+- Giriş denemesi sınırı (IP başına), çeviri günlük sınırı.
+- Kurtarma komutları (komut satırı): `npm run admin:create` (ilk kullanıcı), `admin:reset-password`, `admin:reset-2fa`.
+
+*Uygulama aşamaları (her aşama sonunda kullanıcıya gösterilir)*
+1. Altyapı: D1 veritabanı + tablolar + mevcut içeriğin aktarılması; halka açık sayfaların D1'den okuması (görünüm aynı). Kullanıcı: yok.
+2. Giriş sistemi: şifre + 2FA + oturum + kilit + kurtarma komutları.
+3. Panel iskeleti: sidebar, responsive düzen, Genel bakış.
+4. Basit modüller: iletişim, kampanya, yorumlar, paketler (+ çeviri butonu).
+5. R2 + yapılan işler galerisi (fotoğraf işleme, yükleme). Kullanıcı: R2'yi etkinleştirip sanal kart ekleme.
+6. Son kontroller: güvenlik testi, mobil test, Lighthouse, "Panele ilk giriş" rehberi, deploy.
 
 **e) Sonra**
 - [ ] Ürünler ve Yapılan İşler ayrı sayfaları (gerçek içerik gelince)
