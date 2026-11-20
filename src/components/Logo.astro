@@ -1,6 +1,10 @@
 ---
 /**
- * JÜPİTER logosu: bantlı gezegen + mercan "Büyük Kırmızı Leke".
+ * Jüpiter Güvenlik Sistemleri logosu: bantlı gezegen işareti + iki satırlı yazı.
+ *   JÜPİTER
+ *   GÜVENLİK SİSTEMLERİ
+ * İki satır ortak genişlikte hizalanır: dar olan satırın harfleri aralanıp diğerinin genişliğine yayılır
+ * (header'da "JÜPİTER" aralanır, footer'daki dev logoda alt satır aralanır).
  * İşaret birkaç saniyede bir kendi etrafında döner (hareketi azalt ayarında durur).
  */
 interface Props {
@@ -11,12 +15,17 @@ interface Props {
 }
 const { class: className = "", size = "nav", spin = true } = Astro.props;
 const id = `lg-${Math.random().toString(36).slice(2, 8)}`;
+
+// Marka adı (resmi ad: Jüpiter Güvenlik Sistemleri). Her dilde aynı kalır.
+const WORD = "JÜPİTER";
+const SUB = "GÜVENLİK SİSTEMLERİ";
+const nav = size === "nav";
 ---
 
-<span class:list={["logo inline-flex items-center", size === "nav" ? "gap-2.5" : "gap-4 md:gap-6", className]}>
+<span class:list={["logo inline-flex items-center", nav ? "logo-nav gap-[0.65em]" : "gap-4 md:gap-6", className]}>
   <svg
     viewBox="0 0 32 32"
-    class:list={["logo-mark shrink-0", spin && "logo-spin", size === "nav" ? "size-[1.75em]" : "size-[0.9em]"]}
+    class:list={["logo-mark shrink-0", spin && "logo-spin", nav ? "size-[2.6em]" : "size-[1em]"]}
     aria-hidden="true"
   >
     <defs><clipPath id={id}><circle cx="16" cy="16" r="13"></circle></clipPath></defs>
@@ -28,12 +37,66 @@ const id = `lg-${Math.random().toString(36).slice(2, 8)}`;
     </g>
     <ellipse cx="20.4" cy="19.2" rx="3.4" ry="2.2" fill="var(--color-coral)"></ellipse>
   </svg>
-  <span class:list={["font-tall leading-none", size === "nav" ? "text-[1.6em] tracking-[0.02em]" : "tracking-[0.005em]"]}>
-    JÜPİTER
+
+  <span class="sr-only">Jüpiter Güvenlik Sistemleri</span>
+  <span class:list={["lockup", nav ? "lockup-nav" : "lockup-footer"]} aria-hidden="true">
+    <span class="line word font-tall">{[...WORD].map((ch) => <span>{ch}</span>)}</span>
+    <span class="line sub">{[...SUB].map((ch) => <span>{ch === " " ? " " : ch}</span>)}</span>
   </span>
 </span>
 
 <style>
+  /* İki satır tek blok: genişliği geniş olan satır belirler, dar olan harflerini aralayarak yayılır */
+  .lockup {
+    display: inline-grid;
+    line-height: 1;
+  }
+  .line {
+    display: flex;
+    justify-content: space-between;
+    white-space: nowrap;
+  }
+  .word {
+    line-height: 0.86;
+  }
+  .sub {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    opacity: 0.72;
+  }
+
+  /*
+   * Header / 404: logo ekran genişliğiyle ölçeklenir (320 px telefonda header'a sığsın, masaüstünde öne çıksın).
+   * Taban boyut 11.5px (320 px) → 16.5px (~460 px ve üzeri). "JÜPİTER" ~29px, alt satır ~11px (masaüstü).
+   */
+  .logo-nav {
+    font-size: clamp(11.5px, 3.6vw, 16.5px);
+  }
+  /* 1024-1280 px: menü linkleri de header'da, yer dar; logo biraz küçük kalır */
+  @media (64rem <= width < 80rem) {
+    .logo-nav {
+      font-size: 14.5px;
+    }
+  }
+  .lockup-nav .word {
+    font-size: 1.75em;
+  }
+  .lockup-nav .sub {
+    margin-top: 0.28em;
+    font-size: 0.68em;
+    letter-spacing: 0.08em;
+  }
+
+  /* Footer'daki dev logo: "JÜPİTER" sıkı, alt satır onun genişliğine yayılır */
+  .lockup-footer .word {
+    letter-spacing: 0.005em;
+  }
+  .lockup-footer .sub {
+    margin-top: 0.1em;
+    font-size: 0.15em;
+  }
+
   .logo-spin {
     animation: logo-spin 7s var(--ease-in-out-quart) infinite;
     transform-origin: 50% 50%;

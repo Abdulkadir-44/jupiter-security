@@ -18,7 +18,7 @@ const langs = otherLocales(Astro.currentLocale).map((l) => ({
   köşeli, cam efektli bir şeride dönüşür; alttaki ince çizgi ortadan kapanır.
 -->
 <header id="site-header" data-compact="false" class="site-header fixed inset-x-0 top-0 z-50 px-2 md:px-3 lg:px-0">
-  <div class="nav-bar mx-auto flex items-center justify-between gap-6">
+  <div class="nav-bar mx-auto flex items-center justify-between gap-3 sm:gap-6">
     <a href="#top" aria-label={`${s.brand.fullName}, ${s.ui.backToTop}`} class="nav-logo rounded-md">
       <Logo />
     </a>
@@ -43,16 +43,16 @@ const langs = otherLocales(Astro.currentLocale).map((l) => ({
           <a
             href={l.href}
             hreflang={l.lang}
-            class="inline-flex h-11 items-center gap-1.5 rounded-full border border-paper/20 px-3.5 text-[13px] font-semibold tracking-wide text-paper transition-colors duration-200 hover:border-paper/50 hover:bg-paper/10"
+            class="inline-flex h-11 items-center gap-1.5 rounded-full border border-paper/20 px-3 text-[13px] sm:px-3.5 font-semibold tracking-wide text-paper transition-colors duration-200 hover:border-paper/50 hover:bg-paper/10"
           >
-            <Globe className="size-4" strokeWidth={1.8} aria-hidden="true" />
+            <Globe className="hidden size-4 sm:block" strokeWidth={1.8} aria-hidden="true" />
             {l.short}
             <span class="sr-only">, {s.ui.switchLanguage}</span>
           </a>
         ))
       }
       <a href={telHref(s.contact)} class="nav-cta">
-        <span>{s.hero.primaryCta}</span>
+        <span>{s.ui.call}</span>
         <svg class="nav-cta-arrow size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
           <path d="M4 10 10 4M5 4h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
