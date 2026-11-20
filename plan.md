@@ -178,9 +178,11 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 
 ### 4. Yayın öncesi kontrol
 - [x] SEO: sitemap (`@astrojs/sitemap`), `robots.txt`, paylaşım görseli `public/og.jpg` (1200x630), Open Graph + X etiketleri, apple-touch-icon. Alan adı gelince sadece `astro.config.mjs` → `site` değişecek; hepsi otomatik güncellenir.
-- [ ] Lighthouse: hız, erişilebilirlik, SEO puanları
+- [x] Lighthouse (20.11.2026, canlı site): Mobil Performans 97 / Erişilebilirlik 100 / En iyi uygulamalar 100 / SEO 100. Masaüstü 100/100/100/100. Mobil LCP 1.7 sn, CLS 0.
 - [ ] Gerçek telefonda test (iPhone + Android)
 - [ ] Google İşletme Profili (gezici işletme için "hizmet bölgesi" olarak açılabilir; yerel aramalarda çok etkili)
+- [ ] Google Search Console: alan adı bağlanınca site doğrulanıp `sitemap-index.xml` gönderilecek
+- [ ] Yerel SEO içerik: gerçek fotoğraflar (açıklamalı), Google'da müşteri yorumları, ileride ilçe/hizmet bazlı sayfalar
 
 ### 5. Faz 2 (sonra)
 - [ ] Ürünler sayfası ve Yapılan İşler sayfası (gerçek içerik gelince)
