@@ -168,11 +168,11 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [ ] Alan adı tercihi (örn. jupiterkamera.com / jupiterguvenlik.com)
 
 ### 2. Git ve GitHub
-- [ ] `git init`, ilk commit, GitHub'da depo açıp bağlamak (kullanıcı yapacak / onay verirse Claude)
+- [x] Git + GitHub: https://github.com/Abdulkadir-44/jupiter-security (main)
 
 ### 3. Yayına alma (Cloudflare ücretsiz)
-- [ ] Cloudflare hesabı + `npx wrangler login`
-- [ ] İlk yayın: `npm run build` → `npx wrangler deploy` (geçici *.workers.dev adresi)
+- [x] Cloudflare hesabı + `npx wrangler login`
+- [x] İlk yayın: https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker adı: `jupiter-kamera`). Sonraki yayınlar: `npm run deploy`
 - [ ] Alan adı alınıp Cloudflare'e bağlanması
 - [ ] `astro.config.mjs` içindeki `site` adresinin gerçek alan adıyla güncellenmesi
 
@@ -188,3 +188,6 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [ ] Admin paneli (tek kullanıcı): yapılan işler galerisi, iletişim ayarları, ürün/paketler, yorumlar, kampanya
 - [ ] Formlar (iletişim/teklif) + gelen mesajlar modülü
 - [ ] Çoklu dil (Arapça / İngilizce), Google Maps (gerekirse)
+
+### Not: Windows yol sorunu (çözüldü)
+Proje küçük harfli sürücüyle (`c:\...`, VS Code bazen böyle açıyor) açıldığında Vite, build'deki HTML'e CSS bağlantısı eklemiyordu; canlı site stilsiz görünüyordu. `scripts/astro.mjs` sarmalayıcısı sürücü harfini büyütüp Astro'yu öyle başlatıyor; `npm run dev/build/preview/deploy` bu sarmalayıcıyı kullanır. `npx astro ...` yerine her zaman `npm run ...` kullanın.

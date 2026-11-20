@@ -4,10 +4,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro check && astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "node scripts/astro.mjs dev",
+    "build": "node scripts/astro.mjs check && node scripts/astro.mjs build",
+    "preview": "node scripts/astro.mjs preview",
+    "deploy": "npm run build && wrangler deploy",
+    "astro": "node scripts/astro.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
