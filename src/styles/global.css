@@ -7,33 +7,37 @@
 @import "@fontsource/ibm-plex-mono/latin-ext-500.css";
 
 /*
- * JÜPİTER tasarım token'ları (v2)
- * Kaynak: ui-ux-pro-max "Real Estate/Property" paleti (güven turkuazı + profesyonel mavi + açık zemin),
- * Super 8 Studio referansından daha açık tonlarda uyarlandı. MOR KULLANILMAZ.
+ * JÜPİTER tasarım token'ları (v3 deneme: adaçayı yeşili paleti)
+ * Kullanıcının paleti: #5C7057 #89A482 #ACC5A6 #D1EDD3. Koyu tonlar #5C7057'nin tonundan türetildi.
+ * Token adları (navy, teal...) eski paletten kaldı; değerler yeşil. MOR KULLANILMAZ.
+ * Önceki lacivert/turkuaz palet: git commit bd4b283.
  *
- * navy     #1B2A44  koyu bölümler, hero karartma
- * navy-2   #22355A  koyu yüzey (kart, panel)
- * ink      #13203A  açık zeminde metin, footer
- * teal     #17A8A2  tek vurgu
- * teal-ink #0F766E  açık zeminde turkuaz metin
- * cream    #F3F1EB  açık bölümler
- * paper    #F6F5F1  koyu zeminde metin
+ * navy     #2B3828  koyu bölümler, hero karartma (türetilmiş)
+ * navy-2   #364633  koyu yüzey (kart, panel) (türetilmiş)
+ * ink      #1A2418  açık zeminde metin (türetilmiş)
+ * teal     #89A482  vurgu (palet)
+ * teal-soft#ACC5A6  açık vurgu (palet)
+ * teal-ink #5C7057  açık zeminde vurgu metni (palet)
+ * cream-2  #D1EDD3  açık yüzey (palet); cream #E5F2E4 bunun açığı
+ * paper    #F5F9F3  koyu zeminde metin
+ * sun      #E8C872  kamera ışığı, NVR aktif kanal (sıcak sarı)
  * coral    #E8573A  sadece logodaki "Büyük Kırmızı Leke"
  */
 @theme {
-  --color-navy: #1b2a44;
-  --color-navy-2: #22355a;
-  --color-navy-3: #2c4269;
-  --color-ink: #13203a;
-  --color-ink-soft: #4a5a72;
-  --color-teal: #17a8a2;
-  --color-teal-soft: #5cc8c3;
-  --color-teal-ink: #0f766e;
-  --color-cream: #f3f1eb;
-  --color-cream-2: #e8e5dc;
-  --color-paper: #f6f5f1;
-  --color-mist: #a9b6c9;
+  --color-navy: #2b3828;
+  --color-navy-2: #364633;
+  --color-navy-3: #43563f;
+  --color-ink: #1a2418;
+  --color-ink-soft: #4f5f4b;
+  --color-teal: #89a482;
+  --color-teal-soft: #acc5a6;
+  --color-teal-ink: #5c7057;
+  --color-cream: #e5f2e4;
+  --color-cream-2: #d1edd3;
+  --color-paper: #f5f9f3;
+  --color-mist: #b4c3b0;
   --color-coral: #e8573a;
+  --color-sun: #e8c872; /* sıcak saman sarısı: kamera ışığı / "aktif" vurgusu */
   --color-wa: #25d366;
 
   --font-sans: "Instrument Sans Variable", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;

@@ -48,7 +48,7 @@ function Cone({ cam, index, delay, play }: { cam: Cam; index: number; delay: num
 
   return (
     <g clipPath={`url(#clip-${cam.clip})`}>
-      <motion.path d={d} fill={`url(#cone-${index})`} stroke="var(--color-teal)" strokeOpacity={0.7} strokeWidth={1.4} />
+      <motion.path d={d} fill={`url(#cone-${index})`} stroke="var(--color-sun)" strokeOpacity={0.7} strokeWidth={1.4} />
     </g>
   );
 }
@@ -117,8 +117,8 @@ export default function CoverageScene({ label, result, rooms }: Props) {
             </pattern>
             {CAMS.map((c, i) => (
               <radialGradient key={i} id={`cone-${i}`} cx={c.x} cy={c.y} r={c.r} gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="var(--color-teal)" stopOpacity="0.38" />
-                <stop offset="1" stopColor="var(--color-teal)" stopOpacity="0.03" />
+                <stop offset="0" stopColor="var(--color-sun)" stopOpacity="0.38" />
+                <stop offset="1" stopColor="var(--color-sun)" stopOpacity="0.03" />
               </radialGradient>
             ))}
             <clipPath id="clip-shop">
@@ -191,8 +191,8 @@ export default function CoverageScene({ label, result, rooms }: Props) {
               transition={instant ? { duration: 0 } : { delay: camStart + i * camGap - 0.1, type: "spring", stiffness: 420, damping: 22 }}
               style={{ transformOrigin: `${c.x}px ${c.y}px`, transformBox: "view-box" }}
             >
-              <circle cx={c.x} cy={c.y} r="11" fill="var(--color-ink)" stroke="var(--color-teal)" strokeWidth="2.5" />
-              <circle cx={c.x} cy={c.y} r="4" fill="var(--color-teal)" />
+              <circle cx={c.x} cy={c.y} r="11" fill="var(--color-ink)" stroke="var(--color-sun)" strokeWidth="2.5" />
+              <circle cx={c.x} cy={c.y} r="4" fill="var(--color-sun)" />
             </motion.g>
           ))}
         </svg>
@@ -207,7 +207,7 @@ export default function CoverageScene({ label, result, rooms }: Props) {
           animate={on ? { opacity: 1 } : undefined}
           transition={t(doneAt, 0.4)}
         >
-          <span className="size-2 rounded-full bg-teal" aria-hidden="true" />
+          <span className="size-2 rounded-full bg-sun" aria-hidden="true" />
           {result}
         </motion.span>
       </div>

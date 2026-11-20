@@ -13,10 +13,14 @@ const p = getSiteContent().process;
     </div>
 
     <!-- Adımlar gerçekten sıralı olduğu için numaralı -->
-    <ol class="mt-14 grid border-t border-ink/15 md:mt-20 lg:grid-cols-5">
+    <!--
+      Mobil/tablet (lg altı): her adım ayrı kart, sırayla sola/sağa yatık ve kaydırılmış.
+      Masaüstü (lg): eski düzen, 5 sütun ve ince ayırıcı çizgiler (max-lg: ile ayrıldı).
+    -->
+    <ol class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-0 lg:border-t lg:border-ink/15">
       {
         p.steps.map((st, i) => (
-          <li class="grid grid-cols-[3.25rem_1fr] gap-x-4 border-b border-ink/15 py-7 lg:block lg:border-b-0 lg:border-l lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
+          <li class="grid grid-cols-[3.25rem_1fr] gap-x-4 max-lg:rounded-[1.25rem] max-lg:bg-paper max-lg:p-5 max-lg:shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] max-lg:ring-1 max-lg:ring-ink/10 max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg] lg:block lg:border-l lg:border-ink/15 lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
             <span class="font-tall text-[3rem] leading-none text-teal-ink lg:text-[4rem]">{i + 1}</span>
             <div class="lg:mt-8">
               <h3 class="flex items-center gap-2 text-[1.15rem] font-semibold">

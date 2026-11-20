@@ -22,7 +22,7 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
   const range = m ? `${m[1]}–${m[2]}` : cameras;
 
   return (
-    <div className="relative overflow-hidden rounded-[1rem] border border-paper/10 bg-ink/70 p-5">
+    <div className="relative overflow-hidden rounded-[1rem] border border-paper/[0.07] bg-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.04),0_20px_40px_-24px_rgb(0_0_0/0.6)] p-5">
       {/* Üst bilgi satırı: kayıt cihazı ekranı gibi */}
       <div className="flex items-center justify-between font-mono text-[11px] text-paper/60">
         <span className="flex items-center gap-1.5">
@@ -47,7 +47,7 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
           {range}
         </motion.span>
         <motion.span
-          className="font-tall text-[1.35rem] text-teal"
+          className="font-tall text-[1.35rem] text-sun"
           initial={reduced ? false : { y: "100%", opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5, ease: EASE, delay: 0.15 }}
@@ -66,9 +66,9 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
                 key={i}
                 className={cn(
                   "aspect-square rounded-[4px]",
-                  state === "on" && "bg-teal shadow-[0_0_10px_rgb(23_168_162/0.55)]",
-                  state === "opt" && "border border-teal/70 bg-teal/15",
-                  state === "off" && "bg-paper/[0.06]",
+                  state === "on" && "bg-sun shadow-[0_0_10px_color-mix(in_srgb,var(--color-sun)_50%,transparent)]",
+                  state === "opt" && "border border-sun/60 bg-sun/10",
+                  state === "off" && "bg-paper/[0.05]",
                 )}
                 initial={reduced || state === "off" ? false : { scale: 0.3, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -80,7 +80,7 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
         {/* Tarama çizgisi */}
         {!reduced && (
           <motion.span
-            className="pointer-events-none absolute inset-x-0 h-6 bg-gradient-to-b from-transparent via-teal/25 to-transparent"
+            className="pointer-events-none absolute inset-x-0 h-6 bg-gradient-to-b from-transparent via-sun/15 to-transparent"
             initial={{ top: "-25%" }}
             animate={{ top: "105%" }}
             transition={{ duration: 2.6, repeat: Infinity, repeatDelay: 1.2, ease: "linear" }}
@@ -91,10 +91,10 @@ function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: stri
       {/* Açıklama */}
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-mist">
         <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-[3px] bg-teal" /> Temel kurulum
+          <span className="size-2.5 rounded-[3px] bg-sun" /> Temel kurulum
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-[3px] border border-teal/70 bg-teal/15" /> İhtiyaca göre
+          <span className="size-2.5 rounded-[3px] border border-sun/60 bg-sun/10" /> İhtiyaca göre
         </span>
       </div>
     </div>

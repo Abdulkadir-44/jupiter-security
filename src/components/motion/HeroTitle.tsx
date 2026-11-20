@@ -62,8 +62,8 @@ export default function HeroTitle({ lines }: { lines: string[] }) {
           <motion.span
             key={i}
             className="inline-block"
-            initial={{ opacity: 0, color: "#f6f5f1" }}
-            animate={{ opacity: 1, color: ["#f6f5f1", "#f6f5f1", "#17a8a2"] }}
+            initial={{ opacity: 0, color: "var(--color-paper)" }}
+            animate={{ opacity: 1, color: ["var(--color-paper)", "var(--color-paper)", "var(--color-teal)"] }}
             transition={{
               opacity: { duration: 0.12, delay: SCAN_START + (i / lastChars.length) * SCAN_DURATION },
               color: {
@@ -79,7 +79,7 @@ export default function HeroTitle({ lines }: { lines: string[] }) {
         {/* Tarama çubuğu */}
         <motion.span
           aria-hidden="true"
-          className="pointer-events-none absolute -inset-y-[0.06em] w-[3px] rounded-full bg-teal-soft shadow-[0_0_18px_4px_rgb(23_168_162/0.75)]"
+          className="pointer-events-none absolute -inset-y-[0.06em] w-[3px] rounded-full bg-teal-soft shadow-[0_0_18px_4px_color-mix(in_srgb,var(--color-teal)_75%,transparent)]"
           initial={{ left: "0%", opacity: 0 }}
           animate={{ left: ["0%", "100%"], opacity: [0, 1, 1, 0] }}
           transition={{

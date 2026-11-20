@@ -47,7 +47,7 @@ function PackageCard({
   const mx = useMotionValue(-200);
   const my = useMotionValue(-200);
   const glow = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, ${
-    featured ? "rgb(23 168 162 / 0.28)" : "rgb(23 168 162 / 0.14)"
+    featured ? "color-mix(in srgb, var(--color-teal) 28%, transparent)" : "color-mix(in srgb, var(--color-teal) 14%, transparent)"
   }, transparent 60%)`;
   const onMove = (e: MouseEvent<HTMLElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
@@ -96,8 +96,8 @@ function PackageCard({
           "relative flex h-full flex-col overflow-hidden rounded-[1.25rem] p-6 sm:p-8",
           featured && "lg:-my-4 lg:h-[calc(100%+2rem)] lg:py-10",
           featured
-            ? "bg-navy text-paper shadow-[0_40px_80px_-30px_rgb(19_32_58/0.7)]"
-            : "bg-paper text-ink ring-1 ring-ink/10 shadow-[0_24px_50px_-30px_rgb(19_32_58/0.35)]",
+            ? "bg-navy text-paper shadow-[0_40px_80px_-30px_color-mix(in_srgb,var(--color-ink)_70%,transparent)]"
+            : "bg-paper text-ink ring-1 ring-ink/10 shadow-[0_24px_50px_-30px_color-mix(in_srgb,var(--color-ink)_35%,transparent)]",
         )}
       >
         {/* Fare ışığı */}
