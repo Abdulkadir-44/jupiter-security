@@ -263,6 +263,16 @@ export const site: SiteContent = {
     note: "Based in İskenderun, installing cameras across Hatay.",
   },
 
+  notFound: {
+    pageTitle: "Page not found (404) | JÜPİTER Security Cameras",
+    code: "Error 404",
+    titleLines: ["This is a", "blind spot"],
+    text: "The page you are looking for may have moved or never existed. Head back to the homepage or give us a call and we will install your cameras.",
+    home: "Back to homepage",
+    noSignal: "No signal",
+    noRecord: "No recording found",
+  },
+
   ui: {
     soon: "Coming soon",
     menu: "Open menu",

@@ -1,0 +1,11 @@
+// Cloudflare Worker ayarları. Astro'nun Cloudflare eklentisi build sırasında bunu
+// dist/client/wrangler.json içine birleştirir; `npm run deploy` oradan yayınlar.
+{
+  "name": "jupiter-kamera",
+  "compatibility_date": "2026-11-17",
+  "assets": {
+    // Bulunamayan adreslerde boş yanıt yerine 404.html (durum kodu 404 kalır).
+    // /en/... altındaki adreslerde de aynı (iki dilli) 404 sayfası gösterilir.
+    "not_found_handling": "404-page"
+  }
+}

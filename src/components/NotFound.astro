@@ -1,0 +1,134 @@
+---
+/**
+ * 404 sayfası: "Sinyal yok" kamera ekranı + "Burası kör nokta".
+ * Her dilin kendi 404'ü var (dil adresten belirlenir):
+ *   src/pages/404.astro    → /404.html     (önek yok: Türkçe, "/" altındaki her bulunamayan adres)
+ *   src/pages/en/404.astro → /en/404.html  ("/en/" altındaki bulunamayan adresler)
+ * Cloudflare bulunamayan adres için en yakın klasördeki 404.html'i gösterir (wrangler.jsonc).
+ * Google'a kapalı (BaseLayout utility). Header/footer yok: menüdeki #bağlantılar burada çalışmaz.
+ */
+import type { Locale } from "@/lib/data";
+import { Phone } from "lucide-react";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Logo from "@/components/Logo.astro";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { getSiteContent, localePath, telHref, whatsappHref } from "@/lib/data";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const s = getSiteContent(locale);
+const n = s.notFound;
+const home = localePath(locale);
+---
+
+<BaseLayout title={n.pageTitle} utility>
+  <div class="flex min-h-svh flex-col bg-navy text-paper">
+    <header class="wrap flex h-20 items-center">
+      <a href={home} aria-label={`${s.brand.fullName}, ${n.home}`} class="rounded-md">
+        <Logo />
+      </a>
+    </header>
+
+    <main id="icerik" class="wrap grid flex-1 items-center gap-12 py-10 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+      <!-- Sinyali kesilmiş kamera ekranı -->
+      <div
+        class="monitor relative overflow-hidden rounded-[1.25rem] border border-paper/10 bg-ink shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)] lg:order-2"
+        aria-hidden="true"
+      >
+        <div class="flex items-center justify-between border-b border-paper/10 px-4 py-3 font-mono text-[11px] text-paper/70 sm:text-xs">
+          <span class="flex items-center gap-2"><span class="rec size-2 rounded-full bg-coral"></span>CAM 404</span>
+          <span>-- : -- : --</span>
+        </div>
+        <div class="relative grid aspect-[4/3] place-items-center">
+          <div class="noise absolute inset-0"></div>
+          <div class="scanlines absolute inset-0"></div>
+          <div class="roll absolute inset-x-0 h-1/4"></div>
+          <p class="relative rounded-md bg-ink/80 px-4 py-2 font-mono text-sm tracking-[0.2em] text-paper uppercase sm:text-base">
+            {n.noSignal}
+          </p>
+        </div>
+        <div class="flex items-center gap-2.5 border-t border-paper/10 px-4 py-3 font-mono text-[11px] text-paper sm:text-xs">
+          <span class="size-2 rounded-full bg-sun"></span>
+          {n.noRecord}
+        </div>
+      </div>
+
+      <div>
+        <p class="font-mono text-[12px] font-medium tracking-[0.14em] text-paper/70 uppercase md:text-[13px]">{n.code}</p>
+        <h1 class="mt-4 font-tall text-[clamp(3.25rem,13vw,7.5rem)]">
+          <span class="block">{n.titleLines[0]}</span>
+          <span class="block text-teal">{n.titleLines[1]}</span>
+        </h1>
+        <p class="mt-6 max-w-[42ch] text-[1.1rem] text-paper/85">{n.text}</p>
+
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <a
+            href={home}
+            class="inline-flex min-h-12 items-center justify-center rounded-full bg-paper px-6 font-semibold whitespace-nowrap text-ink transition-colors duration-200 hover:bg-cream-2"
+          >
+            {n.home}
+          </a>
+          <a
+            href={telHref(s.contact)}
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold whitespace-nowrap transition-colors duration-200 hover:border-paper hover:bg-paper/10"
+          >
+            <Phone className="size-[1.05rem]" strokeWidth={2.4} aria-hidden="true" />
+            {s.hero.primaryCta}
+          </a>
+          <a
+            href={whatsappHref(s.contact)}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold whitespace-nowrap transition-colors duration-200 hover:border-paper hover:bg-paper/10"
+          >
+            <WhatsAppIcon className="size-[1.1rem]" />
+            {s.hero.secondaryCta}
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Karıncalanma: SVG gürültü dokusu, kayarak titrer */
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.55;
+    animation: static 0.35s steps(4) infinite;
+  }
+  @keyframes static {
+    0% { background-position: 0 0; }
+    25% { background-position: -40px 25px; }
+    50% { background-position: 30px -50px; }
+    75% { background-position: -60px -20px; }
+    100% { background-position: 10px 40px; }
+  }
+
+  /* Ekranda aşağı kayan parlak bant (eski monitör) */
+  .roll {
+    background: linear-gradient(to bottom, transparent, rgb(255 255 255 / 0.07), transparent);
+    animation: roll 3.2s linear infinite;
+  }
+  @keyframes roll {
+    from { top: -25%; }
+    to { top: 100%; }
+  }
+
+  .rec {
+    animation: rec 1.6s ease-in-out infinite;
+  }
+  @keyframes rec {
+    50% { opacity: 0.25; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .noise,
+    .roll,
+    .rec {
+      animation: none;
+    }
+  }
+</style>

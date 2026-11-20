@@ -149,6 +149,17 @@ export interface SiteContent {
   footer: {
     note: string;
   };
+  /** 404 sayfası (iki dil aynı sayfada gösterilir) */
+  notFound: {
+    pageTitle: string;
+    code: string;
+    titleLines: string[];
+    text: string;
+    home: string;
+    /** Kamera ekranındaki yazılar */
+    noSignal: string;
+    noRecord: string;
+  };
   ui: {
     soon: string;
     menu: string;
@@ -435,6 +446,16 @@ export const site: SiteContent = {
 
   footer: {
     note: "İskenderun merkezli, Hatay geneline kamera kurulumu.",
+  },
+
+  notFound: {
+    pageTitle: "Sayfa bulunamadı (404) | JÜPİTER Kamera",
+    code: "Hata 404",
+    titleLines: ["Burası", "kör nokta"],
+    text: "Aradığınız sayfa taşınmış ya da hiç var olmamış olabilir. Ana sayfaya dönün ya da bizi arayın, kameranızı kuralım.",
+    home: "Ana sayfaya dön",
+    noSignal: "Sinyal yok",
+    noRecord: "Kayıt bulunamadı",
   },
 
   ui: {

@@ -8,7 +8,8 @@
     "build": "node scripts/astro.mjs check && node scripts/astro.mjs build",
     "preview": "node scripts/astro.mjs preview",
     "deploy": "npm run build && wrangler deploy",
-    "astro": "node scripts/astro.mjs"
+    "astro": "node scripts/astro.mjs",
+    "stop": "node scripts/stop.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",

@@ -3,6 +3,17 @@ import "@/styles/global.css";
 import { defaultLocale, getSiteContent, localePath, locales } from "@/lib/data";
 import { buildJsonLd } from "@/lib/schema";
 
+interface Props {
+  /** Sayfa başlığı (verilmezse ana sayfa SEO başlığı) */
+  title?: string;
+  /**
+   * Yardımcı sayfa (404 vb.): her zaman noindex; canonical, dil bağlantıları,
+   * paylaşım etiketleri ve işletme verisi (JSON-LD) eklenmez.
+   */
+  utility?: boolean;
+}
+const { title, utility = false } = Astro.props;
+
 const s = getSiteContent(Astro.currentLocale);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi): public/og.jpg, 1200x630
@@ -28,18 +39,21 @@ const jsonLd = buildJsonLd(s, Astro.site!, canonical);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{s.seo.title}</title>
-    <meta name="description" content={s.seo.description} />
-    <link rel="canonical" href={canonical} />
+    <title>{title ?? s.seo.title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#2b3828" />
+    <meta name="robots" content={indexable && !utility ? "index, follow" : "noindex, nofollow"} />
+    {
+      !utility && (
+        <Fragment>
+    <meta name="description" content={s.seo.description} />
+    <link rel="canonical" href={canonical} />
     {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
     <link rel="alternate" hreflang="x-default" href={xDefault} />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#2b3828" />
-    <meta name="robots" content={indexable ? "index, follow" : "noindex, nofollow"} />
 
-    <!-- Paylaşım önizlemesi (Open Graph: WhatsApp, Facebook, LinkedIn) -->
+    {/* Paylaşım önizlemesi (Open Graph: WhatsApp, Facebook, LinkedIn) */}
     <meta property="og:type" content="website" />
     <meta property="og:locale" content={s.locale.ogLocale} />
     {otherOgLocales.map((l) => <meta property="og:locale:alternate" content={l} />)}
@@ -53,13 +67,16 @@ const jsonLd = buildJsonLd(s, Astro.site!, canonical);
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={ogAlt} />
 
-    <!-- X (Twitter) -->
+    {/* X (Twitter) */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={s.seo.title} />
     <meta name="twitter:description" content={s.seo.description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+        </Fragment>
+      )
+    }
   </head>
   <body>
     <a
