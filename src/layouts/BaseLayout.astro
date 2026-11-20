@@ -28,6 +28,12 @@ const ogAlt = s.ui.ogImageAlt;
 // astro.config.mjs → site gerçek alan adıyla değişince otomatik olarak "index, follow" olur.
 const indexable = !Astro.site?.hostname.endsWith(".workers.dev");
 
+// Cloudflare Web Analytics (ücretsiz, çerezsiz: çerez banner'ı gerekmez). Token gizli değil, HTML'de görünür.
+// Panel: dash.cloudflare.com → Analytics & Logs → Web Analytics. Sadece build'de eklenir (npm run dev sayılmaz).
+// Alan adı gelince panelde yeni adres eklenir; token değişirse burası güncellenir.
+const CF_ANALYTICS_TOKEN = "541411d7560447f8bfe347d1e7433fc4";
+const analytics = import.meta.env.PROD && CF_ANALYTICS_TOKEN;
+
 // Dil sürümleri: Google'a aynı sayfanın diğer dillerini bildirir (hreflang)
 const alternates = locales.map((l) => ({ lang: l, href: new URL(localePath(l), Astro.site).href }));
 const xDefault = new URL(localePath(defaultLocale), Astro.site).href;
@@ -90,5 +96,15 @@ const jsonLd = buildJsonLd(s, Astro.site!, canonical);
       >{s.ui.skipToContent}</a
     >
     <slot />
+    {
+      analytics && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: CF_ANALYTICS_TOKEN })}
+        />
+      )
+    }
   </body>
 </html>

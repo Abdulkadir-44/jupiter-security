@@ -255,7 +255,8 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 - [x] **favicon.ico** (16/32/48 px, `public/favicon.ico`; eski tarayıcılar ve bazı araçlar için, SVG ikon da duruyor).
 - [ ] **Gizlilik / KVKK aydınlatma metni** sayfası + footer linki (gerçek firma unvanı ve iletişim bilgisi gelince; yayından önce müşterinin muhasebeci/avukatına gösterilmeli). Kullanım koşulları: form/admin paneli gelince.
 - Kontrol listesi (20 madde, 20.11.2026): 12 tamam; form gelince yapılacak 3 (yükleme durumu, form hataları, teşekkür sayfası); çerez banner'ı gerekmiyor (site çerez kullanmıyor; Google Analytics eklenirse gerekir).
-- [ ] **Cloudflare Web Analytics** (ücretsiz, çerezsiz, KVKK dostu): ziyaret + "Ara"/"WhatsApp" tıklamaları.
+- [x] **Cloudflare Web Analytics** (`BaseLayout.astro` → `CF_ANALYTICS_TOKEN`; sadece build'de, dev sayılmaz; çerezsiz → banner gerekmez). Panel: dash.cloudflare.com → Analytics & Logs → Web Analytics. Gösterir: ziyaretçi, sayfa görüntüleme, nereden gelindiği, ülke/cihaz, gerçek kullanıcı hızı. **Buton tıklamalarını (Ara / WhatsApp) SAYMAZ.** Alan adı gelince panelde yeni adres eklenecek.
+- [ ] **Ara / WhatsApp tıklama sayımı** (backend aşamasında): Cloudflare Workers Analytics Engine (ücretsiz) ile küçük bir sayaç ucu; ya da alan adı Cloudflare'e bağlanınca Cloudflare Zaraz.
 
 *2) Anahtar kelimeler ve site yapısı (gerçek içerikle birlikte):*
 - Hedef aramalar: konum ("iskenderun kamera montajı", "iskenderun güvenlik kamerası", "hatay kamera sistemleri"), ilçe ("dörtyol / arsuz / payas / belen / antakya kamera"), fiyat ("4 kameralı sistem fiyatı", "ev kamera sistemi fiyatları"), mekân ("dükkan / apartman kamera sistemi"), bilgi ("kamera kaç gün kayıt yapar", "işyerinde kamera KVKK").
