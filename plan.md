@@ -177,7 +177,7 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 - [ ] `astro.config.mjs` içindeki `site` adresinin gerçek alan adıyla güncellenmesi
 
 ### 4. Yayın öncesi kontrol
-- [ ] SEO: sitemap (`@astrojs/sitemap`), `robots.txt`, paylaşım görseli (Open Graph)
+- [x] SEO: sitemap (`@astrojs/sitemap`), `robots.txt`, paylaşım görseli `public/og.jpg` (1200x630), Open Graph + X etiketleri, apple-touch-icon. Alan adı gelince sadece `astro.config.mjs` → `site` değişecek; hepsi otomatik güncellenir.
 - [ ] Lighthouse: hız, erişilebilirlik, SEO puanları
 - [ ] Gerçek telefonda test (iPhone + Android)
 - [ ] Google İşletme Profili (gezici işletme için "hizmet bölgesi" olarak açılabilir; yerel aramalarda çok etkili)

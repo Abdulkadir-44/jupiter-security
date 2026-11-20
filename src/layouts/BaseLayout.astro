@@ -4,6 +4,9 @@ import { getSiteContent } from "@/lib/data";
 
 const s = getSiteContent();
 const canonical = new URL(Astro.url.pathname, Astro.site);
+// Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi): public/og.jpg, 1200x630
+const ogImage = new URL("/og.jpg", Astro.site).href;
+const ogAlt = "JÜPİTER Kamera Güvenlik Sistemleri: Kör nokta bırakmıyoruz";
 
 // Yerel işletme yapılandırılmış verisi (Google için)
 const jsonLd = {
@@ -15,6 +18,8 @@ const jsonLd = {
   areaServed: s.contact.serviceAreas.map((name) => ({ "@type": "City", name })),
   address: { "@type": "PostalAddress", addressLocality: "İskenderun", addressRegion: "Hatay", addressCountry: "TR" },
   url: canonical.href,
+  image: ogImage,
+  logo: new URL("/apple-touch-icon.png", Astro.site).href,
   sameAs: [s.contact.instagram.url],
 };
 ---
@@ -28,12 +33,30 @@ const jsonLd = {
     <meta name="description" content={s.seo.description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#1b2a44" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Paylaşım önizlemesi (Open Graph: WhatsApp, Facebook, LinkedIn) -->
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content={s.brand.fullName} />
     <meta property="og:title" content={s.seo.title} />
     <meta property="og:description" content={s.seo.description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogAlt} />
+
+    <!-- X (Twitter) -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={s.seo.title} />
+    <meta name="twitter:description" content={s.seo.description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogAlt} />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
