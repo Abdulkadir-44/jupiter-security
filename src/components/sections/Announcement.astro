@@ -1,0 +1,26 @@
+---
+import { getSiteContent, whatsappHref } from "@/lib/data";
+
+const s = getSiteContent();
+const a = s.announcement;
+---
+
+{
+  a && (
+    <aside aria-label="Kampanya" class="bg-teal text-ink">
+      <div class="wrap flex flex-col items-start gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="font-semibold">{a.text}</p>
+        {a.cta && (
+          <a
+            href={whatsappHref(s.contact, "Merhaba, kampanya hakkında bilgi almak istiyorum: " + a.text)}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-11 shrink-0 items-center rounded-full bg-ink px-4 font-semibold text-paper transition-colors duration-200 hover:bg-navy"
+          >
+            {a.cta}
+          </a>
+        )}
+      </div>
+    </aside>
+  )
+}

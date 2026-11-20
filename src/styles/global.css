@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "@fontsource-variable/big-shoulders/opsz.css";
+@import "@fontsource-variable/instrument-sans/index.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-400.css";
+@import "@fontsource/ibm-plex-mono/latin-ext-500.css";
+
+/*
+ * JÜPİTER tasarım token'ları (v2)
+ * Kaynak: ui-ux-pro-max "Real Estate/Property" paleti (güven turkuazı + profesyonel mavi + açık zemin),
+ * Super 8 Studio referansından daha açık tonlarda uyarlandı. MOR KULLANILMAZ.
+ *
+ * navy     #1B2A44  koyu bölümler, hero karartma
+ * navy-2   #22355A  koyu yüzey (kart, panel)
+ * ink      #13203A  açık zeminde metin, footer
+ * teal     #17A8A2  tek vurgu
+ * teal-ink #0F766E  açık zeminde turkuaz metin
+ * cream    #F3F1EB  açık bölümler
+ * paper    #F6F5F1  koyu zeminde metin
+ * coral    #E8573A  sadece logodaki "Büyük Kırmızı Leke"
+ */
+@theme {
+  --color-navy: #1b2a44;
+  --color-navy-2: #22355a;
+  --color-navy-3: #2c4269;
+  --color-ink: #13203a;
+  --color-ink-soft: #4a5a72;
+  --color-teal: #17a8a2;
+  --color-teal-soft: #5cc8c3;
+  --color-teal-ink: #0f766e;
+  --color-cream: #f3f1eb;
+  --color-cream-2: #e8e5dc;
+  --color-paper: #f6f5f1;
+  --color-mist: #a9b6c9;
+  --color-coral: #e8573a;
+  --color-wa: #25d366;
+
+  --font-sans: "Instrument Sans Variable", "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-tall: "Big Shoulders Variable", "Big Shoulders", Impact, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quart: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--color-navy);
+    color: var(--color-paper);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-teal);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Dev, dar, büyük harfli başlık (Big Shoulders, display optik boyutu) */
+@utility font-tall {
+  font-family: var(--font-tall);
+  font-variation-settings: "opsz" 72;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+}
+
+/* Zarif bölüm başlığı (Instrument Serif) */
+@utility font-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+}
+
+@utility wrap {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* Sayfa içinde yuvarlak köşeli panel (Super 8 tarzı) */
+@utility panel {
+  margin-inline: 0.5rem;
+  border-radius: 1.25rem;
+  @media (width >= 48rem) {
+    margin-inline: 1.25rem;
+    border-radius: 1.75rem;
+  }
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Kamera ekranı tarama çizgisi dokusu (sadece kamera görsellerinde) */
+@utility scanlines {
+  background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 3px);
+}
+
+/* Hero başlığının tek seferlik girişi */
+@keyframes rise {
+  from {
+    transform: translateY(0.35em);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.rise {
+  animation: rise 0.9s var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 120ms);
+}

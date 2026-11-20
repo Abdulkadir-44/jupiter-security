@@ -1,0 +1,265 @@
+---
+import { Menu, X } from "lucide-react";
+import Logo from "@/components/Logo.astro";
+import { getSiteContent, telHref } from "@/lib/data";
+
+const s = getSiteContent();
+---
+
+<!--
+  Header davranışı (Super 8 referansı):
+  Sayfa başında şeffaf ve tam genişlik. Aşağı kaydırınca ortada yüzen, yuvarlak
+  köşeli, cam efektli bir şeride dönüşür; alttaki ince çizgi ortadan kapanır.
+-->
+<header id="site-header" data-compact="false" class="site-header fixed inset-x-0 top-0 z-50 px-2 md:px-3 lg:px-0">
+  <div class="nav-bar mx-auto flex items-center justify-between gap-6">
+    <a href="#top" aria-label={`${s.brand.fullName}, sayfa başı`} class="nav-logo rounded-md">
+      <Logo />
+    </a>
+
+    <nav aria-label="Ana menü" class="hidden lg:block">
+      <ul class="flex items-center gap-1">
+        {
+          s.nav.map((n) => (
+            <li>
+              <a href={n.href} class="nav-link">
+                {n.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <a href={telHref(s.contact)} class="nav-cta">
+        <span>{s.hero.primaryCta}</span>
+        <svg class="nav-cta-arrow size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M4 10 10 4M5 4h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </a>
+      <button
+        id="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        class="grid size-11 cursor-pointer place-items-center rounded-full border border-paper/20 text-paper lg:hidden"
+      >
+        <span class="sr-only" data-label-open>{s.ui.menu}</span>
+        <span class="sr-only hidden" data-label-close>{s.ui.close}</span>
+        <Menu className="size-5" aria-hidden="true" data-icon-open />
+        <X className="hidden size-5" aria-hidden="true" data-icon-close />
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" hidden class="mx-auto mt-2 max-w-[1040px] rounded-[1.5rem] bg-navy/95 p-5 shadow-2xl ring-1 ring-paper/10 backdrop-blur-md lg:hidden">
+    <nav aria-label="Mobil menü">
+      <ul class="grid">
+        {
+          s.nav.map((n) => (
+            <li>
+              <a href={n.href} class="block border-b border-paper/10 py-3.5 font-title text-[1.6rem]" data-close-menu>
+                {n.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a
+        href={telHref(s.contact)}
+        class="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-full bg-teal font-semibold text-ink"
+      >
+        {s.ui.call}: <span class="tabular-nums">{s.contact.phoneDisplay}</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .nav-bar {
+    position: relative;
+    max-width: 80rem;
+    height: 80px;
+    margin-top: 0;
+    padding-inline: 1rem;
+    border-radius: 0;
+    background-color: rgb(27 42 68 / 0);
+    box-shadow:
+      0 0 0 0 rgb(0 0 0 / 0),
+      0 0 0 0 rgb(246 245 241 / 0);
+    font-size: 15px;
+  }
+  @media (width >= 48rem) {
+    .nav-bar {
+      padding-inline: 2.5rem;
+    }
+  }
+
+  /* Alt çizgi */
+  .nav-bar::before {
+    content: "";
+    position: absolute;
+    inset-inline: 1rem;
+    bottom: 0;
+    height: 1px;
+    background: rgb(246 245 241 / 0.2);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+  }
+  @media (width >= 48rem) {
+    .nav-bar::before {
+      inset-inline: 2.5rem;
+    }
+  }
+
+  /* Geçişler sadece sayfa hazır olunca (ilk yüklemede zıplama olmasın) */
+  .site-header[data-ready="true"] .nav-bar {
+    transition:
+      max-width 0.7s var(--ease-out-expo),
+      height 0.55s var(--ease-out-expo),
+      margin-top 0.55s var(--ease-out-expo),
+      padding 0.55s var(--ease-out-expo),
+      border-radius 0.55s var(--ease-out-expo),
+      background-color 0.4s ease,
+      box-shadow 0.4s ease,
+      font-size 0.55s var(--ease-out-expo),
+      backdrop-filter 0.2s ease;
+  }
+  .site-header[data-ready="true"] .nav-bar::before {
+    transition:
+      transform 0.4s var(--ease-in-out-quart) 0.35s,
+      opacity 0.2s ease 0.35s;
+  }
+
+  /* Kompakt (yüzen) hal */
+  .site-header[data-compact="true"] .nav-bar {
+    max-width: 1040px;
+    height: 60px;
+    margin-top: 8px;
+    padding-inline: 1.25rem 0.5rem;
+    border-radius: 30px;
+    background-color: rgb(27 42 68 / 0.86);
+    backdrop-filter: blur(14px) saturate(1.2);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow:
+      0 10px 30px -12px rgb(0 0 0 / 0.6),
+      0 0 0 1px rgb(246 245 241 / 0.1);
+    font-size: 13.5px;
+  }
+  @media (width >= 48rem) {
+    .site-header[data-compact="true"] .nav-bar {
+      height: 66px;
+      margin-top: 12px;
+      padding-inline: 1.75rem 0.75rem;
+      border-radius: 33px;
+    }
+  }
+  .site-header[data-compact="true"] .nav-bar::before {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  .site-header[data-ready="true"][data-compact="true"] .nav-bar::before {
+    transition:
+      transform 0.3s var(--ease-in-out-quart),
+      opacity 0.2s ease 0.15s;
+  }
+
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: 0.85rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: rgb(246 245 241 / 0.88);
+    transition: color 0.2s ease;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0.85rem;
+    bottom: 10px;
+    height: 1.5px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+  .nav-link:hover {
+    color: var(--color-paper);
+  }
+  .nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  .nav-cta {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    height: 42px;
+    padding-inline: 0.5rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-paper);
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      padding 0.4s var(--ease-out-expo);
+  }
+  @media (width >= 40rem) {
+    .nav-cta {
+      display: inline-flex;
+    }
+  }
+  .nav-cta-arrow {
+    color: var(--color-teal);
+    transition: transform 0.25s var(--ease-out-expo);
+  }
+  .nav-cta:hover .nav-cta-arrow {
+    transform: translate(2px, -2px);
+  }
+  .site-header[data-compact="true"] .nav-cta {
+    padding-inline: 1.125rem;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .site-header[data-compact="true"] .nav-cta-arrow {
+    color: var(--color-teal-ink);
+  }
+</style>
+
+<script>
+  const header = document.getElementById("site-header")!;
+  const toggle = document.getElementById("menu-toggle")!;
+  const menu = document.getElementById("mobile-menu")!;
+  let menuOpen = false;
+
+  const update = () => header.setAttribute("data-compact", String(menuOpen || window.scrollY > 40));
+  update();
+  requestAnimationFrame(() => requestAnimationFrame(() => header.setAttribute("data-ready", "true")));
+  window.addEventListener("scroll", update, { passive: true });
+
+  const setOpen = (open: boolean) => {
+    menuOpen = open;
+    toggle.setAttribute("aria-expanded", String(open));
+    menu.hidden = !open;
+    update();
+    toggle.querySelector("[data-icon-open]")?.classList.toggle("hidden", open);
+    toggle.querySelector("[data-icon-close]")?.classList.toggle("hidden", !open);
+    toggle.querySelector("[data-label-open]")?.classList.toggle("hidden", open);
+    toggle.querySelector("[data-label-close]")?.classList.toggle("hidden", !open);
+  };
+
+  toggle.addEventListener("click", () => setOpen(!menuOpen));
+  menu.querySelectorAll("[data-close-menu]").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && menuOpen) {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+</script>

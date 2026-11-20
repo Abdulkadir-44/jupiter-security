@@ -1,0 +1,85 @@
+---
+import { Picture } from "astro:assets";
+import { Phone } from "lucide-react";
+import heroImage from "@/assets/hero/8fLnkZ8Y0eM.jpg";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
+
+/*
+ * Fotoğraf: Unsplash (ücretsiz Unsplash lisansı), "Security cameras mounted on a pole against clouds"
+ * https://unsplash.com/photos/8fLnkZ8Y0eM
+ */
+const s = getSiteContent();
+const h = s.hero;
+---
+
+<section id="top" class="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-navy">
+  <Picture
+    src={heroImage}
+    alt={h.imageAlt}
+    formats={["avif", "webp"]}
+    widths={[640, 1024, 1600, 2400]}
+    sizes="(min-width: 1024px) 68vw, 100vw"
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-y-0 right-0 -z-20 h-full w-full object-cover object-[60%_50%] lg:w-[68%] lg:object-center"
+  />
+  <!-- Karartma: solda yazı okunurluğu, altta bilgi satırı için -->
+  <div
+    class="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgb(27_42_68/0.9)_0%,rgb(27_42_68/0.6)_60%,rgb(27_42_68/0.35)_100%)] lg:bg-[linear-gradient(90deg,rgb(27_42_68)_0%,rgb(27_42_68)_32%,rgb(27_42_68/0.55)_52%,rgb(27_42_68/0.15)_100%)]"
+    aria-hidden="true"
+  >
+  </div>
+  <div class="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-navy via-navy/60 to-transparent" aria-hidden="true">
+  </div>
+
+  <div class="wrap flex flex-1 flex-col justify-end pt-32 pb-10 md:pb-14">
+    <h1 class="sr-only">{h.title}</h1>
+    <p class="font-tall text-[clamp(4.25rem,14vw,12.5rem)] text-paper" aria-hidden="true">
+      {
+        h.titleLines.map((line, i) => (
+          <span class="block">
+            <span class:list={["rise block", i === h.titleLines.length - 1 && "text-teal"]} style={`--i:${i}`}>
+              {line}
+            </span>
+          </span>
+        ))
+      }
+    </p>
+
+    <div class="mt-10 grid gap-10 border-t border-paper/20 pt-8 lg:grid-cols-[1fr_auto] lg:items-end">
+      <dl class="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-3 lg:max-w-[44rem]">
+        {
+          h.meta.map((m) => (
+            <div>
+              <dt class="text-sm text-mist">{m.label}</dt>
+              <dd class="mt-0.5 font-title text-[1.45rem]">{m.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="lg:max-w-[26rem]">
+        <p class="text-[1.1rem] text-paper/90">{h.lead}</p>
+        <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+          <a
+            href={telHref(s.contact)}
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-paper px-6 font-semibold text-ink transition-colors duration-200 hover:bg-cream-2"
+          >
+            <Phone className="size-[1.05rem] text-teal-ink" strokeWidth={2.4} aria-hidden="true" />
+            {h.primaryCta}
+          </a>
+          <a
+            href={whatsappHref(s.contact)}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold text-paper transition-colors duration-200 hover:border-paper hover:bg-paper/10"
+          >
+            <WhatsAppIcon className="size-[1.1rem]" />
+            {h.secondaryCta}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

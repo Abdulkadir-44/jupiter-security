@@ -1,0 +1,55 @@
+---
+/**
+ * JÜPİTER logosu: bantlı gezegen + mercan "Büyük Kırmızı Leke".
+ * İşaret birkaç saniyede bir kendi etrafında döner (hareketi azalt ayarında durur).
+ */
+interface Props {
+  class?: string;
+  /** Yazı boyutu; işaret buna göre ölçeklenir */
+  size?: "nav" | "footer";
+  spin?: boolean;
+}
+const { class: className = "", size = "nav", spin = true } = Astro.props;
+const id = `lg-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<span class:list={["logo inline-flex items-center", size === "nav" ? "gap-2.5" : "gap-4 md:gap-6", className]}>
+  <svg
+    viewBox="0 0 32 32"
+    class:list={["logo-mark shrink-0", spin && "logo-spin", size === "nav" ? "size-[1.75em]" : "size-[0.9em]"]}
+    aria-hidden="true"
+  >
+    <defs><clipPath id={id}><circle cx="16" cy="16" r="13"></circle></clipPath></defs>
+    <circle cx="16" cy="16" r="14" fill="var(--color-teal)"></circle>
+    <g clip-path={`url(#${id})`}>
+      <rect x="0" y="9.4" width="32" height="3" fill="var(--color-ink)" opacity="0.55"></rect>
+      <rect x="0" y="15.6" width="32" height="1.6" fill="var(--color-ink)" opacity="0.4"></rect>
+      <rect x="0" y="21.2" width="32" height="2.4" fill="var(--color-ink)" opacity="0.5"></rect>
+    </g>
+    <ellipse cx="20.4" cy="19.2" rx="3.4" ry="2.2" fill="var(--color-coral)"></ellipse>
+  </svg>
+  <span class:list={["font-tall leading-none", size === "nav" ? "text-[1.6em] tracking-[0.02em]" : "tracking-[0.005em]"]}>
+    JÜPİTER
+  </span>
+</span>
+
+<style>
+  .logo-spin {
+    animation: logo-spin 7s var(--ease-in-out-quart) infinite;
+    transform-origin: 50% 50%;
+  }
+  @keyframes logo-spin {
+    0%,
+    72% {
+      transform: rotate(0turn);
+    }
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-spin {
+      animation: none;
+    }
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+import { getSiteContent } from "@/lib/data";
+
+const s = getSiteContent();
+---
+
+<section aria-label={s.contactSection.areasTitle} class="bg-navy">
+  <div class="wrap flex flex-col gap-5 py-10 md:flex-row md:items-center md:gap-10 md:py-12">
+    <p class="shrink-0 text-sm text-mist">{s.contactSection.areasTitle}</p>
+    <ul class="flex flex-wrap items-center gap-x-8 gap-y-2 md:gap-x-12">
+      {s.contact.serviceAreas.map((a) => <li class="font-tall text-[2rem] text-paper/80 md:text-[2.4rem]">{a}</li>)}
+    </ul>
+  </div>
+</section>

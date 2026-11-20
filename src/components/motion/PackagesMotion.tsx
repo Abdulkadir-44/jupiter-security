@@ -1,0 +1,219 @@
+import { useState, type MouseEvent } from "react";
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion, type Variants } from "motion/react";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { whatsappHref } from "@/lib/data";
+import { cn } from "@/lib/utils";
+import type { SiteContent } from "@/content/site.tr";
+
+type Pkg = SiteContent["packages"]["items"][number];
+
+const ease = [0.22, 1, 0.36, 1] as const;
+
+/** Tik işareti: çizilerek belirir */
+function DrawCheck({ className, delay, reduced }: { className?: string; delay: number; reduced: boolean }) {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={cn("mt-1 size-4 shrink-0", className)}>
+      <motion.path
+        d="M3 8.5 6.5 12 13 4.5"
+        stroke="currentColor"
+        strokeWidth={2.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={reduced ? false : { pathLength: 0 }}
+        whileInView={{ pathLength: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.45, ease: "easeOut", delay }}
+      />
+    </svg>
+  );
+}
+
+function PackageCard({
+  it,
+  index,
+  reduced,
+  contact,
+  askLabel,
+}: {
+  it: Pkg;
+  index: number;
+  reduced: boolean;
+  contact: SiteContent["contact"];
+  askLabel: string;
+}) {
+  const featured = !!it.featured;
+  const [seen, setSeen] = useState(reduced);
+  // Fareyi takip eden ışık
+  const mx = useMotionValue(-200);
+  const my = useMotionValue(-200);
+  const glow = useMotionTemplate`radial-gradient(420px circle at ${mx}px ${my}px, ${
+    featured ? "rgb(23 168 162 / 0.28)" : "rgb(23 168 162 / 0.14)"
+  }, transparent 60%)`;
+  const onMove = (e: MouseEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set(e.clientX - r.left);
+    my.set(e.clientY - r.top);
+  };
+  const onLeave = () => {
+    mx.set(-200);
+    my.set(-200);
+  };
+
+  // Öne çıkan paket en son ve biraz daha yüksekten gelir
+  const order = featured ? 2 : index > 1 ? 1 : 0;
+  const baseDelay = order * 0.16;
+
+  const card: Variants = {
+    hidden: { opacity: 0, y: featured ? 140 : 90, scale: featured ? 0.9 : 0.96, rotateX: 12 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      rotateX: 0,
+      transition: { type: "spring", stiffness: 65, damping: 15, mass: 1, delay: baseDelay },
+    },
+  };
+
+  const [count, ...rest] = it.cameras.split(" ");
+  const unit = rest.join(" ");
+
+  return (
+    <motion.li
+      style={{ perspective: 1000 }}
+      initial={reduced ? false : "hidden"}
+      whileInView="show"
+      viewport={{ once: true, amount: 0.25 }}
+      onViewportEnter={() => setSeen(true)}
+      variants={card}
+      className={cn("relative", featured && "lg:z-10")}
+    >
+      <motion.div
+        onMouseMove={reduced ? undefined : onMove}
+        onMouseLeave={reduced ? undefined : onLeave}
+        whileHover={reduced ? undefined : { y: -8 }}
+        transition={{ type: "spring", stiffness: 300, damping: 24 }}
+        className={cn(
+          "relative flex h-full flex-col overflow-hidden rounded-[1.25rem] p-6 sm:p-8",
+          featured && "lg:-my-4 lg:h-[calc(100%+2rem)] lg:py-10",
+          featured
+            ? "bg-navy text-paper shadow-[0_40px_80px_-30px_rgb(19_32_58/0.7)]"
+            : "bg-paper text-ink ring-1 ring-ink/10 shadow-[0_24px_50px_-30px_rgb(19_32_58/0.35)]",
+        )}
+      >
+        {/* Fare ışığı */}
+        {!reduced && <motion.div aria-hidden="true" className="pointer-events-none absolute inset-0" style={{ background: glow }} />}
+
+        {/* Öne çıkan pakette giriş parlaması */}
+        {featured && !reduced && (
+          <motion.div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-paper/15 to-transparent"
+            initial={{ x: "0%" }}
+            animate={seen ? { x: "420%" } : undefined}
+            transition={{ duration: 1.3, ease: "easeInOut", delay: baseDelay + 0.7 }}
+          />
+        )}
+        {featured && (
+          <motion.span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 rounded-[1.25rem] ring-2 ring-teal"
+            initial={reduced ? false : { opacity: 0 }}
+            whileInView={reduced ? undefined : { opacity: [0, 1, 0.6] }}
+            viewport={{ once: true }}
+            transition={{ duration: 1.4, delay: baseDelay + 0.6 }}
+          />
+        )}
+
+        <div className="relative flex items-baseline justify-between gap-4">
+          <h3 className="font-title text-[1.75rem]">{it.name}</h3>
+          <span className={cn("text-right text-sm", featured ? "text-mist" : "text-ink-soft")}>{it.for}</span>
+        </div>
+
+        {/* Kamera sayısı: alttan kayarak gelir */}
+        <p className={cn("relative mt-4 flex items-end gap-3 font-tall", featured ? "text-teal" : "text-teal-ink")}>
+          <span className="overflow-hidden pt-[0.1em]">
+            <motion.span
+              className="block text-[5rem]"
+              initial={reduced ? false : { y: "105%" }}
+              animate={seen ? { y: "0%" } : undefined}
+              transition={{ duration: 0.9, ease, delay: baseDelay + 0.35 }}
+            >
+              {count}
+            </motion.span>
+          </span>
+          <span className="overflow-hidden pb-[0.55em]">
+            <motion.span
+              className="block text-[2.2rem]"
+              initial={reduced ? false : { y: "105%" }}
+              animate={seen ? { y: "0%" } : undefined}
+              transition={{ duration: 0.8, ease, delay: baseDelay + 0.5 }}
+            >
+              {unit}
+            </motion.span>
+          </span>
+        </p>
+
+        <motion.ul
+          className={cn("relative mt-6 grid flex-1 content-start gap-2.5 border-t pt-6", featured ? "border-paper/15" : "border-ink/10")}
+          initial={reduced ? false : "hidden"}
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: baseDelay + 0.55 } } }}
+        >
+          {it.features.map((f, i) => (
+            <motion.li
+              key={f}
+              className="flex items-start gap-3"
+              variants={{
+                hidden: { opacity: 0, x: -14 },
+                show: { opacity: 1, x: 0, transition: { duration: 0.45, ease } },
+              }}
+            >
+              <DrawCheck
+                className={featured ? "text-teal" : "text-teal-ink"}
+                delay={baseDelay + 0.65 + i * 0.08}
+                reduced={reduced}
+              />
+              <span>{f}</span>
+            </motion.li>
+          ))}
+        </motion.ul>
+
+        <p className={cn("relative mt-8 text-sm", featured ? "text-mist" : "text-ink-soft")}>{it.price}</p>
+        <motion.a
+          href={whatsappHref(contact, 'Merhaba, "' + it.name + '" paketi (' + it.cameras + ") hakkında bilgi almak istiyorum.")}
+          target="_blank"
+          rel="noopener"
+          whileHover={reduced ? undefined : { scale: 1.03 }}
+          whileTap={reduced ? undefined : { scale: 0.97 }}
+          className={cn(
+            "relative mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200",
+            featured ? "bg-teal text-ink hover:bg-teal-soft" : "bg-ink text-paper hover:bg-navy-3",
+          )}
+        >
+          <WhatsAppIcon className="size-[1.1rem]" />
+          {askLabel}
+        </motion.a>
+      </motion.div>
+    </motion.li>
+  );
+}
+
+export default function PackagesMotion({
+  items,
+  contact,
+  askLabel,
+}: {
+  items: Pkg[];
+  contact: SiteContent["contact"];
+  askLabel: string;
+}) {
+  const reduced = useReducedMotion() ?? false;
+  return (
+    <ul className="mt-12 grid gap-4 md:mt-16 lg:grid-cols-3 lg:items-stretch">
+      {items.map((it, i) => (
+        <PackageCard key={it.name} it={it} index={i} reduced={reduced} contact={contact} askLabel={askLabel} />
+      ))}
+    </ul>
+  );
+}

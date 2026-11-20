@@ -1,0 +1,18 @@
+---
+import UseCaseTabs from "@/components/motion/UseCaseTabs";
+import { getSiteContent } from "@/lib/data";
+
+const u = getSiteContent().useCases;
+---
+
+<section id="alanlar" aria-labelledby="alanlar-baslik" class="border-t border-paper/10">
+  <div class="wrap py-20 md:py-28">
+    <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
+      <h2 id="alanlar-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{u.title}</h2>
+      <p class="max-w-[42ch] text-[1.1rem] text-mist">{u.lead}</p>
+    </div>
+    <div class="mt-12 md:mt-16">
+      <UseCaseTabs client:visible items={u.items} />
+    </div>
+  </div>
+</section>

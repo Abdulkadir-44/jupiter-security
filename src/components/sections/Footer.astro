@@ -1,0 +1,64 @@
+---
+import Logo from "@/components/Logo.astro";
+import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
+
+const s = getSiteContent();
+const year = new Date().getFullYear();
+---
+
+<footer class="panel mb-2 bg-cream text-ink md:mb-5">
+  <div class="wrap pt-14 pb-8 md:pt-20">
+    <div class="grid gap-10 md:grid-cols-3">
+      <div>
+        <p class="text-sm text-ink-soft">Menü</p>
+        <ul class="mt-4 grid gap-2.5">
+          {
+            s.nav.map((n) => (
+              <li>
+                <a href={n.href} class="font-medium transition-colors duration-200 hover:text-teal-ink">
+                  {n.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm text-ink-soft">İletişim</p>
+        <ul class="mt-4 grid gap-2.5">
+          <li>
+            <a href={telHref(s.contact)} class="font-medium tabular-nums hover:text-teal-ink">{s.contact.phoneDisplay}</a>
+          </li>
+          <li>{s.contact.hours}</li>
+          <li>{s.contact.region}</li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-sm text-ink-soft">Sosyal</p>
+        <ul class="mt-4 grid gap-2.5">
+          <li>
+            <a href={whatsappHref(s.contact)} target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-medium hover:text-teal-ink">
+              <WhatsAppIcon className="size-4" /> WhatsApp
+            </a>
+          </li>
+          <li>
+            <a href={s.contact.instagram.url} target="_blank" rel="noopener" class="inline-flex items-center gap-2 font-medium hover:text-teal-ink">
+              <InstagramIcon className="size-4" /> Instagram
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Dev logo -->
+    <div class="mt-16 border-t border-ink/15 pt-8 md:mt-24">
+      <Logo size="footer" class="text-[clamp(4.5rem,19vw,17rem)]" />
+    </div>
+
+    <div class="mt-8 flex flex-col justify-between gap-2 text-sm text-ink-soft sm:flex-row">
+      <p>© {year} {s.brand.fullName}</p>
+      <p>{s.footer.note}</p>
+    </div>
+  </div>
+</footer>

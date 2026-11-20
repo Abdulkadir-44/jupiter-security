@@ -1,0 +1,58 @@
+---
+import { Clock, Phone } from "lucide-react";
+import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
+
+const s = getSiteContent();
+const c = s.closing;
+---
+
+<!-- Kapanış çağrısı + iletişim -->
+<section id="iletisim" aria-labelledby="iletisim-baslik" class="border-t border-paper/10">
+  <div class="wrap flex flex-col items-center py-24 text-center md:py-36">
+    <h2 id="iletisim-baslik" class="font-tall text-[clamp(4.5rem,15vw,12rem)]">
+      {
+        c.lines.map((line, i) => (
+          <span class:list={["block", i === c.lines.length - 1 && "text-teal"]}>{line}</span>
+        ))
+      }
+    </h2>
+    <p class="mt-8 max-w-[44ch] text-[1.15rem] text-mist">{c.lead}</p>
+
+    <a
+      href={telHref(s.contact)}
+      class="group mt-10 inline-flex items-center gap-3 rounded-md font-title text-[clamp(2.4rem,6vw,4rem)] whitespace-nowrap tabular-nums"
+    >
+      <Phone className="size-[0.6em] text-teal" strokeWidth={2} aria-hidden="true" />
+      <span class="underline decoration-teal decoration-2 underline-offset-[0.18em] transition-colors duration-200 group-hover:text-teal">
+        {s.contact.phoneDisplay}
+      </span>
+    </a>
+
+    <div class="mt-10 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
+      <a
+        href={whatsappHref(s.contact)}
+        target="_blank"
+        rel="noopener"
+        class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-paper px-6 font-semibold text-ink transition-colors duration-200 hover:bg-cream-2"
+      >
+        <WhatsAppIcon className="size-[1.1rem] text-[#1da851]" />
+        {s.contactSection.whatsappLabel}
+      </a>
+      <a
+        href={s.contact.instagram.url}
+        target="_blank"
+        rel="noopener"
+        class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold transition-colors duration-200 hover:border-paper hover:bg-paper/10"
+      >
+        <InstagramIcon className="size-[1.1rem]" />
+        {s.contact.instagram.handle}
+      </a>
+    </div>
+
+    <p class="mt-8 flex items-center gap-2 text-mist">
+      <Clock className="size-4 text-teal" strokeWidth={2.2} aria-hidden="true" />
+      {s.contact.hours}
+    </p>
+  </div>
+</section>

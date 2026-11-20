@@ -1,0 +1,40 @@
+---
+import { Icon } from "@/components/ui/Icon";
+import { getSiteContent } from "@/lib/data";
+
+const s = getSiteContent();
+const w = s.work;
+---
+
+<section id="isler" aria-labelledby="isler-baslik" class="panel bg-ink">
+  <div class="wrap py-20 md:py-28">
+    <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
+      <h2 id="isler-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{w.title}</h2>
+      <p class="max-w-[42ch] text-[1.1rem] text-mist">
+        {w.lead}
+        {w.allLink}: {s.ui.soon}.
+      </p>
+    </div>
+
+    <!-- Kayıt cihazı çoklu ekran görünümü. Gerçek kurulum fotoğrafları gelince her karenin arka planına konacak. -->
+    <ul class="mt-12 grid grid-cols-2 gap-2 md:mt-16 lg:grid-cols-3">
+      {
+        w.items.map((it) => (
+          <li class="relative aspect-[4/3] overflow-hidden rounded-[0.9rem] bg-gradient-to-br from-navy-2 to-navy">
+            <Icon
+              name={it.kind}
+              className="absolute top-1/2 left-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 text-paper/10"
+              strokeWidth={1}
+            />
+            <div class="scanlines absolute inset-0" aria-hidden="true" />
+            <span class="absolute top-3 left-3.5 font-mono text-[11px] text-paper/70 sm:text-xs">{it.cam}</span>
+            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent px-3.5 pt-10 pb-3">
+              <p class="text-sm font-semibold leading-tight sm:text-base">{it.place}</p>
+              <p class="text-xs text-mist sm:text-sm">{it.area}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

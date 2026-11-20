@@ -1,0 +1,33 @@
+---
+import { Icon } from "@/components/ui/Icon";
+import { getSiteContent } from "@/lib/data";
+
+const p = getSiteContent().process;
+---
+
+<section id="surec" aria-labelledby="surec-baslik" class="panel bg-cream text-ink">
+  <div class="wrap py-20 md:py-28">
+    <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
+      <h2 id="surec-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{p.title}</h2>
+      <p class="max-w-[42ch] text-[1.1rem] text-ink-soft">{p.lead}</p>
+    </div>
+
+    <!-- Adımlar gerçekten sıralı olduğu için numaralı -->
+    <ol class="mt-14 grid border-t border-ink/15 md:mt-20 lg:grid-cols-5">
+      {
+        p.steps.map((st, i) => (
+          <li class="grid grid-cols-[3.25rem_1fr] gap-x-4 border-b border-ink/15 py-7 lg:block lg:border-b-0 lg:border-l lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
+            <span class="font-tall text-[3rem] leading-none text-teal-ink lg:text-[4rem]">{i + 1}</span>
+            <div class="lg:mt-8">
+              <h3 class="flex items-center gap-2 text-[1.15rem] font-semibold">
+                <Icon name={st.icon} className="size-[1.1rem] shrink-0 text-teal-ink" strokeWidth={2.2} />
+                {st.title}
+              </h3>
+              <p class="mt-2 text-[0.98rem] text-ink-soft">{st.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

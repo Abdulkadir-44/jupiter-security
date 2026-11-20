@@ -1,0 +1,47 @@
+---
+import "@/styles/global.css";
+import { getSiteContent } from "@/lib/data";
+
+const s = getSiteContent();
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+// Yerel işletme yapılandırılmış verisi (Google için)
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  name: s.brand.fullName,
+  description: s.seo.description,
+  telephone: s.contact.phoneE164,
+  areaServed: s.contact.serviceAreas.map((name) => ({ "@type": "City", name })),
+  address: { "@type": "PostalAddress", addressLocality: "İskenderun", addressRegion: "Hatay", addressCountry: "TR" },
+  url: canonical.href,
+  sameAs: [s.contact.instagram.url],
+};
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{s.seo.title}</title>
+    <meta name="description" content={s.seo.description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#1b2a44" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:title" content={s.seo.title} />
+    <meta property="og:description" content={s.seo.description} />
+    <meta property="og:url" content={canonical} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a
+      href="#icerik"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-md focus:bg-teal focus:px-4 focus:py-2 focus:font-semibold focus:text-ink"
+      >{s.ui.skipToContent}</a
+    >
+    <slot />
+  </body>
+</html>

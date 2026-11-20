@@ -1,0 +1,29 @@
+---
+import { Check } from "lucide-react";
+import CoverageScene from "@/components/motion/CoverageScene";
+import { getSiteContent } from "@/lib/data";
+
+const s = getSiteContent();
+const c = s.coverage;
+const scene = s.hero.scene;
+---
+
+<section aria-labelledby="kapsama-baslik">
+  <div class="wrap grid items-center gap-12 py-20 md:py-28 lg:grid-cols-[0.85fr_1fr] lg:gap-20">
+    <div>
+      <h2 id="kapsama-baslik" class="font-title text-balance text-[clamp(2.4rem,5vw,4rem)]">{c.title}</h2>
+      <p class="mt-6 max-w-[46ch] text-[1.1rem] text-mist">{c.lead}</p>
+      <ul class="mt-8 grid gap-3">
+        {
+          c.points.map((pt) => (
+            <li class="flex items-start gap-3">
+              <Check className="mt-1 size-4 shrink-0 text-teal" strokeWidth={3} aria-hidden="true" />
+              <span>{pt}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <CoverageScene client:visible label={scene.label} result={scene.result} rooms={scene.rooms} />
+  </div>
+</section>

@@ -1,0 +1,13 @@
+---
+import ReviewsMotion from "@/components/motion/ReviewsMotion";
+import { getSiteContent } from "@/lib/data";
+
+const r = getSiteContent().reviews;
+---
+
+<section aria-labelledby="yorum-baslik" class="overflow-x-clip">
+  <div class="wrap py-20 md:py-28">
+    <h2 id="yorum-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{r.title}</h2>
+    <ReviewsMotion client:visible={{ rootMargin: "300px" }} reviews={r} />
+  </div>
+</section>
