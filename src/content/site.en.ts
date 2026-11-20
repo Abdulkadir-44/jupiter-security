@@ -39,7 +39,8 @@ export const site: SiteContent = {
 
   hero: {
     titleLines: ["We leave no", "blind spots"],
-    title: "We install cameras without leaving a single blind spot.",
+    eyebrow: "CCTV Installation in İskenderun",
+    title: "Security camera installation that leaves no blind spots",
     meta: [
       { label: "Area", value: "İskenderun and Hatay" },
       { label: "Service", value: "Turnkey installation" },
@@ -64,7 +65,7 @@ export const site: SiteContent = {
   },
 
   process: {
-    title: "Every step is on us, right up to watching on your phone",
+    title: "From site visit to your phone, every step of the installation is on us",
     lead: "You deal with one company. The same team handles everything from the site visit to maintenance.",
     steps: [
       {
@@ -96,7 +97,7 @@ export const site: SiteContent = {
   },
 
   useCases: {
-    title: "What do you want to protect?",
+    title: "Home, shop or factory: what do you want to protect?",
     lead: "Every place has different blind spots. Pick an area and see the setup that suits it.",
     items: [
       {
@@ -166,7 +167,7 @@ export const site: SiteContent = {
   },
 
   packages: {
-    title: "Ready-made packages",
+    title: "Ready-made security camera packages",
     lead: "We don't quote a final price without seeing your place. These packages give you an idea; we finalise the details together during the site visit.",
     priceNote: "Final price is set after the site visit",
     items: [
@@ -209,7 +210,7 @@ export const site: SiteContent = {
   },
 
   work: {
-    title: "Our work",
+    title: "Our camera installations",
     lead: "We will be sharing photos of our installations here soon.",
     items: [
       { cam: "CAM 01", place: "Market entrance", area: "Çay Mah.", kind: "store" },

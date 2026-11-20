@@ -61,7 +61,9 @@ export interface SiteContent {
   hero: {
     /** Dev başlığın satırları (büyük harfe otomatik çevrilir) */
     titleLines: string[];
-    /** Erişilebilirlik ve SEO için düz başlık */
+    /** Sloganın üstündeki görünür etiket; H1'in görünen kısmı (SEO: ana anahtar kelime) */
+    eyebrow: string;
+    /** H1'in devamı (ekran okuyucu ve Google için sloganın düz cümlesi) */
     title: string;
     lead: string;
     meta: { label: string; value: string }[];
@@ -211,7 +213,8 @@ export const site: SiteContent = {
 
   hero: {
     titleLines: ["Kör nokta", "bırakmıyoruz"],
-    title: "Kör nokta bırakmadan kamera kuruyoruz.",
+    eyebrow: "İskenderun Kamera Montajı",
+    title: "Kör nokta bırakmadan güvenlik kamerası kuruyoruz",
     meta: [
       { label: "Bölge", value: "İskenderun ve Hatay" },
       { label: "Hizmet", value: "Anahtar teslim kurulum" },
@@ -236,7 +239,7 @@ export const site: SiteContent = {
   },
 
   process: {
-    title: "Telefonunuzdan izleyene kadar her adım bizde",
+    title: "Keşiften telefonunuza, kamera kurulumunun her adımı bizde",
     lead: "Tek bir firmayla konuşursunuz. Keşiften bakıma kadar aynı ekip ilgilenir.",
     steps: [
       {
@@ -268,7 +271,7 @@ export const site: SiteContent = {
   },
 
   useCases: {
-    title: "Nereyi korumak istiyorsunuz?",
+    title: "Ev, dükkan, fabrika: nereyi korumak istiyorsunuz?",
     lead: "Her mekânın kör noktası farklıdır. Bir alan seçin, size uygun kurulumu görün.",
     items: [
       {
@@ -334,7 +337,7 @@ export const site: SiteContent = {
   },
 
   packages: {
-    title: "Hazır paketler",
+    title: "Hazır kamera sistemi paketleri",
     lead: "Mekânınızı görmeden kesin fiyat vermiyoruz. Bu paketler size bir fikir versin, keşifte birlikte netleştirelim.",
     priceNote: "Fiyat keşiften sonra netleşir",
     items: [
@@ -377,7 +380,7 @@ export const site: SiteContent = {
   },
 
   work: {
-    title: "Yapılan işler",
+    title: "Yaptığımız kamera kurulumları",
     lead: "Kurulum fotoğraflarımızı yakında burada paylaşacağız.",
     items: [
       { cam: "CAM 01", place: "Market girişi", area: "Çay Mah.", kind: "store" }, // YER TUTUCU
