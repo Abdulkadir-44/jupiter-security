@@ -2,13 +2,194 @@
 import { getSiteContent } from "@/lib/data";
 
 const s = getSiteContent(Astro.currentLocale);
+// Mobil "ipte asılı kartlar" için kart başına eğim ve ip uzunluğu (sırayla değişir, doğal dursun)
+const TILTS = [-2.5, 2, -1.5, 2.5, -2, 1.5];
+const ROPES = ["1.6rem", "2.3rem", "2.1rem", "1.5rem", "1.8rem", "2.4rem"];
 ---
 
 <section aria-label={s.contactSection.areasTitle} class="bg-navy">
   <div class="wrap flex flex-col gap-5 py-10 md:flex-row md:items-center md:gap-10 md:py-12">
     <p class="shrink-0 text-sm text-mist">{s.contactSection.areasTitle}</p>
-    <ul class="flex flex-wrap items-center gap-x-8 gap-y-2 md:gap-x-12">
-      {s.contact.serviceAreas.map((a) => <li class="font-tall text-[2rem] text-paper/80 md:text-[2.4rem]">{a}</li>)}
+    <!--
+      Masaüstü/tablet (md ve üzeri): eskisi gibi tek satır, yan yana ilçe adları.
+      Mobil (md altı): 2 sütunlu, her satırda bir ip hattı; kartlar iple asılı, hafif yatık.
+      Kaydırınca yukarıdan düşüp sarkaç gibi sallanarak yerine oturur (alttaki script + CSS).
+    -->
+    <ul data-areas class="areas flex flex-wrap items-center gap-x-8 gap-y-2 md:gap-x-12">
+      {
+        s.contact.serviceAreas.map((a, i) => (
+          <li
+            class="font-tall text-[2rem] text-paper/80 md:text-[2.4rem]"
+            style={`--tilt:${TILTS[i % TILTS.length]}deg;--rope:${ROPES[i % ROPES.length]};--col:${i % 2}`}
+          >
+            <span class="hang">
+              <span class="rope" aria-hidden="true" />
+              <span class="card">{a}</span>
+            </span>
+          </li>
+        ))
+      }
     </ul>
   </div>
 </section>
+
+<style>
+  /* Masaüstünde ip ve kart süsleri yok */
+  .rope {
+    display: none;
+  }
+
+  @media (width < 48rem) {
+    .areas {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1rem;
+      row-gap: 0.9rem;
+      padding-top: 0.25rem;
+    }
+
+    .areas > li {
+      position: relative;
+    }
+
+    /* İp + kart birlikte, ipin bağlandığı noktadan sallanır (satır hattı sabit kalır) */
+    .hang {
+      position: relative;
+      display: block;
+      padding-top: var(--rope);
+      transform-origin: 50% 0;
+      rotate: var(--tilt);
+    }
+
+    /* Satırdaki ip hattı (yan yana kartların parçaları birleşip tek çizgi olur) */
+    .areas > li::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -0.5rem;
+      right: -0.5rem;
+      height: 1px;
+      background: color-mix(in srgb, var(--color-paper) 22%, transparent);
+    }
+
+    /* Dikey ip + üstte sarı pin */
+    .rope {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: var(--rope);
+      translate: -50% 0;
+      background: color-mix(in srgb, var(--color-paper) 45%, transparent);
+    }
+    .rope::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      translate: -50% 0;
+      border-radius: 9999px;
+      background: var(--color-sun);
+      box-shadow: 0 0 8px color-mix(in srgb, var(--color-sun) 60%, transparent);
+    }
+
+    .card {
+      position: relative;
+      display: block;
+      padding: 0.7rem 0.5rem 0.6rem;
+      text-align: center;
+      font-size: 1.65rem;
+      line-height: 1;
+      color: var(--color-paper);
+      background: var(--color-navy-2);
+      border: 1px solid color-mix(in srgb, var(--color-paper) 10%, transparent);
+      border-radius: 0.9rem;
+      box-shadow: 0 14px 26px -16px rgb(0 0 0 / 0.6);
+    }
+    /* İpin karta bağlandığı küçük delik */
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      translate: -50% 0;
+      border-radius: 9999px;
+      background: var(--color-navy);
+      box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.5);
+    }
+  }
+
+  /* Düşüp sallanma animasyonu (sadece mobil, hareket azaltma kapalıysa, JS çalışınca) */
+  @media (width < 48rem) and (prefers-reduced-motion: no-preference) {
+    [data-hang] > li:not(.is-in) .hang {
+      opacity: 0;
+      translate: 0 -2.5rem;
+      rotate: calc(var(--tilt) * 3);
+    }
+    [data-hang] > li.is-in .hang {
+      animation: hang-swing 1.5s cubic-bezier(0.25, 0.8, 0.35, 1) both;
+      animation-delay: calc(var(--col) * 120ms);
+    }
+  }
+
+  /*
+   * Sarkaç: önce kendi eğimi yönünde (komşusundan uzağa) açık gelir, sonra azalan
+   * salınımlarla eğimine oturur. Yan yana kartlar zıt yönlere eğik olduğu için çarpışmaz.
+   */
+  @keyframes hang-swing {
+    0% {
+      opacity: 0;
+      translate: 0 -2.5rem;
+      rotate: calc(var(--tilt) * 3);
+    }
+    25% {
+      opacity: 1;
+      translate: 0 0;
+      rotate: calc(var(--tilt) * 2.4);
+    }
+    45% {
+      rotate: calc(var(--tilt) * -1.2);
+    }
+    63% {
+      rotate: calc(var(--tilt) * 1.6);
+    }
+    80% {
+      rotate: calc(var(--tilt) * 0.7);
+    }
+    100% {
+      opacity: 1;
+      translate: 0 0;
+      rotate: var(--tilt);
+    }
+  }
+</style>
+
+<script>
+  const list = document.querySelector<HTMLElement>("[data-areas]");
+  const mobile = matchMedia("(width < 48rem)").matches;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (list && mobile && !reduced && "IntersectionObserver" in window) {
+    const cards = [...list.querySelectorAll<HTMLElement>(":scope > li")];
+    // Sayfa açıldığında zaten geçilmiş kartları gizleme
+    cards.forEach((c) => c.getBoundingClientRect().bottom < 0 && c.classList.add("is-in"));
+    list.setAttribute("data-hang", "");
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.classList.add("is-in");
+          io.unobserve(e.target);
+        }
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.3 },
+    );
+    cards.forEach((c) => io.observe(c));
+  }
+</script>
