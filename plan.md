@@ -169,6 +169,7 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 - **"Nasıl çalışıyoruz" mobil/tablet:** her adım ayrı kart, sırayla sola/sağa yatık; kaydırınca yukarıdan düşüp yaylanarak oturur (hafif script + CSS, `Process.astro`). Masaüstü aynı.
 - **İçerik:** süreç adımı "Montaj ve kablolama" → "Montaj" (kullanıcı değiştirdi).
 - **og.jpg** ve **apple-touch-icon.png** yeşil palette yeniden üretildi.
+- **"Hizmet verdiğimiz yerler" mobil:** ilçeler 2 sütunlu, satır başına ip hattı; her kart sarı pinli bir iple asılı ve hafif yatık. Kaydırınca yukarıdan düşüp sarkaç gibi sallanarak oturur (CSS + küçük script, `Areas.astro`). Masaüstü/tablet aynı. Yayında (`cb0cfc8`).
 - Geri dönüş noktaları: mavi palet `bd4b283`, yeşil palet ilk hali `4bc8bb7`.
 
 ## Sıradaki adımlar (önerilen sıra)
