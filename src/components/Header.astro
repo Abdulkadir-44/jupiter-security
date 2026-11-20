@@ -153,7 +153,8 @@ const langs = otherLocales(Astro.currentLocale).map((l) => ({
 
   /* Kompakt (yüzen) hal */
   .site-header[data-compact="true"] .nav-bar {
-    max-width: 1040px;
+    /* Logo büyüdüğü için 1040 → 1180 px (telefonda header zaten tam genişlik) */
+    max-width: 1180px;
     height: 60px;
     margin-top: 8px;
     padding-inline: 1.25rem 0.5rem;
@@ -165,6 +166,12 @@ const langs = otherLocales(Astro.currentLocale).map((l) => ({
       0 10px 30px -12px rgb(0 0 0 / 0.6),
       0 0 0 1px color-mix(in srgb, var(--color-paper) 10%, transparent);
     font-size: 13.5px;
+  }
+  /* Masaüstü: 1180 px'ten dar ekranlarda kenarlarda en az 12 px boşluk kalsın */
+  @media (width >= 64rem) {
+    .site-header[data-compact="true"] .nav-bar {
+      max-width: min(1180px, calc(100% - 1.5rem));
+    }
   }
   @media (width >= 48rem) {
     .site-header[data-compact="true"] .nav-bar {
