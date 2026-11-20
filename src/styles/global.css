@@ -110,9 +110,17 @@
   width: 100%;
   max-width: 80rem;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  /* Mobilde içerik kenardan 2rem (32px) içeride; panel içinde margin + padding yine 2rem eder */
+  padding-inline: 2rem;
   @media (width >= 48rem) {
     padding-inline: 2.5rem;
+  }
+}
+
+/* Panel (0.5rem margin) içindeki wrap: toplam kenar boşluğu mobilde de 2rem kalsın */
+@media (width < 48rem) {
+  .panel > .wrap {
+    padding-inline: 1.5rem;
   }
 }
 

@@ -7,6 +7,100 @@ import type { SiteContent } from "@/content/site.tr";
 
 type Item = SiteContent["useCases"]["items"][number];
 
+const CHANNELS = 32; // Ölçek tüm sekmelerde aynı: alanlar birbiriyle kıyaslanabilsin
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Kayıt cihazı (NVR) kanal ızgarası: önerilen kamera aralığını gösterir.
+ * Alt sınıra kadar kanallar dolu yanar, üst sınıra kadar olanlar "ihtiyaca göre" (çerçeveli).
+ */
+function ChannelGrid({ cameras, label, reduced }: { cameras: string; label: string; reduced: boolean }) {
+  const m = cameras.match(/^(\d+)\D+(\d+)\s*(.*)$/);
+  const min = m ? Number(m[1]) : 0;
+  const max = m ? Number(m[2]) : 0;
+  const unit = m?.[3] || "kamera";
+  const range = m ? `${m[1]}–${m[2]}` : cameras;
+
+  return (
+    <div className="relative overflow-hidden rounded-[1rem] border border-paper/10 bg-ink/70 p-5">
+      {/* Üst bilgi satırı: kayıt cihazı ekranı gibi */}
+      <div className="flex items-center justify-between font-mono text-[11px] text-paper/60">
+        <span className="flex items-center gap-1.5">
+          <motion.span
+            className="size-1.5 rounded-full bg-coral"
+            animate={reduced ? undefined : { opacity: [1, 0.25, 1] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+          />
+          NVR · {CHANNELS} CH
+        </span>
+        <span>CH 01–{String(max).padStart(2, "0")}</span>
+      </div>
+
+      <p className="mt-4 text-sm text-mist">{label}</p>
+      <p className="mt-0.5 flex items-baseline gap-2 overflow-hidden">
+        <motion.span
+          className="font-tall text-[3.25rem] leading-[0.9] text-paper"
+          initial={reduced ? false : { y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: EASE, delay: 0.05 }}
+        >
+          {range}
+        </motion.span>
+        <motion.span
+          className="font-tall text-[1.35rem] text-teal"
+          initial={reduced ? false : { y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5, ease: EASE, delay: 0.15 }}
+        >
+          {unit}
+        </motion.span>
+      </p>
+
+      {/* Kanal ızgarası */}
+      <div className="relative mt-5" aria-hidden="true">
+        <div className="grid grid-cols-8 gap-1.5">
+          {Array.from({ length: CHANNELS }, (_, i) => {
+            const state = i < min ? "on" : i < max ? "opt" : "off";
+            return (
+              <motion.span
+                key={i}
+                className={cn(
+                  "aspect-square rounded-[4px]",
+                  state === "on" && "bg-teal shadow-[0_0_10px_rgb(23_168_162/0.55)]",
+                  state === "opt" && "border border-teal/70 bg-teal/15",
+                  state === "off" && "bg-paper/[0.06]",
+                )}
+                initial={reduced || state === "off" ? false : { scale: 0.3, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 420, damping: 22, delay: 0.2 + i * 0.035 }}
+              />
+            );
+          })}
+        </div>
+        {/* Tarama çizgisi */}
+        {!reduced && (
+          <motion.span
+            className="pointer-events-none absolute inset-x-0 h-6 bg-gradient-to-b from-transparent via-teal/25 to-transparent"
+            initial={{ top: "-25%" }}
+            animate={{ top: "105%" }}
+            transition={{ duration: 2.6, repeat: Infinity, repeatDelay: 1.2, ease: "linear" }}
+          />
+        )}
+      </div>
+
+      {/* Açıklama */}
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-mist">
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] bg-teal" /> Temel kurulum
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="size-2.5 rounded-[3px] border border-teal/70 bg-teal/15" /> İhtiyaca göre
+        </span>
+      </div>
+    </div>
+  );
+}
+
 /** Kullanım alanları: erişilebilir sekme yapısı (ok tuşlarıyla gezilebilir). */
 export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { items: Item[]; camerasLabel?: string }) {
   const [active, setActive] = useState(0);
@@ -33,7 +127,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
         role="tablist"
         aria-label="Kullanım alanları"
         onKeyDown={onKey}
-        className="-mx-1 flex snap-x gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0"
+        className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:flex-col lg:flex-nowrap"
       >
         {items.map((it, i) => {
           const selected = i === active;
@@ -50,8 +144,10 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
               tabIndex={selected ? 0 : -1}
               onClick={() => setActive(i)}
               className={cn(
-                "relative flex min-h-12 shrink-0 cursor-pointer snap-start items-center gap-3 rounded-full px-4 py-3 text-left font-semibold transition-colors duration-200",
-                selected ? "text-ink" : "text-paper hover:bg-navy-2",
+                // Mobil: 2x2 ızgara, küçük yazı ve kenarlıklı buton. lg: dikey liste (masaüstü aynı)
+                "relative flex min-h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border px-2 py-2.5 text-xs font-semibold min-[360px]:gap-2 min-[360px]:px-3 min-[360px]:text-[0.8125rem] transition-colors duration-200",
+                "sm:justify-start sm:px-4 sm:text-[0.95rem] lg:min-h-12 lg:gap-3 lg:border-transparent lg:py-3 lg:text-left lg:text-base",
+                selected ? "border-transparent text-ink" : "border-paper/15 text-paper hover:bg-navy-2",
               )}
             >
               {selected && (
@@ -61,7 +157,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                 />
               )}
-              <Icon name={it.icon} className="relative size-5" strokeWidth={2} />
+              <Icon name={it.icon} className="relative size-4 shrink-0 lg:size-5" strokeWidth={2} />
               <span className="relative whitespace-nowrap">{it.label}</span>
             </button>
           );
@@ -81,7 +177,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
             animate={{ opacity: 1, x: 0 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, x: -12 }}
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-            className="grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_15rem]"
+            className="grid gap-8 p-6 sm:p-8 md:grid-cols-[1fr_17rem] md:items-start"
           >
             <div>
               <h3 className="font-title text-[2rem] sm:text-[2.4rem]">{current.title}</h3>
@@ -95,13 +191,7 @@ export default function UseCaseTabs({ items, camerasLabel = "Önerilen" }: { ite
                 ))}
               </ul>
             </div>
-            <div className="flex flex-col justify-between gap-6 rounded-[1rem] border border-paper/10 bg-ink/60 p-5">
-              <Icon name={current.icon} className="size-14 text-teal" strokeWidth={1.4} />
-              <div>
-                <p className="text-sm text-mist">{camerasLabel}</p>
-                <p className="font-tall text-[2.2rem]">{current.cameras}</p>
-              </div>
-            </div>
+            <ChannelGrid cameras={current.cameras} label={camerasLabel} reduced={reduced} />
           </motion.div>
         </AnimatePresence>
       </div>
