@@ -50,6 +50,8 @@ export interface SiteContent {
     instagram: { handle: string; url: string };
     facebook?: { name: string; url: string };
     hours: string;
+    /** Google için açılış saatleri (ekrandaki `hours` ile aynı olmalı). Günler: Mo Tu We Th Fr Sa Su */
+    openingHours: { days: ("Mo" | "Tu" | "We" | "Th" | "Fr" | "Sa" | "Su")[]; opens: string; closes: string }[];
     region: string;
     serviceAreas: string[];
   };
@@ -193,14 +195,15 @@ export const site: SiteContent = {
     whatsappMessage: "Merhaba, kamera sistemi hakkında bilgi almak istiyorum.",
     instagram: { handle: "@jupiterkamera", url: "https://instagram.com/jupiterkamera" }, // YER TUTUCU
     hours: "Her gün 08:00 – 20:00", // YER TUTUCU
+    openingHours: [{ days: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], opens: "08:00", closes: "20:00" }], // YER TUTUCU
     region: "İskenderun ve çevresi, Hatay",
     serviceAreas: ["İskenderun", "Arsuz", "Payas", "Dörtyol", "Belen", "Antakya"], // YER TUTUCU
   },
 
   seo: {
-    title: "JÜPİTER Kamera Güvenlik Sistemleri | İskenderun kamera montajı",
+    title: "İskenderun Kamera Montajı ve Güvenlik Kamerası | JÜPİTER",
     description:
-      "İskenderun ve Hatay genelinde ev, dükkan, fabrika ve siteler için anahtar teslim güvenlik kamerası kurulumu. Malzeme, montaj ve telefondan izleme bizden.",
+      "İskenderun ve Hatay'da ev, dükkan, fabrika ve siteler için anahtar teslim güvenlik kamerası montajı. Keşif, malzeme, kurulum ve telefondan izleme tek elden.",
   },
 
   nav: [

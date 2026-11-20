@@ -173,17 +173,38 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 
 ## Sıradaki adımlar (önerilen sıra)
 
-### 1. Gerçek içerik (müşteriden alınacak)
-Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
-- [ ] Telefon numarası ve WhatsApp numarası
-- [ ] Instagram hesabı (varsa Facebook)
-- [ ] Çalışma saatleri ve hizmet verilen ilçeler
-- [ ] Gerçek istatistik (kurulum sayısı, kaç yıllık tecrübe, garanti süresi)
-- [ ] Gerçek müşteri yorumları (3 adet, isim + baş harf + semt)
-- [ ] Paket içerikleri ve fiyat yaklaşımı (fiyat yazılacak mı, "arayın" mı kalacak)
-- [ ] Kampanya var mı? (şerit hazır, `Announcement.astro`)
-- [ ] Kurulum fotoğrafları ("Yapılan işler" kareleri için, en az 6 adet)
-- [ ] Alan adı tercihi (örn. jupiterkamera.com / jupiterguvenlik.com)
+### 1. Gerçek içerik: müşteriden bilgi gelince yapılacaklar
+
+> **En kolay yol:** Müşteriden bilgiler gelince Claude'a "müşteri bilgileri geldi" deyip bilgileri yapıştırın. Aşağıdaki listenin hepsini Claude girer: hem Türkçe hem İngilizce, hem ekrandaki metin hem Google'a giden bilgi. Sizin dosyalara dokunmanız gerekmez.
+> Liste, neyin nereye gittiğini unutmamak için. Dosyalardaki ilgili satırlarda `YER TUTUCU` yazar.
+
+**A) Müşteriden istenecek bilgiler**
+
+| # | Bilgi | Sitede nereyi etkiler | Dosya / alan (Claude için) |
+|---|---|---|---|
+| 1 | Telefon ve WhatsApp numarası | Tüm "Ara" ve "WhatsApp" butonları, Google bilgisi | `site.tr.ts` → `contact.phoneDisplay`, `phoneE164`, `whatsapp` (İngilizce otomatik) |
+| 2 | Instagram (varsa Facebook) | Footer, iletişim bölümü, Google bilgisi | `site.tr.ts` → `contact.instagram`, `contact.facebook` (İngilizce otomatik) |
+| 3 | Çalışma saatleri | İletişim ve footer'daki saat yazısı + Google'daki açılış saatleri | `site.tr.ts` → `contact.hours` **ve** `contact.openingHours`; `site.en.ts` → `contact.hours` (üçü aynı olmalı) |
+| 4 | Hizmet verilen ilçeler | Hero altındaki ilçe şeridi + Google'daki hizmet bölgesi | `site.tr.ts` → `contact.serviceAreas` (İngilizce otomatik) |
+| 5 | Gerçek istatistik (kurulum sayısı, yıl, garanti) | Yorumlar yanındaki "850+" kartı | `reviews.stat` ve `why.stats`, iki dilde |
+| 6 | Gerçek müşteri yorumları (3-4 adet: isim + soyadı baş harfi + semt) | "Müşterilerimiz ne diyor" | `reviews.items`, iki dilde (İngilizceye Claude çevirir) |
+| 7 | Paket içerikleri ve fiyat kararı | "Hazır kamera sistemi paketleri" + Google'daki hizmet listesi | `packages.items`, iki dilde |
+| 8 | Fiyat aralığı (fiyat yazılacaksa; örn. "4 kamera 15.000 TL'den başlayan") | Paketler + Google'daki fiyat bilgisi (`priceRange`, şu an bilerek boş) | `packages.items[].price` + `src/lib/schema.ts` |
+| 9 | Kampanya var mı? | Sayfa üstündeki kampanya şeridi (hazır, şu an kapalı) | `announcement` + `HomePage.astro`'ya geri ekleme |
+| 10 | Kurulum fotoğrafları (en az 6, mümkünse hangi ilçe/mekân olduğu yazılı) | "Yaptığımız kamera kurulumları" kareleri, ileride ilçe sayfaları | `work.items` + görseller `src/assets/` |
+| 11 | Alan adı tercihi (öneri: `.com.tr`, örn. `jupiterkamera.com.tr`) | Her şey (bkz. bölüm 6a/4) | `astro.config.mjs` → `site` |
+
+**B) Bilerek boş bırakılanlar (gerçek bilgi gelmeden EKLENMEYECEK)**
+- **Google'da yorum yıldızları:** Sitedeki yorumlarla eklenmez (Google kendi sitesindeki yorumları yıldız olarak göstermiyor, sahte yorumla eklemek ceza sebebi). Yıldızlar Google İşletme Profili'ndeki gerçek yorumlardan gelir (bölüm 6a/3).
+- **Fiyat aralığı (`priceRange`):** Müşteri fiyat kararını verince (madde 8).
+- **Tam adres ve harita koordinatı:** Gezici işletme olduğu için adres gizli kalacak; sadece "İskenderun, Hatay" ve ilçeler. Sabit bir yer açılırsa eklenir.
+- **İlçe sayfaları ve hizmet sayfaları:** Gerçek fotoğraf ve iş örnekleri gelmeden açılmaz (şablon kopya sayfa Google cezası).
+
+**C) Bilgiler girildikten sonra Claude'un kontrol edeceği şeyler**
+- [ ] Ekrandaki saat yazısı ile Google'a giden açılış saatleri aynı mı
+- [ ] Ad / telefon / bölge sitede, Google İşletme Profili'nde, Instagram'da ve haritalarda **birebir aynı** mı
+- [ ] İngilizce sayfada da yeni bilgiler doğru görünüyor mu
+- [ ] Paylaşım görseli (og.jpg) güncellenmeli mi (gerçek fotoğraf gelirse)
 
 ### 2. Git ve GitHub
 - [x] Git + GitHub: https://github.com/Abdulkadir-44/jupiter-security (main)
@@ -220,9 +241,9 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 
 *1) Alan adından önce, içerik beklemeden (teknik):*
 - [x] **noindex**: geçici adres (`*.workers.dev`) Google'a kapalı (sahte telefon/yorum dizine girmesin, alan adı gelince içerik iki adreste olmasın). `BaseLayout.astro`'da otomatik: `astro.config.mjs` → `site` gerçek alan adı olunca kendiliğinden `index, follow` olur. robots.txt'de bilerek `Disallow` yok (Google noindex'i görebilsin).
-- [ ] **H1 ve başlıklar**: H1'de "İskenderun" yok ve görünmez (`sr-only`). Hero'ya görünür üst etiket ("İskenderun Kamera Montajı") + anahtar kelimeli görünür H1; bölüm başlıklarına doğal anahtar kelimeler (örn. "Hazır kamera sistemi paketleri"). Slogan tasarımı aynı kalır.
-- [ ] **Title / meta açıklama**: anahtar kelime araştırmasına göre yeniden (iki dilde).
-- [ ] **JSON-LD zenginleştirme**: `@id`, hizmet listesi (`hasOfferCatalog`), hizmet bölgesi, çalışma saatleri, `priceRange`, `sameAs`, her dilde kendi dilinde. Sahte yorumlarla `Review`/`AggregateRating` EKLENMEZ (Google cezalandırır; yıldızlar İşletme Profili'nden gelir).
+- [x] **H1 ve başlıklar** (yapıldı: görünür "● İSKENDERUN KAMERA MONTAJI" etiketi + H1, anahtar kelimeli bölüm başlıkları): H1'de "İskenderun" yok ve görünmez (`sr-only`). Hero'ya görünür üst etiket ("İskenderun Kamera Montajı") + anahtar kelimeli görünür H1; bölüm başlıklarına doğal anahtar kelimeler (örn. "Hazır kamera sistemi paketleri"). Slogan tasarımı aynı kalır.
+- [x] **Title / meta açıklama** (yapıldı): TR "İskenderun Kamera Montajı ve Güvenlik Kamerası | JÜPİTER", EN "CCTV Installation in İskenderun | JÜPİTER Security Cameras"; açıklamalar ~150 karakter.
+- [x] **JSON-LD zenginleştirme** (yapıldı, `src/lib/schema.ts`; açılış saatleri `site.tr.ts` → `contact.openingHours`): `@id`, hizmet listesi (`hasOfferCatalog`), hizmet bölgesi, çalışma saatleri, `priceRange`, `sameAs`, her dilde kendi dilinde. Sahte yorumlarla `Review`/`AggregateRating` EKLENMEZ (Google cezalandırır; yıldızlar İşletme Profili'nden gelir).
 - [ ] **404 sayfası**: iki dilde, tasarıma uygun, ana bölümlere ve telefona yönlendiren.
 - [ ] **Lighthouse tekrar ölçümü** (yeşil palet, hero animasyonu JS'e bağlı slogan, `/en/`); gerekirse CSS satır içi.
 - [ ] **İngilizce paylaşım görseli** (`og-en.jpg`).

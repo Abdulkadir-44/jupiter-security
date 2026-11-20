@@ -1,6 +1,7 @@
 ---
 import "@/styles/global.css";
 import { defaultLocale, getSiteContent, localePath, locales } from "@/lib/data";
+import { buildJsonLd } from "@/lib/schema";
 
 const s = getSiteContent(Astro.currentLocale);
 const canonical = new URL(Astro.url.pathname, Astro.site);
@@ -18,20 +19,8 @@ const alternates = locales.map((l) => ({ lang: l, href: new URL(localePath(l), A
 const xDefault = new URL(localePath(defaultLocale), Astro.site).href;
 const otherOgLocales = locales.filter((l) => l !== s.locale.lang).map((l) => getSiteContent(l).locale.ogLocale);
 
-// Yerel işletme yapılandırılmış verisi (Google için)
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "HomeAndConstructionBusiness",
-  name: s.brand.fullName,
-  description: s.seo.description,
-  telephone: s.contact.phoneE164,
-  areaServed: s.contact.serviceAreas.map((name) => ({ "@type": "City", name })),
-  address: { "@type": "PostalAddress", addressLocality: "İskenderun", addressRegion: "Hatay", addressCountry: "TR" },
-  url: canonical.href,
-  image: ogImage,
-  logo: new URL("/apple-touch-icon.png", Astro.site).href,
-  sameAs: [s.contact.instagram.url],
-};
+// Yerel işletme yapılandırılmış verisi (Google için): ayrıntılar src/lib/schema.ts
+const jsonLd = buildJsonLd(s, Astro.site!, canonical);
 ---
 
 <!doctype html>
