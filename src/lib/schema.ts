@@ -43,12 +43,15 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
       name,
       containedInPlace: { "@type": "AdministrativeArea", name: "Hatay" },
     })),
-    openingHoursSpecification: s.contact.openingHours.map((h) => ({
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: h.days.map((d) => `https://schema.org/${DAYS[d]}`),
-      opens: h.opens,
-      closes: h.closes,
-    })),
+    // Sabit saat yoksa (esnek çalışma) Google'a saat bildirilmez
+    ...(s.contact.openingHours.length > 0 && {
+      openingHoursSpecification: s.contact.openingHours.map((h) => ({
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: h.days.map((d) => `https://schema.org/${DAYS[d]}`),
+        opens: h.opens,
+        closes: h.closes,
+      })),
+    }),
     knowsLanguage: locales.map((l) => getSiteContent(l).locale.numberLocale),
     contactPoint: {
       "@type": "ContactPoint",
@@ -75,6 +78,15 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
             areaServed: "Hatay",
           },
         },
+        {
+          "@type": "Offer",
+          itemOffered: {
+            "@type": "Service",
+            name: s.wifi.eyebrow,
+            description: `${s.wifi.title}. ${s.wifi.lead}`,
+            areaServed: "Hatay",
+          },
+        },
         ...s.packages.items.map((p) => ({
           "@type": "Offer",
           itemOffered: {
@@ -82,6 +94,8 @@ export function buildJsonLd(s: SiteContent, site: URL, canonical: URL) {
             name: `${p.name} (${p.cameras})`,
             description: p.features.join(", "),
           },
+          // "...TL'den başlayan" fiyat (KDV/montaj bilgisi netleşince valueAddedTaxIncluded eklenecek)
+          priceSpecification: { "@type": "PriceSpecification", minPrice: p.priceFrom, priceCurrency: "TRY" },
         })),
       ],
     },

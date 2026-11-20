@@ -183,10 +183,10 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 - ✅ **Sıra:** önce kesin bilgiler (A) güncellenir, açık sorular (B) sonra tek tek konuşulur.
 
 ### A) Net olanlar (onaylanınca doğrudan uygulanacak)
-- **Telefon / WhatsApp:** gerçek numara (WhatsApp aynı numara), `musteri-bilgileri.txt`'te.
-- **İstatistik:** 3 yıl tecrübe, **600+** kurulum (sitedeki "850+" → "600+"), **2 yıl destek ve garanti**.
-- **İlçeler:** mevcut liste kalıyor (İskenderun, Arsuz, Payas, Dörtyol, Belen, Antakya).
-- **Paketler (fiyatlı):**
+- ✅ **Telefon / WhatsApp:** gerçek numara sitede (WhatsApp aynı numara).
+- ✅ **İstatistik:** 3 yıl tecrübe, **600+** kurulum, **2 yıl destek ve garanti** (hero'daki bilgi satırında "Garanti: 2 yıl destek ve garanti", süreç adımı 5 ve 600+ kartında).
+- ✅ **İlçeler:** mevcut liste kalıyor (İskenderun, Arsuz, Payas, Dörtyol, Belen, Antakya).
+- ✅ **Paketler (fiyatlı):** kartta fiyat büyük yazılıyor (`priceFrom` sayı + `priceTemplate`), Google verisinde `minPrice`. 4/8 kanallı kayıt cihazı maddeleri korundu; İşletme paketine yıllık bakım yerine "Telefondan izleme" eklendi.
   | Paket | Kamera | Kayıt | Diğer | Fiyat |
   |---|---|---|---|---|
   | Başlangıç | 2 × 5 MP gece görüşlü | 500 GB | Telefondan izleme, **hareket algılama bildirimi (yeni)** | **9.999 TL'den başlayan** |
@@ -194,8 +194,8 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
   | İşletme | 8 × 5 MP gece görüşlü | 1 TB | Uzaktan çoklu kullanıcı erişimi (yıllık bakım ziyareti **kaldırıldı**) | **29.999 TL'den başlayan** |
   - "Telefondan izleme **kurulumu**" → "Telefondan izleme".
 - **Markalar:** Dahua, Hikvision, ZTEC (?), IOMA (?); güneş enerjili: O-KAM (?), IOMA (yazımlar teyit edilecek).
-- **Güneş enerjili bölüm:** içerik doğru; **inşaat şantiyeleri** vurgusu eklenecek; sağdaki animasyonlu çizim **kaldırılıp** yerine **gerçek fotoğraf slider'ı** (bağ, bahçe, inşaat şantiyesi) gelecek.
-- **Yeni bölüm: Wi-Fi (kablosuz) kameralar:** güneş enerjili bölümün altında, aynı düzen (solda içerik, sağda gerçek fotoğraf slider kartı). İçerik Claude yazacak, müşteri teyit edecek.
+- ✅ **Güneş enerjili bölüm:** içerik doğru; **inşaat şantiyesi** vurgusu eklendi (açıklama + ikinci etiket). Sağdaki animasyonlu çizim **kaldırıldı** (git geçmişinde: `48fd8ff`), yerine `PhotoSlider` (vurgu sarı, 4G sinyal ikonu) geldi: şimdilik 3 yer tutucu slayt (Bağ, Bahçe, İnşaat şantiyesi). Fotoğraf eklemek: `public/medya/gunes/` + `site.*.ts` → `remote.slides[].image`.
+- ✅ **Yeni bölüm: Wi-Fi (kablosuz) kameralar** (ŞABLON, `WifiCameras.astro`): güneş enerjili bölümün altında, aynı düzen (solda içerik, sağda fotoğraf slider kartı); vurgu rengi yeşil (güneş enerjili sarı). Metin taslak, müşteri ürün özelliklerini (iki yönlü konuşma vb.) teyit edecek. Slider: `PhotoSlider.astro` (yeniden kullanılabilir; kaydırma, oklar, noktalar, otomatik ilerleme). Fotoğraf eklemek: `public/medya/wifi/` + `site.*.ts` → `wifi.slides[].image`.
 - **Yeni bölüm: Ürünler slider'ı:** müşterinin kendi çektiği ürün fotoğraflarıyla (telif sorunu yok).
 - **Kampanya:** kampanya olduğunda header'ın üstünde banner; olmadığında görünmez (admin panelinden aç/kapa).
 - **Alan adı:** `jupiterguvenlik.com`, Natro'dan alınacak.
@@ -206,12 +206,12 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 1. ✅ **Alan adı:** `jupiterguvenlik.com` (Türkçe karakterli IDN alan adı yerine; e-posta ve yazım sorunları yüzünden).
 2. **Marka adı:** sitede "JÜPİTER **Kamera** Güvenlik Sistemleri", kaşede "Jüpiter Güvenlik Sistemleri", alan adı "jupiterguvenlik". Google için ad her yerde birebir aynı olmalı (NAP). Sitedeki ad kaşedekiyle aynı mı yapılsın?
 3. **Fiyatlar KDV ve montaj dahil mi?** Türkiye'de tüketiciye gösterilen fiyatın vergiler dahil olması gerekir; "montaj dahil" yazmak da güven verir.
-4. **Paket kartında hem fiyat hem "Bu paketi sor" (WhatsApp) butonu kalsın mı?** Öneri: ikisi birden (fiyat bilgi verir, buton harekete geçirir).
-5. **Çalışma saatleri "esnek":** sitede ne yazsın? Öneri: "Her gün, randevuyla" ya da "Esnek saatler, önceden arayın". Google verisinde sabit saat yazılmaz.
-6. **Sahte yorumlar:** gerçek yorumlar gelene kadar sitedeki 4 uydurma yorum kaldırılsın mı? Öneri: yorum kartları gizlenir, sadece "600+ kurulum" kartı ve "Yorumlar yakında" yerine bölüm tamamen sade tutulur; gerçek 2-3 yorum gelince açılır.
-7. **Instagram/sosyal medya yokken:** butonlar gizlensin mi? Öneri: hesap açılana kadar Instagram butonları ve linkleri görünmez.
+4. ✅ **Paket kartı:** fiyat (büyük) + "Bu paketi sor" WhatsApp butonu birlikte.
+5. ✅ **Çalışma saatleri:** "Esnek saatler, WhatsApp'tan randevuyla" (EN: "Flexible hours, book on WhatsApp"); saat müşteriyle WhatsApp'tan belirleniyor. Google verisine saat yazılmıyor (`openingHours: []`).
+6. ⏸ **Sahte yorumlar:** kullanıcı kararı: şimdilik **kalacak**, gerçek yorumlar gelince değiştirilecek. (Not: alan adına geçip site Google'a açılmadan önce mutlaka değiştirilmeli.)
+7. ⏸ **Instagram:** kullanıcı kararı: şimdilik **kalacak**, hesap açılınca gerçek adresle değiştirilecek.
 8. **Ürünler slider'ı:** hangi ürünler, her üründe ne yazacak (ad, marka, model, kısa özellik, fiyat?), sayfada nerede (öneri: "Hazır paketler"in hemen altı)?
-9. **Güneş enerjili bölüm:** animasyonlu çizim tamamen mi kalksın, yoksa slider'ın altında "Güneş paneli → Batarya → 4G kamera → Telefon" zinciri kalsın mı? Örnek fiyat ve SIM kartı (kamerayla mı geliyor, müşteri mi alıyor) bilgisi hâlâ eksik.
+9. ✅ **Güneş enerjili bölüm:** animasyonlu çizim ve adım zinciri kaldırıldı, yerine slider. Hâlâ eksik: örnek fiyat ve SIM kartı bilgisi (kamerayla mı geliyor, müşteri mi alıyor).
 10. **Wi-Fi bölümü:** marka/model, fiyat, hangi müşterilere (ev içi, bebek/evcil hayvan, küçük dükkan)? Görsel tekrarı olmasın diye **ters düzen** (solda slider, sağda metin) önerilir; müşteri "aynı düzen" dedi.
 11. **Slider fotoğrafları panelden mi yönetilecek?** Öneri: evet; admin panelindeki galeri, kategorili olur (yapılan işler / güneş enerjili / Wi-Fi / ürünler). Bu, admin tasarım dokümanını etkiler.
 12. **Logo:** mevcut gezegen logosu beğenilmedi mi, yoksa onun daha şık/animasyonlu bir hali mi isteniyor? Tamamen yeni bir konsept mi (ör. gezegen + kamera merceği)?

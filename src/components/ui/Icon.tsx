@@ -4,6 +4,7 @@ import {
   Cctv,
   RadioTower,
   SolarPanel,
+  Wifi,
   ClipboardList,
   Factory,
   House,
@@ -30,6 +31,7 @@ const map = {
   battery: BatteryCharging,
   cctv: Cctv,
   tower: RadioTower,
+  wifi: Wifi,
 } satisfies Record<IconName, unknown>;
 
 export function Icon({ name, ...props }: { name: IconName } & LucideProps) {

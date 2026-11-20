@@ -1,0 +1,209 @@
+---
+/**
+ * Fotoğraf slider kartı (kamera ekranı görünümlü). Wi-Fi bölümünde kullanılıyor; güneş enerjili
+ * bölüm ve ürünler için de aynı bileşen kullanılabilir.
+ *
+ * - Mobilde parmakla kaydırılır (CSS scroll-snap), masaüstünde oklar ve noktalar.
+ * - Kendiliğinden ilerler; fare üstündeyken, dokunulunca, klavyeyle odaklanınca ve ekran dışındayken durur.
+ *   Hareket azaltma açıksa otomatik ilerlemez.
+ * - `image` olmayan slaytlarda "Fotoğraf yakında" yer tutucusu görünür.
+ * - Ekstra kütüphane yok: küçük bir script.
+ */
+import { ChevronLeft, ChevronRight, ImageIcon, Signal, Wifi } from "lucide-react";
+import { getSiteContent, fill } from "@/lib/data";
+
+interface Props {
+  slides: { caption: string; image?: string; alt?: string }[];
+  /** Üst şeritteki etiket (örn. "CAM 08 · WI-FI") */
+  label: string;
+  /** Ekran okuyucu için slider adı */
+  ariaLabel: string;
+  /** Vurgu rengi: "teal" (Wi-Fi) ya da "sun" (güneş enerjili) */
+  accent?: "teal" | "sun";
+  /** Üst şeritteki bağlantı ikonu: Wi-Fi ya da mobil (4G) sinyal */
+  icon?: "wifi" | "signal";
+  /** Otomatik ilerleme aralığı (ms) */
+  interval?: number;
+}
+const { slides, label, ariaLabel, accent = "teal", icon = "wifi", interval = 4500 } = Astro.props;
+const s = getSiteContent(Astro.currentLocale);
+const accentBg = accent === "sun" ? "bg-sun" : "bg-teal";
+---
+
+<div
+  class="photo-slider relative overflow-hidden rounded-[1.25rem] border border-paper/10 bg-navy shadow-[0_30px_60px_-30px_rgb(0_0_0/0.7)]"
+  data-slider
+  data-interval={interval}
+  role="region"
+  aria-roledescription="carousel"
+  aria-label={ariaLabel}
+>
+  <!-- Kamera ekranı üst şeridi -->
+  <div class="flex items-center justify-between border-b border-paper/10 px-4 py-3 font-mono text-[11px] text-paper/75 sm:text-xs" aria-hidden="true">
+    <span class="flex items-center gap-2"><span class="rec size-2 rounded-full bg-coral"></span>{label}</span>
+    <span class="flex items-center gap-2">
+      {icon === "signal" ? <Signal className="size-3.5" /> : <Wifi className="size-3.5" />}
+      <span data-counter>1 / {slides.length}</span>
+    </span>
+  </div>
+
+  <!-- Slaytlar -->
+  <ul class="track flex snap-x snap-mandatory overflow-x-auto" data-track tabindex="0" aria-live="polite">
+    {
+      slides.map((sl, i) => (
+        <li
+          class="relative aspect-[4/3] w-full shrink-0 snap-start overflow-hidden"
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} / ${slides.length}: ${sl.caption}`}
+        >
+          {sl.image ? (
+            <img
+              src={sl.image}
+              alt={sl.alt ?? sl.caption}
+              loading="lazy"
+              decoding="async"
+              class="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div class="absolute inset-0 grid place-items-center bg-gradient-to-br from-navy-2 to-ink">
+              <div class="scanlines absolute inset-0" />
+              <div class="relative flex flex-col items-center gap-3 text-paper/35">
+                <ImageIcon className="size-12" strokeWidth={1.2} aria-hidden="true" />
+                <span class="font-mono text-[11px] tracking-[0.2em] uppercase">{s.ui.photoSoon}</span>
+              </div>
+            </div>
+          )}
+          <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent px-4 pt-12 pb-3.5">
+            <p class="font-semibold">{sl.caption}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+
+  <!-- Kontroller -->
+  <div class="flex items-center justify-between gap-3 border-t border-paper/10 px-3 py-2.5">
+    <button
+      type="button"
+      class="grid size-10 cursor-pointer place-items-center rounded-full border border-paper/15 text-paper/80 transition-colors duration-200 hover:border-paper/40 hover:bg-paper/10"
+      data-prev
+      aria-label={s.ui.sliderPrev}
+    >
+      <ChevronLeft className="size-5" aria-hidden="true" />
+    </button>
+    <div class="flex items-center gap-1.5">
+      {
+        slides.map((_, i) => (
+          <button
+            type="button"
+            class:list={["dot h-2 cursor-pointer rounded-full bg-paper/25 transition-all duration-300", accentBg]}
+            data-dot={i}
+            aria-label={fill(s.ui.sliderGoTo, { n: String(i + 1) })}
+          />
+        ))
+      }
+    </div>
+    <button
+      type="button"
+      class="grid size-10 cursor-pointer place-items-center rounded-full border border-paper/15 text-paper/80 transition-colors duration-200 hover:border-paper/40 hover:bg-paper/10"
+      data-next
+      aria-label={s.ui.sliderNext}
+    >
+      <ChevronRight className="size-5" aria-hidden="true" />
+    </button>
+  </div>
+</div>
+
+<style>
+  .track {
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+  .track:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: -2px;
+  }
+  /* Etkin olmayan noktalar soluk ve dar, etkin olan vurgu renginde ve uzun */
+  .dot {
+    width: 0.5rem;
+  }
+  .dot:not([aria-current="true"]) {
+    background-color: color-mix(in srgb, var(--color-paper) 25%, transparent);
+  }
+  .dot[aria-current="true"] {
+    width: 1.5rem;
+  }
+  .rec {
+    animation: rec-blink 1.6s ease-in-out infinite;
+  }
+  @keyframes rec-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track {
+      scroll-behavior: auto;
+    }
+    .rec {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  document.querySelectorAll<HTMLElement>("[data-slider]").forEach((root) => {
+    const track = root.querySelector<HTMLElement>("[data-track]")!;
+    const slides = [...track.children] as HTMLElement[];
+    const dots = [...root.querySelectorAll<HTMLButtonElement>("[data-dot]")];
+    const counter = root.querySelector<HTMLElement>("[data-counter]");
+    const interval = Number(root.dataset.interval) || 4500;
+    let index = 0;
+
+    const go = (i: number) => {
+      index = (i + slides.length) % slides.length;
+      track.scrollTo({ left: index * track.clientWidth });
+    };
+    const update = () => {
+      index = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+      dots.forEach((d, i) => d.setAttribute("aria-current", String(i === index)));
+      if (counter) counter.textContent = `${index + 1} / ${slides.length}`;
+    };
+
+    root.querySelector("[data-prev]")?.addEventListener("click", () => go(index - 1));
+    root.querySelector("[data-next]")?.addEventListener("click", () => go(index + 1));
+    dots.forEach((d, i) => d.addEventListener("click", () => go(i)));
+    track.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+    track.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") (e.preventDefault(), go(index + 1));
+      if (e.key === "ArrowLeft") (e.preventDefault(), go(index - 1));
+    });
+    update();
+
+    // Otomatik ilerleme: görünürken ve kullanıcı etkileşimde değilken
+    if (reduced || slides.length < 2) return;
+    let visible = false;
+    let paused = false;
+    let timer: number | undefined;
+    const tick = () => {
+      if (visible && !paused && !document.hidden) go(index + 1);
+    };
+    const start = () => {
+      clearInterval(timer);
+      timer = window.setInterval(tick, interval);
+    };
+    new IntersectionObserver(([e]) => (visible = !!e?.isIntersecting), { threshold: 0.4 }).observe(root);
+    root.addEventListener("pointerenter", () => (paused = true));
+    root.addEventListener("pointerleave", () => ((paused = false), start()));
+    root.addEventListener("focusin", () => (paused = true));
+    root.addEventListener("focusout", () => (paused = false));
+    track.addEventListener("touchstart", () => ((paused = true), setTimeout(() => (paused = false), 8000)), { passive: true });
+    start();
+  });
+</script>

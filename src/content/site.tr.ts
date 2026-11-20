@@ -23,7 +23,8 @@ export type IconName =
   | "solar"
   | "battery"
   | "cctv"
-  | "tower";
+  | "tower"
+  | "wifi";
 
 export interface SiteContent {
   /** Dil bilgisi (html lang, paylaşım dili, dil değiştirici) */
@@ -54,7 +55,10 @@ export interface SiteContent {
     instagram: { handle: string; url: string };
     facebook?: { name: string; url: string };
     hours: string;
-    /** Google için açılış saatleri (ekrandaki `hours` ile aynı olmalı). Günler: Mo Tu We Th Fr Sa Su */
+    /**
+     * Google için açılış saatleri (ekrandaki `hours` ile aynı olmalı). Günler: Mo Tu We Th Fr Sa Su.
+     * Boş liste = sabit saat yok (esnek çalışma); Google verisine saat yazılmaz.
+     */
     openingHours: { days: ("Mo" | "Tu" | "We" | "Th" | "Fr" | "Sa" | "Su")[]; opens: string; closes: string }[];
     region: string;
     serviceAreas: string[];
@@ -111,13 +115,35 @@ export interface SiteContent {
     title: string;
     lead: string;
     places: string[];
-    steps: { icon: IconName; title: string; text: string }[];
     features: string[];
     note: string;
     cta: string;
     whatsappMessage: string;
-    /** Sağdaki çizimin üst şeridi */
-    screen: { label: string; signal: string; battery: string };
+    /** Slider kartının üst şeridi */
+    screenLabel: string;
+    /**
+     * Slider fotoğrafları. `image` boşsa "fotoğraf yakında" yer tutucusu gösterilir.
+     * Fotoğraf eklemek için: dosyayı public/medya/gunes/ içine koyun, image: "/medya/gunes/dosya.webp" yazın.
+     */
+    slides: { caption: string; image?: string; alt?: string }[];
+  };
+  /** Wi-Fi (kablosuz) kameralar: güneş enerjili bölümün altında, sağda fotoğraf slider'ı */
+  wifi: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    places: string[];
+    features: string[];
+    note: string;
+    cta: string;
+    whatsappMessage: string;
+    /** Slider kartının üst şeridi */
+    screenLabel: string;
+    /**
+     * Slider fotoğrafları. `image` boşsa "fotoğraf yakında" yer tutucusu gösterilir.
+     * Fotoğraf eklemek için: dosyayı public/medya/wifi/ içine koyun, image: "/medya/wifi/dosya.webp" yazın.
+     */
+    slides: { caption: string; image?: string; alt?: string }[];
   };
   coverage: {
     title: string;
@@ -137,11 +163,14 @@ export interface SiteContent {
     title: string;
     lead: string;
     priceNote: string;
+    /** Fiyat yazısı şablonu; {price} büyük yazılan tutarla değişir (örn. "{price}'den başlayan") */
+    priceTemplate: string;
     items: {
       name: string;
       cameras: string;
       for: string;
-      price: string;
+      /** Başlangıç fiyatı (TL, sayı olarak; ekranda dile göre biçimlenir) */
+      priceFrom: number;
       featured?: boolean;
       features: string[];
     }[];
@@ -207,6 +236,12 @@ export interface SiteContent {
     packageMessage: string;
     campaignMessage: string;
     ogImageAlt: string;
+    /** Fotoğraf slider'ı */
+    sliderPrev: string;
+    sliderNext: string;
+    /** {n} fotoğraf numarasıyla değişir */
+    sliderGoTo: string;
+    photoSoon: string;
   };
 }
 
@@ -220,15 +255,16 @@ export const site: SiteContent = {
   },
 
   contact: {
-    phoneDisplay: "0555 000 00 00", // YER TUTUCU
-    phoneE164: "+905550000000", // YER TUTUCU
-    whatsapp: "905550000000", // YER TUTUCU
+    phoneDisplay: "0545 142 31 31",
+    phoneE164: "+905451423131",
+    whatsapp: "905451423131",
     whatsappMessage: "Merhaba, kamera sistemi hakkında bilgi almak istiyorum.",
     instagram: { handle: "@jupiterkamera", url: "https://instagram.com/jupiterkamera" }, // YER TUTUCU
-    hours: "Her gün 08:00 – 20:00", // YER TUTUCU
-    openingHours: [{ days: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"], opens: "08:00", closes: "20:00" }], // YER TUTUCU
+    // Esnek çalışma: saat WhatsApp'tan müşteriyle birlikte belirleniyor (müşteri kararı)
+    hours: "Esnek saatler, WhatsApp'tan randevuyla",
+    openingHours: [],
     region: "İskenderun ve çevresi, Hatay",
-    serviceAreas: ["İskenderun", "Arsuz", "Payas", "Dörtyol", "Belen", "Antakya"], // YER TUTUCU
+    serviceAreas: ["İskenderun", "Arsuz", "Payas", "Dörtyol", "Belen", "Antakya"],
   },
 
   seo: {
@@ -253,7 +289,7 @@ export const site: SiteContent = {
     meta: [
       { label: "Bölge", value: "İskenderun ve Hatay" },
       { label: "Hizmet", value: "Anahtar teslim kurulum" },
-      { label: "Destek", value: "Kurulumdan sonra da" },
+      { label: "Garanti", value: "2 yıl destek ve garanti" },
     ],
     imageAlt: "Bulutlu gökyüzü önünde direğe monte edilmiş güvenlik kameraları",
     lead:
@@ -352,14 +388,8 @@ export const site: SiteContent = {
     eyebrow: "Güneş enerjili 4G kameralar",
     title: "Elektrik yok, internet yok, sorun değil",
     lead:
-      "Bağ, bahçe, yayla evi ya da yazlık... Şehirden uzak yerlere güneş paneliyle çalışan, SIM kartla internete bağlanan kameralar kuruyoruz. Kablo çekmeden, prize ihtiyaç duymadan telefonunuzdan izlersiniz.",
-    places: ["Bağ ve bahçe", "Yayla evi", "Yazlık", "Tarla ve arazi", "Ahır ve çiftlik", "Şantiye"],
-    steps: [
-      { icon: "solar", title: "Güneş paneli", text: "Gün boyu güneşten şarj olur" },
-      { icon: "battery", title: "Batarya", text: "Gece ve bulutlu havada da çalışır" },
-      { icon: "cctv", title: "4G kamera", text: "İçindeki SIM kartla internete bağlanır" },
-      { icon: "smartphone", title: "Telefonunuz", text: "Canlı izleme ve hareket bildirimi" },
-    ],
+      "Bağ, bahçe, inşaat şantiyesi, yayla evi ya da yazlık... Elektriğin ve internetin olmadığı yerlere güneş paneliyle çalışan, SIM kartla internete bağlanan kameralar kuruyoruz. Kablo çekmeden, prize ihtiyaç duymadan telefonunuzdan izlersiniz.",
+    places: ["Bağ ve bahçe", "İnşaat şantiyesi", "Yayla evi", "Yazlık", "Tarla ve arazi", "Ahır ve çiftlik"],
     features: [
       "Prize, kabloya ve sabit internete gerek yok",
       "Elektrik kesintisinden etkilenmez",
@@ -369,7 +399,38 @@ export const site: SiteContent = {
     note: "Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
     cta: "Arazim için bilgi al",
     whatsappMessage: "Merhaba, güneş enerjili 4G kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
-    screen: { label: "CAM 07 · ARAZİ", signal: "4G", battery: "%86" },
+    screenLabel: "CAM 07 · ARAZİ",
+    slides: [
+      { caption: "Bağ" },
+      { caption: "Bahçe" },
+      { caption: "İnşaat şantiyesi" },
+    ],
+  },
+
+  // ŞABLON: metin taslak, müşteri ürün özelliklerini teyit edecek; fotoğraflar gelecek
+  wifi: {
+    eyebrow: "Wi-Fi kameralar",
+    title: "Kablo yok, duvar delmek yok, kurulumu kolay",
+    lead:
+      "Evde, dükkanda ya da ofiste kablo çekmeden kamera isteyenler için: Wi-Fi kameralar mevcut internetinize bağlanır, prize takılır ve telefonunuzdan izlenir. Kiracılar ve sık yer değiştirenler için de ideal.",
+    places: ["Ev içi", "Bebek ve çocuk odası", "Evcil hayvan takibi", "Küçük dükkan", "Ofis", "Kiralık ev"],
+    features: [
+      "Kablo çekmeye gerek yok, sadece prize takılır",
+      "Evinizdeki Wi-Fi internete bağlanır",
+      "Telefondan canlı izleme ve iki yönlü konuşma",
+      "Hareket algılayınca telefonunuza bildirim",
+      "Taşınırken yanınızda götürebilirsiniz",
+    ],
+    note: "Kurulum yerinde Wi-Fi çekimini kontrol ediyoruz.",
+    cta: "Wi-Fi kamera için bilgi al",
+    whatsappMessage: "Merhaba, Wi-Fi kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
+    screenLabel: "CAM 08 · WI-FI",
+    slides: [
+      { caption: "Ev içi kurulum" },
+      { caption: "Bebek odası" },
+      { caption: "Dükkan girişi" },
+      { caption: "Ofis" },
+    ],
   },
 
   coverage: {
@@ -389,9 +450,9 @@ export const site: SiteContent = {
     text:
       "Kamerayı takıp gitmiyoruz. Kayıtların düzgün tutulduğunu, gece görüntüsünün net olduğunu ve telefonunuzdan rahatça izleyebildiğinizi görmeden işi bitmiş saymıyoruz.",
     stats: [
-      { value: 12, suffix: "+", label: "yıllık tecrübe" }, // YER TUTUCU
-      { value: 850, suffix: "+", label: "tamamlanan kurulum" }, // YER TUTUCU
-      { value: 2, suffix: " yıl", label: "montaj garantisi" }, // YER TUTUCU
+      { value: 3, suffix: " yıl", label: "tecrübe" },
+      { value: 600, suffix: "+", label: "tamamlanan kurulum" },
+      { value: 2, suffix: " yıl", label: "destek ve garanti" },
     ],
   },
 
@@ -399,39 +460,46 @@ export const site: SiteContent = {
     title: "Hazır kamera sistemi paketleri",
     lead: "Mekânınızı görmeden kesin fiyat vermiyoruz. Bu paketler size bir fikir versin, keşifte birlikte netleştirelim.",
     priceNote: "Fiyat keşiften sonra netleşir",
+    priceTemplate: "{price}'den başlayan",
     items: [
       {
         name: "Başlangıç",
         cameras: "2 kamera",
         for: "Daire, küçük ofis",
-        price: "Fiyat için arayın", // YER TUTUCU
-        features: ["2 adet 2 MP gece görüşlü kamera", "4 kanallı kayıt cihazı", "1 TB kayıt diski", "Telefondan izleme kurulumu"],
+        priceFrom: 9999,
+        features: [
+          "2 adet 5 MP gece görüşlü kamera",
+          "4 kanallı kayıt cihazı",
+          "500 GB kayıt diski",
+          "Hareket algılama bildirimi",
+          "Telefondan izleme",
+        ],
       },
       {
         name: "Ev ve dükkan",
         cameras: "4 kamera",
         for: "Müstakil ev, dükkan",
-        price: "Fiyat için arayın", // YER TUTUCU
+        priceFrom: 14999,
         featured: true,
         features: [
-          "4 adet 4 MP gece görüşlü kamera",
+          "4 adet 5 MP gece görüşlü kamera",
           "4 kanallı kayıt cihazı",
-          "2 TB kayıt diski",
+          "500 GB kayıt diski",
           "Hareket algılama bildirimi",
-          "Telefondan izleme kurulumu",
+          "Telefondan izleme",
         ],
       },
       {
         name: "İşletme",
         cameras: "8 kamera",
         for: "Market, depo, atölye",
-        price: "Fiyat için arayın", // YER TUTUCU
+        priceFrom: 29999,
         features: [
-          "8 adet 4 MP gece görüşlü kamera",
+          "8 adet 5 MP gece görüşlü kamera",
           "8 kanallı kayıt cihazı",
-          "4 TB kayıt diski",
+          "1 TB kayıt diski",
           "Uzaktan çoklu kullanıcı erişimi",
-          "Yıllık bakım ziyareti",
+          "Telefondan izleme",
         ],
       },
     ],
@@ -454,7 +522,7 @@ export const site: SiteContent = {
 
   reviews: {
     title: "Müşterilerimiz ne diyor",
-    stat: { value: "850+", text: "İskenderun ve çevresinde tamamlanan kurulum. Çoğu müşterimiz bizi bir tanıdığından duydu." }, // YER TUTUCU
+    stat: { value: "600+", text: "İskenderun ve çevresinde 3 yılda tamamlanan kurulum. Her birine 2 yıl destek ve garanti." },
     items: [
       // YER TUTUCU yorumlar: gerçek müşteri yorumlarıyla değiştirin
       {
@@ -526,5 +594,9 @@ export const site: SiteContent = {
     packageMessage: 'Merhaba, "{name}" paketi ({cameras}) hakkında bilgi almak istiyorum.',
     campaignMessage: "Merhaba, kampanya hakkında bilgi almak istiyorum: {text}",
     ogImageAlt: "JÜPİTER Kamera Güvenlik Sistemleri: Kör nokta bırakmıyoruz",
+    sliderPrev: "Önceki fotoğraf",
+    sliderNext: "Sonraki fotoğraf",
+    sliderGoTo: "{n}. fotoğrafa git",
+    photoSoon: "Fotoğraf yakında",
   },
 };

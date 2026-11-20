@@ -1,0 +1,68 @@
+---
+/**
+ * Wi-Fi (kablosuz) kameralar. Güneş enerjili bölümle aynı düzen: solda metin, sağda fotoğraf slider kartı.
+ * Ayırt edilsin diye vurgu rengi yeşil (güneş enerjili bölümde sarı) ve zemin farklı (panel değil, sayfa zemini).
+ * ŞABLON: metin taslak, fotoğraflar `site.*.ts` → `wifi.slides` içine eklenecek.
+ */
+import { Check, Wifi } from "lucide-react";
+import PhotoSlider from "@/components/PhotoSlider.astro";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { getSiteContent, whatsappHref } from "@/lib/data";
+
+const s = getSiteContent(Astro.currentLocale);
+const w = s.wifi;
+---
+
+<section id="wifi" aria-labelledby="wifi-baslik">
+  <div class="wrap py-20 md:py-28">
+    <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+      <!-- Metin -->
+      <div>
+        <p class="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium tracking-[0.14em] text-paper/80 uppercase md:text-[13px]">
+          <span class="size-1.5 rounded-full bg-teal shadow-[0_0_10px_var(--color-teal)]" aria-hidden="true"></span>
+          {w.eyebrow}
+        </p>
+        <h2 id="wifi-baslik" class="mt-4 font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{w.title}</h2>
+        <p class="mt-6 max-w-[48ch] text-[1.1rem] text-mist">{w.lead}</p>
+
+        <ul class="mt-8 flex flex-wrap gap-2">
+          {
+            w.places.map((p) => (
+              <li class="rounded-full border border-paper/15 bg-paper/[0.04] px-3.5 py-1.5 text-sm text-paper/90">{p}</li>
+            ))
+          }
+        </ul>
+
+        <ul class="mt-8 grid gap-3">
+          {
+            w.features.map((f) => (
+              <li class="flex items-start gap-3">
+                <Check className="mt-1 size-4 shrink-0 text-teal" strokeWidth={3} aria-hidden="true" />
+                <span>{f}</span>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <a
+            href={whatsappHref(s.contact, w.whatsappMessage)}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-teal px-6 font-semibold whitespace-nowrap text-ink transition-colors duration-200 hover:bg-teal-soft"
+          >
+            <WhatsAppIcon className="size-[1.1rem]" />
+            {w.cta}
+          </a>
+          <p class="flex items-center gap-2 text-sm text-mist">
+            <Wifi className="size-4 shrink-0 text-paper/60" aria-hidden="true" />
+            {w.note}
+          </p>
+        </div>
+      </div>
+
+      <!-- Fotoğraf slider'ı -->
+      <PhotoSlider slides={w.slides} label={w.screenLabel} ariaLabel={w.eyebrow} accent="teal" />
+    </div>
+  </div>
+</section>

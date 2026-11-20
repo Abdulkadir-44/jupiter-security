@@ -19,7 +19,7 @@ export const site: SiteContent = {
   contact: {
     ...tr.contact,
     whatsappMessage: "Hello, I'd like to get information about a camera system.",
-    hours: "Every day 08:00 – 20:00",
+    hours: "Flexible hours, book on WhatsApp",
     region: "İskenderun and surroundings, Hatay",
   },
 
@@ -45,7 +45,7 @@ export const site: SiteContent = {
     meta: [
       { label: "Area", value: "İskenderun and Hatay" },
       { label: "Service", value: "Turnkey installation" },
-      { label: "Support", value: "Long after installation" },
+      { label: "Warranty", value: "2-year support and warranty" },
     ],
     imageAlt: "Security cameras mounted on a pole against a cloudy sky",
     lead:
@@ -92,7 +92,7 @@ export const site: SiteContent = {
       {
         icon: "shield",
         title: "Maintenance and support",
-        text: "We are just a phone call away after installation. If something breaks, we fix it on site.",
+        text: "Every installation comes with a 2-year support and warranty. If something breaks, we fix it on site.",
       },
     ],
   },
@@ -144,14 +144,8 @@ export const site: SiteContent = {
     eyebrow: "Solar-powered 4G cameras",
     title: "No power, no internet, no problem",
     lead:
-      "Vineyards, gardens, highland houses or summer homes... We install cameras that run on solar power and connect to the internet with a SIM card. No cables, no sockets, and you watch from your phone.",
-    places: ["Vineyards & gardens", "Highland houses", "Summer homes", "Fields & land", "Barns & farms", "Building sites"],
-    steps: [
-      { icon: "solar", title: "Solar panel", text: "Charges from the sun all day" },
-      { icon: "battery", title: "Battery", text: "Keeps running at night and on cloudy days" },
-      { icon: "cctv", title: "4G camera", text: "Connects to the internet with its SIM card" },
-      { icon: "smartphone", title: "Your phone", text: "Live view and motion alerts" },
-    ],
+      "Vineyards, gardens, construction sites, highland houses or summer homes... For places without power or internet, we install cameras that run on solar power and connect to the internet with a SIM card. No cables, no sockets, and you watch from your phone.",
+    places: ["Vineyards & gardens", "Construction sites", "Highland houses", "Summer homes", "Fields & land", "Barns & farms"],
     features: [
       "No sockets, cables or fixed internet needed",
       "Unaffected by power cuts",
@@ -161,7 +155,37 @@ export const site: SiteContent = {
     note: "Before installing, we check the mobile signal on site.",
     cta: "Ask about my land",
     whatsappMessage: "Hello, I'd like information about a solar-powered 4G camera. Location: ",
-    screen: { label: "CAM 07 · LAND", signal: "4G", battery: "86%" },
+    screenLabel: "CAM 07 · LAND",
+    slides: [
+      { caption: "Vineyard" },
+      { caption: "Garden" },
+      { caption: "Construction site" },
+    ],
+  },
+
+  wifi: {
+    eyebrow: "Wi-Fi cameras",
+    title: "No cables, no drilling, easy setup",
+    lead:
+      "For homes, shops or offices that want cameras without running cables: Wi-Fi cameras join your existing internet, plug into a socket and stream to your phone. Ideal for tenants and anyone who moves often.",
+    places: ["Indoors", "Baby & kids' rooms", "Pet monitoring", "Small shops", "Offices", "Rented homes"],
+    features: [
+      "No cabling, just plug it in",
+      "Connects to your home Wi-Fi",
+      "Live view and two-way talk on your phone",
+      "Motion alerts straight to your phone",
+      "Take it with you when you move",
+    ],
+    note: "We check the Wi-Fi signal on site before installing.",
+    cta: "Ask about Wi-Fi cameras",
+    whatsappMessage: "Hello, I'd like information about Wi-Fi cameras. Location: ",
+    screenLabel: "CAM 08 · WI-FI",
+    slides: [
+      { caption: "Indoor installation" },
+      { caption: "Baby room" },
+      { caption: "Shop entrance" },
+      { caption: "Office" },
+    ],
   },
 
   coverage: {
@@ -185,9 +209,9 @@ export const site: SiteContent = {
     text:
       "We don't just mount a camera and leave. The job isn't done until recordings are stored properly, night images are sharp and you can watch comfortably from your phone.",
     stats: [
-      { value: 12, suffix: "+", label: "years of experience" },
-      { value: 850, suffix: "+", label: "installations completed" },
-      { value: 2, suffix: " yrs", label: "installation warranty" },
+      { value: 3, suffix: " yrs", label: "experience" },
+      { value: 600, suffix: "+", label: "installations completed" },
+      { value: 2, suffix: " yrs", label: "support and warranty" },
     ],
   },
 
@@ -195,39 +219,46 @@ export const site: SiteContent = {
     title: "Ready-made security camera packages",
     lead: "We don't quote a final price without seeing your place. These packages give you an idea; we finalise the details together during the site visit.",
     priceNote: "Final price is set after the site visit",
+    priceTemplate: "From {price}",
     items: [
       {
         name: "Starter",
         cameras: "2 cameras",
         for: "Flat, small office",
-        price: "Call for price",
-        features: ["2 × 2 MP night vision cameras", "4-channel recorder", "1 TB recording drive", "Phone viewing setup"],
+        priceFrom: 9999,
+        features: [
+          "2 × 5 MP night vision cameras",
+          "4-channel recorder",
+          "500 GB recording drive",
+          "Motion detection alerts",
+          "Phone viewing",
+        ],
       },
       {
         name: "Home and shop",
         cameras: "4 cameras",
         for: "House, shop",
-        price: "Call for price",
+        priceFrom: 14999,
         featured: true,
         features: [
-          "4 × 4 MP night vision cameras",
+          "4 × 5 MP night vision cameras",
           "4-channel recorder",
-          "2 TB recording drive",
+          "500 GB recording drive",
           "Motion detection alerts",
-          "Phone viewing setup",
+          "Phone viewing",
         ],
       },
       {
         name: "Business",
         cameras: "8 cameras",
         for: "Market, warehouse, workshop",
-        price: "Call for price",
+        priceFrom: 29999,
         features: [
-          "8 × 4 MP night vision cameras",
+          "8 × 5 MP night vision cameras",
           "8-channel recorder",
-          "4 TB recording drive",
+          "1 TB recording drive",
           "Remote multi-user access",
-          "Yearly maintenance visit",
+          "Phone viewing",
         ],
       },
     ],
@@ -250,7 +281,7 @@ export const site: SiteContent = {
 
   reviews: {
     title: "What our customers say",
-    stat: { value: "850+", text: "installations completed in and around İskenderun. Most customers heard about us from someone they know." },
+    stat: { value: "600+", text: "installations completed in and around İskenderun in 3 years. Each with a 2-year support and warranty." },
     items: [
       {
         quote: "They hid the cables so neatly that you only notice the cameras in the shop if you look for them.",
@@ -321,5 +352,9 @@ export const site: SiteContent = {
     packageMessage: 'Hello, I\'d like to get information about the "{name}" package ({cameras}).',
     campaignMessage: "Hello, I'd like to get information about the offer: {text}",
     ogImageAlt: "JÜPİTER Security Camera Systems: We leave no blind spots",
+    sliderPrev: "Previous photo",
+    sliderNext: "Next photo",
+    sliderGoTo: "Go to photo {n}",
+    photoSoon: "Photo coming soon",
   },
 };

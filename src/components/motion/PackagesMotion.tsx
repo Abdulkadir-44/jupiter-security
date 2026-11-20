@@ -35,6 +35,8 @@ function PackageCard({
   contact,
   askLabel,
   message,
+  priceTemplate,
+  numberLocale,
 }: {
   it: Pkg;
   index: number;
@@ -42,6 +44,8 @@ function PackageCard({
   contact: SiteContent["contact"];
   askLabel: string;
   message: string;
+  priceTemplate: string;
+  numberLocale: string;
 }) {
   const featured = !!it.featured;
   const [seen, setSeen] = useState(reduced);
@@ -181,7 +185,19 @@ function PackageCard({
           ))}
         </motion.ul>
 
-        <p className={cn("relative mt-8 text-sm", featured ? "text-mist" : "text-ink-soft")}>{it.price}</p>
+        {/* Fiyat: şablondaki {price} büyük yazılır ("9.999 TL'den başlayan" / "From 9,999 TL") */}
+        <p className={cn("relative mt-8 text-sm", featured ? "text-mist" : "text-ink-soft")}>
+          {priceTemplate.split("{price}").map((part, i) => (
+            <span key={i}>
+              {i > 0 && (
+                <span className={cn("font-tall text-[2.4rem] leading-none", featured ? "text-paper" : "text-ink")}>
+                  {it.priceFrom.toLocaleString(numberLocale)} TL
+                </span>
+              )}
+              {part}
+            </span>
+          ))}
+        </p>
         <motion.a
           href={whatsappHref(contact, message)}
           target="_blank"
@@ -206,12 +222,16 @@ export default function PackagesMotion({
   contact,
   askLabel,
   messageTemplate,
+  priceTemplate,
+  numberLocale,
 }: {
   items: Pkg[];
   contact: SiteContent["contact"];
   askLabel: string;
   /** WhatsApp mesaj şablonu: {name} ve {cameras} paket bilgisiyle değişir */
   messageTemplate: string;
+  priceTemplate: string;
+  numberLocale: string;
 }) {
   const reduced = useReducedMotion() ?? false;
   return (
@@ -220,6 +240,8 @@ export default function PackagesMotion({
         <PackageCard key={it.name} it={it} index={i} reduced={reduced} contact={contact}
           askLabel={askLabel}
           message={fill(messageTemplate, { name: it.name, cameras: it.cameras })}
+          priceTemplate={priceTemplate}
+          numberLocale={numberLocale}
         />
       ))}
     </ul>
