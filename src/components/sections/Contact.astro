@@ -10,7 +10,7 @@ const c = s.closing;
 <!-- Kapanış çağrısı + iletişim -->
 <section id="iletisim" aria-labelledby="iletisim-baslik" class="border-t border-paper/10">
   <div class="wrap flex flex-col items-center py-24 text-center md:py-36">
-    <h2 id="iletisim-baslik" class="font-tall text-[clamp(4.5rem,15vw,12rem)]">
+    <h2 id="iletisim-baslik" class="font-tall text-[clamp(4.5rem,15vw,12rem)] lg:text-[clamp(6rem,10vw,9.5rem)]">
       {
         c.lines.map((line, i) => (
           <span class:list={["block", i === c.lines.length - 1 && "text-teal"]}>{line}</span>

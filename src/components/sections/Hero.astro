@@ -3,6 +3,7 @@ import { Picture } from "astro:assets";
 import { Phone } from "lucide-react";
 import heroImage from "@/assets/hero/8fLnkZ8Y0eM.jpg";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import HeroTitle from "@/components/motion/HeroTitle";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
 /*
@@ -36,15 +37,7 @@ const h = s.hero;
   <div class="wrap flex flex-1 flex-col justify-end pt-32 pb-10 md:pb-14">
     <h1 class="sr-only">{h.title}</h1>
     <p class="font-tall text-[clamp(3rem,15vw,4.5rem)] text-paper md:text-[clamp(4.25rem,14vw,12.5rem)]" aria-hidden="true">
-      {
-        h.titleLines.map((line, i) => (
-          <span class="block">
-            <span class:list={["rise block", i === h.titleLines.length - 1 && "text-teal"]} style={`--i:${i}`}>
-              {line}
-            </span>
-          </span>
-        ))
-      }
+      <HeroTitle client:load lines={h.titleLines} />
     </p>
 
     <div class="mt-10 grid gap-10 border-t border-paper/20 pt-8 lg:grid-cols-[1fr_auto] lg:items-end">

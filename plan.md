@@ -153,6 +153,14 @@ Kullanıcı ana sayfa tasarımını onayladı. Son eklenenler:
 - **Müşterilerimiz ne diyor** (`src/components/motion/ReviewsMotion.tsx`): kartlar sağdan/soldan yaylanarak gelir, alıntılar kelime kelime belirir, 850+ kartı dairesel açılır ve sayar, fareyle 3D eğilme.
 - **Hazır paketler** (`src/components/motion/PackagesMotion.tsx`): kartlar aşağıdan yükselir, kamera sayıları kayarak gelir, tikler çizilerek belirir, öne çıkan pakette parlama, fareyi takip eden ışık.
 
+## Durum (20.11.2026): Mobil düzenlemeler ✅ (GitHub'a gönderildi, henüz yayına alınmadı)
+- **Kenar boşluğu:** mobilde tüm içerik ekran kenarından 32px içeride (`wrap` = 2rem; panel içinde 0.5rem margin + 1.5rem padding). Masaüstü değişmedi.
+- **Hero:** başlık mobilde küçültüldü (`clamp(3rem,15vw,4.5rem)`, 320px'te bile taşmıyor); Bölge/Hizmet/Destek mobilde ortalı.
+- **Footer:** panel değil, tam genişlik ve köşesiz; mobilde içerik ortalı.
+- **Kullanım alanları sekmeleri:** mobilde 2×2 ızgara (yatay kaydırma kaldırıldı), küçük yazı/buton; masaüstünde dikey liste aynı.
+- **Önerilen kamera kutusu → NVR kanal ızgarası** (`UseCaseTabs.tsx` içinde `ChannelGrid`): 32 kanallık ızgarada alt sınır dolu turkuaz, üst sınıra kadar "ihtiyaca göre" çerçeveli; sekme değişince kanallar sırayla yanar, tarama çizgisi geçer. Aralık `site.tr.ts` → `cameras` ("2–4 kamera") alanından okunur.
+- Kontrol: Playwright ile 320 / 390 / 1440px, yatay taşma yok. Yayına almak için: `npm run deploy`.
+
 ## Sıradaki adımlar (önerilen sıra)
 
 ### 1. Gerçek içerik (müşteriden alınacak)
@@ -179,6 +187,8 @@ Hepsi `src/content/site.tr.ts` içinde, `YER TUTUCU` yazan satırlar:
 ### 4. Yayın öncesi kontrol
 - [x] SEO: sitemap (`@astrojs/sitemap`), `robots.txt`, paylaşım görseli `public/og.jpg` (1200x630), Open Graph + X etiketleri, apple-touch-icon. Alan adı gelince sadece `astro.config.mjs` → `site` değişecek; hepsi otomatik güncellenir.
 - [x] Lighthouse (20.11.2026, canlı site): Mobil Performans 97 / Erişilebilirlik 100 / En iyi uygulamalar 100 / SEO 100. Masaüstü 100/100/100/100. Mobil LCP 1.7 sn, CLS 0.
+- [x] Mobil görünüm düzeltmeleri (kenar boşlukları, hero, footer, sekmeler); Playwright ile 320/390px kontrol
+- [ ] Mobil düzeltmelerin yayına alınması (`npm run deploy`)
 - [ ] Gerçek telefonda test (iPhone + Android)
 - [ ] Google İşletme Profili (gezici işletme için "hizmet bölgesi" olarak açılabilir; yerel aramalarda çok etkili)
 - [ ] Google Search Console: alan adı bağlanınca site doğrulanıp `sitemap-index.xml` gönderilecek
