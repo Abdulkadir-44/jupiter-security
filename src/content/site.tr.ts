@@ -233,14 +233,32 @@ export interface SiteContent {
     }[];
     allLink: string;
   };
+  /**
+   * "Yaptığımız kamera kurulumları": klasör kartları; tıklayınca fotoğraflar macOS penceresi gibi açılır.
+   * Fotoğraflar src/assets/medya/klasorler/<id>/ içinden otomatik okunur (src/content/media.ts → folderPhotos).
+   */
   work: {
     title: string;
     lead: string;
-    /**
-     * Kurulum kareleri. `area` (mahalle/semt/ilçe) bilinmiyorsa boş bırakılır, kartta görünmez.
-     * Jüpiter konum bilgisini verince doldurulacak. `image` yoksa ikonlu yer tutucu görünür.
-     */
-    items: { cam: string; place: string; area?: string; kind: IconName; image?: Photo; alt?: string }[];
+    /** "{n} fotoğraf" */
+    photosLabel: string;
+    /** Klasörü açma düğmesinin ekran okuyucu metni: "{title} klasörünü aç" */
+    openLabel: string;
+    /** Pencere düğmeleri */
+    closeLabel: string;
+    minimizeLabel: string;
+    prevLabel: string;
+    nextLabel: string;
+    folders: {
+      /** src/assets/medya/klasorler/ altındaki klasör adı */
+      id: string;
+      title: string;
+      /**
+       * Fotoğraf açıklamaları, dosya adıyla (uzantısız) eşleşir. `area`: mahalle/semt/ilçe; bilinmiyorsa boş,
+       * Jüpiter konum bilgisini verince doldurulacak.
+       */
+      captions: Record<string, { caption: string; area?: string }>;
+    }[];
     allLink: string;
   };
   reviews: {
@@ -615,15 +633,66 @@ export const site: SiteContent = {
 
   work: {
     title: "Yaptığımız kamera kurulumları",
-    lead: "Kurduğumuz sistemlerden gerçek kamera görüntüleri. Gizlilik için plakaları ve yüzleri bulanıklaştırdık.",
-    // area: konum bilgisi Jüpiter'den gelince doldurulacak (örn. "Savaş Mah., İskenderun")
-    items: [
-      { cam: "CAM 01", place: "Kafe önü, gündüz", kind: "store", image: media.isler.kafeOnuGunduz, alt: "Kafenin önünü ve yolu gösteren gündüz kamera görüntüsü" },
-      { cam: "CAM 01", place: "Aynı kamera, gece", kind: "store", image: media.isler.kafeOnuGece, alt: "Aynı kafe önünün gece görüşüyle net kamera görüntüsü" },
-      { cam: "CAM 02", place: "Kafe, iç mekan", kind: "store", image: media.isler.kafeIcMekan, alt: "Kafenin masalarını ve tezgâhını gören iç mekan kamera görüntüsü" },
-      { cam: "CAM 03", place: "Kafe bahçesi, gece", kind: "store", image: media.isler.kafeBahcesiGece, alt: "Kafe bahçesinin akşam saatindeki kamera görüntüsü" },
-      { cam: "NVR", place: "Kayıt ekranı, 13 kamera", kind: "building", image: media.isler.kayitEkrani, alt: "Duvardaki monitörde 13 kameranın görüntüsünü gösteren kayıt ekranı" },
-      { cam: "NVR", place: "Kayıt cihazı ve monitör montajı", kind: "wrench", image: media.isler.kayitCihazi, alt: "Tavana monte edilmiş monitör ve yanında Jüpiter Güvenlik kayıt cihazı kutusu" },
+    lead: "Kurduğumuz sistemlerden gerçek fotoğraflar ve kamera görüntüleri. Bir klasör açın. Gizlilik için plakaları ve yüzleri bulanıklaştırdık.",
+    photosLabel: "{n} fotoğraf",
+    openLabel: "{title} klasörünü aç",
+    closeLabel: "Kapat",
+    minimizeLabel: "Küçült",
+    prevLabel: "Önceki fotoğraf",
+    nextLabel: "Sonraki fotoğraf",
+    folders: [
+      {
+        id: "kafe-isyeri",
+        title: "Kafe ve işyeri",
+        captions: {
+          "01-kafe-ic-mekan-gunduz": { caption: "İç mekan, gündüz" },
+          "02-kafe-ic-mekan-gece": { caption: "İç mekan, gece" },
+          "03-kafe-onu-gunduz": { caption: "Kafe önü, gündüz" },
+          "04-kafe-onu-gece": { caption: "Aynı kamera, gece" },
+          "05-kafe-bahcesi-gunduz": { caption: "Bahçe, gündüz" },
+          "06-kafe-bahcesi-aksam": { caption: "Bahçe, akşam" },
+          "07-yol-tarafi-gunduz": { caption: "Yol tarafı, gündüz" },
+          "08-yol-tarafi-gece": { caption: "Yol tarafı, gece" },
+          "09-dortlu-ekran": { caption: "Dört kamera tek ekranda" },
+        },
+      },
+      {
+        id: "gunes-enerjili",
+        title: "Güneş enerjili kurulumlar",
+        captions: {
+          "01-palmiye": { caption: "Palmiye ağacına, güneş paneliyle" },
+          "02-elektrik-diregi-santiye": { caption: "Şantiye yanında elektrik direğine" },
+          "03-cam-agaci-gunes-paneli": { caption: "Çam ağacına, paneli yanında" },
+          "04-cam-agaci-yakin": { caption: "Çam ağacı, yakından" },
+          "05-santiye-diregi": { caption: "Şantiyede direğe montaj" },
+          "06-palmiye-montaj": { caption: "Yüksek palmiyeye merdivenle" },
+          "07-konteyner-diregi": { caption: "Konteyner üstüne direkle" },
+          "08-elektrik-diregi-bina": { caption: "Yeni binanın önünde direğe" },
+        },
+      },
+      {
+        id: "kayit-ekranlari",
+        title: "Kayıt ekranları",
+        captions: {
+          "01-13-kamerali-ekran": { caption: "13 kamera tek ekranda" },
+          "02-monitor-ve-kayit-cihazi": { caption: "Monitör ve kayıt cihazı kutusu" },
+          "03-monitor-yakin": { caption: "Tavana askılı monitör" },
+          "04-monitor-kapi-ustu": { caption: "Kapı üstüne monitör montajı" },
+        },
+      },
+      {
+        id: "agac-direk-montaj",
+        title: "Ağaca ve direğe montaj",
+        captions: {
+          "01-agaca-uc-kamera": { caption: "Bir ağaçta üç kamera" },
+          "02-agaca-baglanti-kutusu": { caption: "Bağlantı kutusuyla düzenli kablolama" },
+          "03-merdivenle-montaj": { caption: "Montaj sırasında" },
+          "04-cam-agaci-merdiven": { caption: "Yüksek çam ağacına montaj" },
+          "05-palmiye-govdesi": { caption: "Palmiye gövdesine" },
+          "06-palmiye-gunes-paneli": { caption: "Palmiyede güneş paneliyle" },
+          "07-cam-agaci-gunes-paneli": { caption: "Çam ağacında güneş paneliyle" },
+        },
+      },
     ],
     allLink: "Tüm işler",
   },

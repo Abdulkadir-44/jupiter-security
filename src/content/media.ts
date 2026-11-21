@@ -12,13 +12,6 @@ import gunesSantiyeDiregi from "@/assets/medya/gunes/gunes-enerjili-kamera-santi
 import gunesPalmiyeMontaj from "@/assets/medya/gunes/gunes-enerjili-kamera-palmiye-montaj.jpg";
 import gunesKonteyner from "@/assets/medya/gunes/gunes-enerjili-kamera-konteyner-diregi.jpg";
 
-import kafeIcMekan from "@/assets/medya/isler/kafe-ic-mekan-kamera-goruntusu.jpg";
-import kafeOnuGunduz from "@/assets/medya/isler/kafe-onu-gunduz-kamera-goruntusu.jpg";
-import kafeOnuGece from "@/assets/medya/isler/kafe-onu-gece-kamera-goruntusu.jpg";
-import kafeBahcesiGece from "@/assets/medya/isler/kafe-bahcesi-gece-kamera-goruntusu.jpg";
-import kayitEkrani from "@/assets/medya/isler/kayit-ekrani-13-kamera.jpg";
-import kayitCihazi from "@/assets/medya/isler/kayit-cihazi-monitor-montaji.jpg";
-
 export const media = {
   gunes: {
     palmiye: gunesPalmiye,
@@ -28,15 +21,23 @@ export const media = {
     palmiyeMontaj: gunesPalmiyeMontaj,
     konteyner: gunesKonteyner,
   },
-  isler: {
-    kafeIcMekan,
-    kafeOnuGunduz,
-    kafeOnuGece,
-    kafeBahcesiGece,
-    kayitEkrani,
-    kayitCihazi,
-  },
 };
+
+/**
+ * "Yaptığımız kurulumlar" klasörleri: src/assets/medya/klasorler/<klasör-id>/<NN-ad>.jpg
+ * Klasöre dosya eklemek yeterli; sıra dosya adındaki numaraya göre. Açıklamalar site.*.ts → work.folders[].captions
+ * içinde dosya adıyla (uzantısız) eşleşir.
+ */
+const folderFiles = import.meta.glob<ImageMetadata>("/src/assets/medya/klasorler/*/*.jpg", { eager: true, import: "default" });
+
+export type FolderPhoto = { slug: string; image: ImageMetadata };
+
+export function folderPhotos(folderId: string): FolderPhoto[] {
+  return Object.entries(folderFiles)
+    .filter(([path]) => path.includes(`/klasorler/${folderId}/`))
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([path, image]) => ({ slug: path.split("/").pop()!.replace(/\.jpg$/, ""), image }));
+}
 
 /** Bir fotoğraf: build sırasında optimize edilen dosya ya da (ileride admin/R2'den gelen) adres */
 export type Photo = ImageMetadata | string;

@@ -1,59 +1,595 @@
 ---
-import { Image } from "astro:assets";
-import { Icon } from "@/components/ui/Icon";
-import { getSiteContent } from "@/lib/data";
+/**
+ * "Yaptığımız kamera kurulumları": klasör kartları + macOS tarzı fotoğraf penceresi.
+ *
+ * Klasör: arka kapak (sekmeli), içinde üst üste 3 fotoğraf, ön kapak (ad + fotoğraf sayısı).
+ *  - Masaüstünde üzerine gelince fotoğraflar yukarı çıkıp yelpaze gibi açılır, ön kapak hafifçe eğilir.
+ *  - Dokunmatik ekranda fotoğraflar hafif dışarı taşmış durur; dokununca klasör açılır.
+ * Pencere (<dialog>): macOS'ta pencereyi Dock'a indirmenin ("genie") tersi gibi tıklanan klasörden huni
+ * şeklinde çıkıp ortada tam pencereye dönüşür; kapatınca aynı yoldan klasöre geri akar.
+ *  - Başlık çubuğu: kırmızı = kapat, sarı = küçült (ikisi de klasöre geri gönderir), yeşil = süs.
+ *  - Büyük görsel + önizleme şeridi; oklar, klavye (← → Esc) ve mobilde kaydırma.
+ *  - "Hareketi azalt" açıksa pencere sade bir solmayla açılıp kapanır.
+ * Fotoğraflar: src/assets/medya/klasorler/<id>/ (media.ts → folderPhotos), açıklamalar: site.*.ts → work.folders.
+ */
+import { Image, getImage } from "astro:assets";
+import { fill, getSiteContent } from "@/lib/data";
+import { folderPhotos } from "@/content/media";
 
 const s = getSiteContent(Astro.currentLocale);
 const w = s.work;
+
+// Her klasör için pencerede kullanılacak görsel adresleri (WebP, ekran boyuna göre)
+const folders = await Promise.all(
+  w.folders.map(async (f) => {
+    const photos = folderPhotos(f.id);
+    const items = await Promise.all(
+      photos.map(async (p) => {
+        const big = await getImage({ src: p.image, widths: [640, 1024, 1600], format: "webp" });
+        const thumb = await getImage({ src: p.image, width: 240, format: "webp" });
+        const c = f.captions[p.slug];
+        return {
+          src: big.src,
+          srcset: big.srcSet.attribute,
+          thumb: thumb.src,
+          caption: c?.caption ?? "",
+          area: c?.area ?? "",
+        };
+      }),
+    );
+    return { ...f, photos, items };
+  }),
+);
 ---
 
 <section id="isler" aria-labelledby="isler-baslik" class="panel bg-ink">
   <div class="wrap py-20 md:py-28">
     <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
       <h2 id="isler-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{w.title}</h2>
-      <p class="max-w-[42ch] text-[1.1rem] text-mist">
-        {w.lead}
-        {w.allLink}: {s.ui.soon}.
-      </p>
+      <p class="max-w-[42ch] text-[1.1rem] text-mist">{w.lead}</p>
     </div>
 
-    <!-- Kayıt cihazı çoklu ekran görünümü: gerçek kurulum fotoğrafları (fotoğrafı olmayan kare ikonlu yer tutucu) -->
-    <ul class="mt-12 grid grid-cols-2 gap-2 md:mt-16 lg:grid-cols-3">
+    <!-- Klasörler -->
+    <ul class="mt-14 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-20 lg:grid-cols-4 lg:gap-x-8">
       {
-        w.items.map((it) => (
-          <li class="relative aspect-[4/3] overflow-hidden rounded-[0.9rem] bg-gradient-to-br from-navy-2 to-navy">
-            {it.image && typeof it.image !== "string" ? (
-              <Image
-                src={it.image}
-                alt={it.alt ?? it.place}
-                widths={[360, 640, 960]}
-                sizes="(min-width: 1024px) 400px, 50vw"
-                loading="lazy"
-                decoding="async"
-                class="absolute inset-0 h-full w-full object-cover"
-              />
-            ) : it.image ? (
-              <img src={it.image} alt={it.alt ?? it.place} loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
-            ) : (
-              <>
-                <Icon
-                  name={it.kind}
-                  className="absolute top-1/2 left-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 text-paper/10"
-                  strokeWidth={1}
-                />
-                <div class="scanlines absolute inset-0" aria-hidden="true" />
-              </>
-            )}
-            <span class="absolute top-2.5 left-2.5 rounded bg-ink/70 px-1.5 py-0.5 font-mono text-[10px] text-paper/85 sm:top-3 sm:left-3 sm:text-xs" aria-hidden="true">
-              {it.cam}
-            </span>
-            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/50 to-transparent px-3 pt-10 pb-2.5 sm:px-3.5 sm:pb-3">
-              <p class="text-[13px] font-semibold leading-tight sm:text-base">{it.place}</p>
-              {it.area && <p class="text-xs text-mist sm:text-sm">{it.area}</p>}
-            </div>
+        folders.map((f, fi) => (
+          <li>
+            <button
+              type="button"
+              class="folder group"
+              data-folder={fi}
+              data-title={f.title}
+              data-count={fill(w.photosLabel, { n: String(f.items.length) })}
+              data-items={JSON.stringify(f.items)}
+              aria-haspopup="dialog"
+              aria-label={fill(w.openLabel, { title: f.title })}
+            >
+              <span class="f-back" aria-hidden="true" />
+              <span class="f-papers" aria-hidden="true">
+                {f.photos.slice(0, 3).map((p, k) => (
+                  <Image src={p.image} alt="" widths={[240, 400]} sizes="(min-width: 1024px) 240px, 40vw" loading="lazy" decoding="async" class={`f-paper f-paper-${k + 1}`} />
+                ))}
+              </span>
+              <span class="f-front" aria-hidden="true">
+                <span class="f-title font-title">{f.title}</span>
+                <span class="f-count font-mono">{fill(w.photosLabel, { n: String(f.items.length) })}</span>
+              </span>
+            </button>
           </li>
         ))
       }
     </ul>
+
+    <p class="mt-12 text-sm text-mist">{w.allLink}: {s.ui.soon}.</p>
   </div>
+
+  <!-- Fotoğraf penceresi (tek pencere, açılan klasöre göre dolar) -->
+  <dialog class="fwin-dialog" data-fwin aria-labelledby="fwin-title">
+    <div class="fwin-scrim" data-fwin-scrim></div>
+    <div class="fwin" data-fwin-win>
+      <div class="fwin-bar">
+        <div class="flex items-center gap-2">
+          <button type="button" class="light light-red" data-fwin-close aria-label={w.closeLabel}>
+            <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M3 3l4 4M7 3l-4 4" /></svg>
+          </button>
+          <button type="button" class="light light-yellow" data-fwin-close aria-label={w.minimizeLabel}>
+            <svg viewBox="0 0 10 10" aria-hidden="true"><path d="M2.5 5h5" /></svg>
+          </button>
+          <span class="light light-green" aria-hidden="true"></span>
+        </div>
+        <p class="truncate text-center text-sm font-semibold" id="fwin-title" data-fwin-title></p>
+        <p class="justify-self-end font-mono text-[11px] text-ink-soft" data-fwin-count></p>
+      </div>
+
+      <div class="fwin-stage" data-fwin-stage>
+        <img class="fwin-img" data-fwin-img alt="" decoding="async" />
+        <button type="button" class="fwin-nav left-3" data-fwin-prev aria-label={w.prevLabel}>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" /></svg>
+        </button>
+        <button type="button" class="fwin-nav right-3" data-fwin-next aria-label={w.nextLabel}>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7.5 4.5 13 10l-5.5 5.5" /></svg>
+        </button>
+        <p class="fwin-caption" aria-live="polite">
+          <span data-fwin-caption></span>
+          <span class="text-paper/60" data-fwin-area></span>
+          <span class="ml-auto font-mono text-[11px] text-paper/60" data-fwin-index></span>
+        </p>
+      </div>
+
+      <div class="fwin-thumbs" data-fwin-thumbs></div>
+    </div>
+  </dialog>
 </section>
+
+<style>
+  /* ---------------- Klasör ---------------- */
+  .folder {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3.3;
+    cursor: pointer;
+    perspective: 900px;
+    border-radius: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .folder:focus-visible {
+    outline: 2px solid var(--color-sun);
+    outline-offset: 6px;
+  }
+  .f-back {
+    position: absolute;
+    inset: 12% 0 0 0;
+    border-radius: 6px 14px 14px 14px;
+    background: color-mix(in srgb, var(--color-teal-ink) 80%, var(--color-ink));
+  }
+  /* Klasör sekmesi */
+  .f-back::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    width: 42%;
+    height: 14%;
+    min-height: 14px;
+    border-radius: 10px 10px 0 0;
+    background: inherit;
+    clip-path: polygon(0 0, 78% 0, 100% 100%, 0 100%);
+  }
+  .f-papers {
+    position: absolute;
+    inset: 6% 9% 22% 9%;
+  }
+  .f-paper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 4px solid var(--color-paper);
+    border-radius: 8px;
+    box-shadow: 0 8px 18px -8px rgb(0 0 0 / 0.55);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+  .f-paper-1 {
+    transform: translate(-4%, 10%) rotate(-6deg);
+  }
+  .f-paper-2 {
+    transform: translate(0, 6%) rotate(2deg);
+  }
+  .f-paper-3 {
+    transform: translate(5%, 12%) rotate(7deg);
+  }
+  .f-front {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 64%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.2rem;
+    padding: 0.9rem 1rem;
+    border-radius: 12px 12px 14px 14px;
+    background: linear-gradient(180deg, var(--color-teal-soft), var(--color-teal));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.45),
+      0 -6px 16px -8px rgb(0 0 0 / 0.35);
+    color: var(--color-ink);
+    text-align: left;
+    transform-origin: 50% 100%;
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+  .f-title {
+    font-size: clamp(1.05rem, 2.6vw, 1.55rem);
+    line-height: 1.05;
+  }
+  .f-count {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: color-mix(in srgb, var(--color-ink) 65%, transparent);
+  }
+
+  /* Masaüstü: üzerine gelince fotoğraflar yukarı çıkıp yelpaze gibi açılır, ön kapak eğilir */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .folder:hover .f-paper-1,
+    .folder:focus-visible .f-paper-1 {
+      transform: translate(-14%, -12%) rotate(-11deg);
+    }
+    .folder:hover .f-paper-2,
+    .folder:focus-visible .f-paper-2 {
+      transform: translate(0, -20%) rotate(0deg);
+      transition-delay: 0.04s;
+    }
+    .folder:hover .f-paper-3,
+    .folder:focus-visible .f-paper-3 {
+      transform: translate(14%, -10%) rotate(11deg);
+      transition-delay: 0.08s;
+    }
+    .folder:hover .f-front,
+    .folder:focus-visible .f-front {
+      transform: rotateX(-16deg);
+    }
+  }
+  /* Dokunmatik: fotoğraflar hafif dışarı taşmış dursun */
+  @media (hover: none) {
+    .f-paper-1 {
+      transform: translate(-8%, -2%) rotate(-8deg);
+    }
+    .f-paper-2 {
+      transform: translate(0, -8%) rotate(1deg);
+    }
+    .f-paper-3 {
+      transform: translate(8%, 0) rotate(8deg);
+    }
+  }
+
+  /* ---------------- Pencere ---------------- */
+  .fwin-dialog {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+  .fwin-dialog::backdrop {
+    background: transparent;
+  }
+  .fwin-dialog[open] {
+    display: grid;
+    place-items: center;
+  }
+  .fwin-scrim {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in srgb, var(--color-ink) 72%, transparent);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .fwin {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(1040px, calc(100vw - 1.5rem));
+    max-height: calc(100dvh - 1.5rem);
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.12),
+      0 40px 90px -20px rgb(0 0 0 / 0.65);
+    will-change: transform, clip-path;
+  }
+  .fwin-bar {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 2fr) 1fr;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+    background: linear-gradient(180deg, var(--color-paper), var(--color-cream));
+  }
+  .light {
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.25);
+  }
+  /* Dokunma alanı 44px olsun (görünen nokta küçük kalır) */
+  button.light {
+    position: relative;
+    cursor: pointer;
+  }
+  button.light::after {
+    content: "";
+    position: absolute;
+    inset: -15px -4px;
+  }
+  .light svg {
+    width: 8px;
+    height: 8px;
+    fill: none;
+    stroke: rgb(0 0 0 / 0.55);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+  }
+  .fwin-bar:hover .light svg,
+  .light:focus-visible svg {
+    opacity: 1;
+  }
+  .light:focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  .light-red {
+    background: #ff5f57;
+  }
+  .light-yellow {
+    background: #febc2e;
+  }
+  .light-green {
+    background: #28c840;
+  }
+
+  .fwin-stage {
+    position: relative;
+    height: min(62vh, 600px);
+    background: var(--color-ink);
+    touch-action: pan-y;
+  }
+  .fwin-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.25s ease;
+  }
+  .fwin-img[data-loading] {
+    opacity: 0;
+  }
+  .fwin-nav {
+    position: absolute;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    cursor: pointer;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-ink) 70%, transparent);
+    color: var(--color-paper);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+    backdrop-filter: blur(6px);
+    transition: background-color 0.2s ease;
+  }
+  .fwin-nav:hover {
+    background: var(--color-ink);
+  }
+  .fwin-nav svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .fwin-caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.75rem;
+    padding: 2.5rem 1rem 0.8rem;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.75), transparent);
+    color: var(--color-paper);
+    font-size: 0.95rem;
+    font-weight: 600;
+    pointer-events: none;
+  }
+  .fwin-thumbs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .fwin-thumbs :global(button) {
+    flex: 0 0 auto;
+    width: 84px;
+    height: 60px;
+    overflow: hidden;
+    cursor: pointer;
+    border-radius: 8px;
+    opacity: 0.6;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+    transition:
+      opacity 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .fwin-thumbs :global(button:hover) {
+    opacity: 0.9;
+  }
+  .fwin-thumbs :global(button[aria-current="true"]) {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--color-teal-ink);
+  }
+  .fwin-thumbs :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  @media (width < 40rem) {
+    .fwin-stage {
+      height: min(58vh, 480px);
+    }
+    .fwin-bar {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+  }
+</style>
+
+<script>
+  type Item = { src: string; srcset: string; thumb: string; caption: string; area: string };
+
+  const dialog = document.querySelector<HTMLDialogElement>("[data-fwin]");
+  if (dialog) {
+    const win = dialog.querySelector<HTMLElement>("[data-fwin-win]")!;
+    const scrim = dialog.querySelector<HTMLElement>("[data-fwin-scrim]")!;
+    const img = dialog.querySelector<HTMLImageElement>("[data-fwin-img]")!;
+    const titleEl = dialog.querySelector<HTMLElement>("[data-fwin-title]")!;
+    const countEl = dialog.querySelector<HTMLElement>("[data-fwin-count]")!;
+    const captionEl = dialog.querySelector<HTMLElement>("[data-fwin-caption]")!;
+    const areaEl = dialog.querySelector<HTMLElement>("[data-fwin-area]")!;
+    const indexEl = dialog.querySelector<HTMLElement>("[data-fwin-index]")!;
+    const thumbs = dialog.querySelector<HTMLElement>("[data-fwin-thumbs]")!;
+    const stage = dialog.querySelector<HTMLElement>("[data-fwin-stage]")!;
+    const reduced = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let items: Item[] = [];
+    let index = 0;
+    let origin: HTMLElement | null = null;
+    let closing = false;
+
+    // ---- Görsel gösterme ----
+    const show = (i: number) => {
+      index = (i + items.length) % items.length;
+      const it = items[index]!;
+      img.setAttribute("data-loading", "");
+      const next = new Image();
+      next.srcset = it.srcset;
+      next.sizes = "min(1040px, 100vw)";
+      next.src = it.src;
+      const swap = () => {
+        img.srcset = it.srcset;
+        img.sizes = "min(1040px, 100vw)";
+        img.src = it.src;
+        img.alt = it.caption;
+        img.removeAttribute("data-loading");
+      };
+      next.decode().then(swap, swap);
+      captionEl.textContent = it.caption;
+      areaEl.textContent = it.area;
+      indexEl.textContent = `${index + 1} / ${items.length}`;
+      thumbs.querySelectorAll("button").forEach((b, k) => {
+        b.setAttribute("aria-current", String(k === index));
+        if (k === index) b.scrollIntoView({ block: "nearest", inline: "nearest" });
+      });
+    };
+
+    const buildThumbs = () => {
+      thumbs.replaceChildren(
+        ...items.map((it, k) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.setAttribute("aria-label", it.caption || String(k + 1));
+          const t = document.createElement("img");
+          t.src = it.thumb;
+          t.alt = "";
+          t.loading = "lazy";
+          b.append(t);
+          b.addEventListener("click", () => show(k));
+          return b;
+        }),
+      );
+    };
+
+    // ---- Genie animasyonu (macOS: pencere Dock'tan çıkar / Dock'a iner) ----
+    const genieFrames = (): Keyframe[] => {
+      const w = win.getBoundingClientRect();
+      const o = origin!.getBoundingClientRect();
+      const dx = o.left + o.width / 2 - (w.left + w.width / 2);
+      const dy = o.top + o.height / 2 - (w.top + w.height / 2);
+      // Klasör pencerenin altındaysa pencerenin altı daralır (huni), üstündeyse üstü
+      const below = dy > 0;
+      const funnel = below ? "polygon(0% 0%, 100% 0%, 60% 100%, 40% 100%)" : "polygon(40% 0%, 60% 0%, 100% 100%, 0% 100%)";
+      const mid = below ? "polygon(0% 0%, 100% 0%, 88% 100%, 12% 100%)" : "polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%)";
+      const full = "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)";
+      return [
+        { transform: `translate(${dx}px, ${dy}px) scale(0.08, 0.14)`, clipPath: funnel, opacity: 0, offset: 0 },
+        { opacity: 1, offset: 0.12 },
+        { transform: `translate(${dx * 0.42}px, ${dy * 0.5}px) scale(0.5, 0.86)`, clipPath: mid, offset: 0.5 },
+        { transform: "translate(0, 0) scale(1, 1)", clipPath: full, opacity: 1, offset: 1 },
+      ];
+    };
+    const fadeFrames: Keyframe[] = [
+      { opacity: 0, transform: "scale(0.98)" },
+      { opacity: 1, transform: "scale(1)" },
+    ];
+
+    const open = (btn: HTMLElement) => {
+      items = JSON.parse(btn.dataset.items || "[]");
+      if (!items.length) return;
+      origin = btn;
+      closing = false;
+      titleEl.textContent = btn.dataset.title || "";
+      countEl.textContent = btn.dataset.count || "";
+      buildThumbs();
+      show(0);
+      document.documentElement.style.overflow = "hidden";
+      dialog.showModal();
+      const frames = reduced() ? fadeFrames : genieFrames();
+      win.animate(frames, { duration: reduced() ? 200 : 620, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: "ease-out" });
+    };
+
+    const close = () => {
+      if (closing || !dialog.open) return;
+      closing = true;
+      const frames = reduced() ? [...fadeFrames].reverse() : genieFrames().slice().reverse().map((f, i, arr) => ({ ...f, offset: 1 - (arr[i]!.offset as number) }));
+      // reverse() sonrası offset'ler 1-offset olmalı (artan sırada kalsın)
+      const anim = win.animate(frames, { duration: reduced() ? 160 : 460, easing: "cubic-bezier(0.55, 0, 0.75, 0.2)", fill: "forwards" });
+      scrim.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: "ease-in", fill: "forwards" });
+      anim.onfinish = () => {
+        dialog.close();
+        win.getAnimations().forEach((a) => a.cancel());
+        scrim.getAnimations().forEach((a) => a.cancel());
+        document.documentElement.style.overflow = "";
+        origin?.focus({ preventScroll: true });
+        closing = false;
+      };
+    };
+
+    // ---- Olaylar ----
+    document.querySelectorAll<HTMLElement>("[data-folder]").forEach((btn) => btn.addEventListener("click", () => open(btn)));
+    dialog.querySelectorAll("[data-fwin-close]").forEach((b) => b.addEventListener("click", close));
+    scrim.addEventListener("click", close);
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault(); // Esc: animasyonlu kapat
+      close();
+    });
+    dialog.querySelector("[data-fwin-prev]")!.addEventListener("click", () => show(index - 1));
+    dialog.querySelector("[data-fwin-next]")!.addEventListener("click", () => show(index + 1));
+    dialog.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") (e.preventDefault(), show(index + 1));
+      if (e.key === "ArrowLeft") (e.preventDefault(), show(index - 1));
+    });
+
+    // Mobil: yana kaydırarak fotoğraf değiştir
+    let sx = 0;
+    let sy = 0;
+    stage.addEventListener("touchstart", (e) => ((sx = e.touches[0]!.clientX), (sy = e.touches[0]!.clientY)), { passive: true });
+    stage.addEventListener(
+      "touchend",
+      (e) => {
+        const dx = e.changedTouches[0]!.clientX - sx;
+        const dy = e.changedTouches[0]!.clientY - sy;
+        if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) show(index + (dx < 0 ? 1 : -1));
+      },
+      { passive: true },
+    );
+  }
+</script>

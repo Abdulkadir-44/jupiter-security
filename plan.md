@@ -231,6 +231,9 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 - "Yaptığımız kamera kurulumları": 6 gerçek kare: kafe önü gündüz (07) + aynı kamera gece (03), kafe iç mekan (05), kafe bahçesi gece (08), 13 kameralı kayıt ekranı (42), kayıt cihazı ve monitör (34, olduğu gibi). Uydurma semt adları kaldırıldı; "nerede" alanı boş ve kartta görünmüyor, Jüpiter bilgi verince doldurulacak.
 - Siteye giren kopyalar `src/assets/medya/` içinde (kırpılmış, en fazla 1440 px, konum bilgisi silinmiş). Hangi fotoğrafın kullanıldığı `src/content/media.ts` içinde. Astro build sırasında WebP'ye çevirip ekran boyuna göre küçük/büyük dosya üretiyor.
 - Wi-Fi slider'ı yer tutucu kaldı (fotoğraflar müşteriden gelecek).
+- **"Yaptığımız kurulumlar" klasörlere dönüştü (2026-11-22, deneme):** 4 klasör kartı (Kafe ve işyeri 9, Güneş enerjili 8, Kayıt ekranları 4, Ağaca ve direğe montaj 7 fotoğraf). Masaüstünde üzerine gelince içindeki fotoğraflar yukarı çıkıp yelpaze gibi açılır; tıklayınca macOS "genie" efektiyle klasörden pencere açılır (büyük görsel + önizleme şeridi, oklar/klavye/kaydırma).
+  - Fotoğraflar `src/assets/medya/klasorler/<klasör>/` içinde; klasöre dosya koymak yeterli (otomatik okunur). Açıklamalar `site.*.ts → work.folders[].captions`, dosya adıyla eşleşir; `area` (konum) boş, Jüpiter verince doldurulacak.
+  - Telefon ekran görüntüleri (10: çocuklar, 48: plakalar) klasörlere alınmadı.
 - Güneş enerjili ve Wi-Fi bölümleri (2026-11-21):
   - Fiyat butonu yerine **asma fiyat etiketi** (`src/components/ui/PriceTag.astro`): eğik, ekrana girince bir kez hafifçe sallanır, üzerine gelince düzleşir. Hover titremesi düzeltildi (dış bağlantı sabit, sadece iç kısım döner).
   - Yer etiketleri hap/buton yerine **sinyal (4G) / Wi-Fi simgeli liste** (`src/components/ui/PlaceList.astro`), altlarında renkten sağa doğru kaybolan çizgi.
