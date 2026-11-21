@@ -89,7 +89,7 @@ function PackageCard({
           featured && "lg:-my-4 lg:h-[calc(100%+2rem)] lg:py-10",
           featured
             ? "bg-navy text-paper shadow-[0_40px_80px_-30px_color-mix(in_srgb,var(--color-ink)_70%,transparent)]"
-            : "bg-paper text-ink ring-1 ring-ink/10 shadow-[0_24px_50px_-30px_color-mix(in_srgb,var(--color-ink)_35%,transparent)]",
+            : "bg-white text-ink ring-1 ring-ink/10 shadow-[0_24px_50px_-30px_color-mix(in_srgb,var(--color-ink)_35%,transparent)]",
         )}
       >
         {/* Fare ışığı */}

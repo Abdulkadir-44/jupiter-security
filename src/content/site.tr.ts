@@ -102,6 +102,8 @@ export interface SiteContent {
   process: {
     title: string;
     lead: string;
+    /** Adım kartlarındaki etiket (örn. "Adım" → "ADIM 01") */
+    stepLabel: string;
     steps: { icon: IconName; title: string; text: string }[];
   };
   useCases: {
@@ -378,6 +380,7 @@ export const site: SiteContent = {
   process: {
     title: "Keşiften telefonunuza, kamera kurulumunun her adımı bizde",
     lead: "Tek bir firmayla konuşursunuz. Keşiften bakıma kadar aynı ekip ilgilenir.",
+    stepLabel: "Adım",
     steps: [
       {
         icon: "search",

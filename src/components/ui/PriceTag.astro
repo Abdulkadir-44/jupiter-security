@@ -25,15 +25,17 @@ interface Props {
   accent?: "sun" | "teal";
   /** Kupon çentiklerinin rengi = bölümün arka plan rengi */
   notch?: string;
+  /** Zemin: "dark" koyu bölüm (varsayılan), "light" açık panel (ip ve odak çerçevesi koyu) */
+  tone?: "dark" | "light";
 }
-const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-ink)" } = Astro.props;
+const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-ink)", tone = "dark" } = Astro.props;
 ---
 
 <a
   href={href}
   target="_blank"
   rel="noopener"
-  class:list={["price-tag group", accent === "teal" ? "tag-teal" : "tag-sun"]}
+  class:list={["price-tag group", accent === "teal" ? "tag-teal" : "tag-sun", tone === "light" && "on-light"]}
   style={`--notch: ${notch}`}
   data-price-tag
 >
@@ -94,6 +96,13 @@ const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-
 
   .tag-sun {
     --tag: var(--color-sun);
+  }
+  /* Açık zeminde ip ve odak çerçevesi koyu */
+  .on-light .tag-cord {
+    color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+  }
+  .on-light:focus-visible {
+    outline-color: var(--color-ink);
   }
   .tag-teal {
     --tag: var(--color-teal);

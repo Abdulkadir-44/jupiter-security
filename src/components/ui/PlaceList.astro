@@ -11,17 +11,22 @@ interface Props {
   /** "signal": 4G sinyal çubukları (güneş enerjili), "wifi": Wi-Fi dalgaları */
   icon?: "signal" | "wifi";
   accent?: "sun" | "teal";
+  /** Zemin: "dark" koyu bölüm (varsayılan), "light" açık panel (vurgu koyu yeşile döner, okunurluk için) */
+  tone?: "dark" | "light";
 }
-const { places, icon = "signal", accent = "sun" } = Astro.props;
+const { places, icon = "signal", accent = "sun", tone = "dark" } = Astro.props;
 ---
 
 <ul
-  class:list={["places mt-6 grid grid-cols-2 gap-x-5 sm:grid-cols-3", accent === "teal" ? "acc-teal" : "acc-sun"]}
+  class:list={[
+    "places mt-6 grid grid-cols-2 gap-x-5 sm:grid-cols-3",
+    tone === "light" ? "tone-light" : accent === "teal" ? "acc-teal" : "acc-sun",
+  ]}
   data-places
 >
   {
     places.map((p) => (
-      <li class="place relative flex items-center gap-2.5 py-3 pr-2 text-[15px] text-paper/90">
+      <li class="place relative flex items-center gap-2.5 py-3 pr-2 text-[15px]">
         {icon === "wifi" ? (
           <svg class="conn size-4 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="13" r="1.4" fill="currentColor" stroke="none" />
@@ -44,11 +49,23 @@ const { places, icon = "signal", accent = "sun" } = Astro.props;
 </ul>
 
 <style>
+  .places {
+    --txt: color-mix(in srgb, var(--color-paper) 90%, transparent);
+    --line: var(--color-paper);
+  }
   .acc-sun {
     --acc: var(--color-sun);
   }
   .acc-teal {
     --acc: var(--color-teal);
+  }
+  .tone-light {
+    --acc: var(--color-teal-ink);
+    --txt: var(--color-ink);
+    --line: var(--color-ink);
+  }
+  .place {
+    color: var(--txt);
   }
   .conn {
     color: var(--acc);
@@ -72,7 +89,7 @@ const { places, icon = "signal", accent = "sun" } = Astro.props;
       90deg,
       color-mix(in srgb, var(--acc) 70%, transparent) 0%,
       color-mix(in srgb, var(--acc) 25%, transparent) 35%,
-      color-mix(in srgb, var(--color-paper) 8%, transparent) 75%,
+      color-mix(in srgb, var(--line) 8%, transparent) 75%,
       transparent 100%
     );
     transform-origin: left center;

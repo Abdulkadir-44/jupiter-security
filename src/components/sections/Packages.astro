@@ -6,7 +6,8 @@ const s = getSiteContent(Astro.currentLocale);
 const p = s.packages;
 ---
 
-<section id="paketler" aria-labelledby="paketler-baslik" class="panel overflow-hidden bg-cream text-ink">
+<!-- Zemin neredeyse beyaz (paper): üstteki Wi-Fi bölümü krem, ikisi açık renk ama ton farkıyla ayrılsın -->
+<section id="paketler" aria-labelledby="paketler-baslik" class="panel overflow-hidden bg-paper text-ink">
   <div class="wrap py-20 md:py-28">
     <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
       <h2 id="paketler-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{p.title}</h2>

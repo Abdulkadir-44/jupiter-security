@@ -5,30 +5,48 @@ import { getSiteContent } from "@/lib/data";
 const p = getSiteContent(Astro.currentLocale).process;
 ---
 
-<section id="surec" aria-labelledby="surec-baslik" class="panel bg-cream text-ink">
+<!-- Mobilde de kenardan kenara, köşesiz (panel yerine full-bleed); içerik boşluğu wrap ile aynı (2rem) -->
+<section id="surec" aria-labelledby="surec-baslik" class="bg-cream text-ink">
   <div class="wrap py-20 md:py-28">
     <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
       <h2 id="surec-baslik" class="font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{p.title}</h2>
       <p class="max-w-[42ch] text-[1.1rem] text-ink-soft">{p.lead}</p>
     </div>
 
-    <!-- Adımlar gerçekten sıralı olduğu için numaralı -->
     <!--
-      Mobil/tablet (lg altı): her adım ayrı kart, sırayla sola/sağa yatık ve kaydırılmış.
-      Masaüstü (lg): eski düzen, 5 sütun ve ince ayırıcı çizgiler (max-lg: ile ayrıldı).
+      Adımlar gerçekten sıralı olduğu için numaralı. Her adım bir "iş emri" kartı:
+      üst şerit (ADIM 01 + 5 parçalı ilerleme, adıma kadar dolu), ikon kutucuğu, serif başlık,
+      sağ altta kartın dışına taşan kontur numara.
+      Mobil/tablet (lg altı): kartlar sırayla sola/sağa yatık ve kaydırılmış; kaydırınca düşerek gelir.
+      Masaüstü (lg): 5 sütun kart; üzerine gelince hafif yükselir, numaranın içi dolar, ikon döner.
     -->
-    <ol data-steps class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-0 lg:border-t lg:border-ink/15">
+    <ol data-steps class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-3 xl:gap-4">
       {
         p.steps.map((st, i) => (
-          <li style={`--drop-rot:${i % 2 ? 10 : -10}deg`} class="grid grid-cols-[3.25rem_1fr] gap-x-4 max-lg:rounded-[1.25rem] max-lg:bg-paper max-lg:p-5 max-lg:shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] max-lg:ring-1 max-lg:ring-ink/10 max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg] lg:block lg:border-l lg:border-ink/15 lg:px-6 lg:py-8 lg:first:border-l-0 lg:first:pl-0">
-            <span class="font-tall text-[3rem] leading-none text-teal-ink lg:text-[4rem]">{i + 1}</span>
-            <div class="lg:mt-8">
-              <h3 class="flex items-center gap-2 text-[1.15rem] font-semibold">
-                <Icon name={st.icon} className="size-[1.1rem] shrink-0 text-teal-ink" strokeWidth={2.2} />
-                {st.title}
-              </h3>
-              <p class="mt-2 text-[0.98rem] text-ink-soft">{st.text}</p>
-            </div>
+          <li style={`--drop-rot:${i % 2 ? 10 : -10}deg`} class="max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg]">
+            <article class="step-card group relative h-full overflow-hidden rounded-[1.25rem] bg-paper p-5 ring-1 ring-ink/10 shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] sm:p-6 lg:p-5 xl:p-6">
+              <span class="step-num pointer-events-none absolute -right-3 -bottom-10 font-tall text-[9rem] leading-none select-none lg:-bottom-8 lg:text-[7rem] xl:text-[8rem]" aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+
+              <div class="relative flex items-center justify-between gap-3">
+                <span class="font-mono text-[11px] font-medium tracking-[0.16em] whitespace-nowrap text-ink-soft uppercase">
+                  {p.stepLabel} {String(i + 1).padStart(2, "0")}
+                </span>
+                <span class="flex gap-1" aria-hidden="true">
+                  {p.steps.map((_, k) => (
+                    <span class:list={["h-1 w-4 rounded-full lg:w-2.5 xl:w-3.5", k <= i ? "bg-teal-ink" : "bg-ink/12"]} />
+                  ))}
+                </span>
+              </div>
+
+              <span class="step-icon relative mt-7 grid size-12 place-items-center rounded-[0.9rem] bg-cream-2 text-teal-ink ring-1 ring-teal-ink/15">
+                <Icon name={st.icon} className="size-[1.35rem]" strokeWidth={1.9} />
+              </span>
+
+              <h3 class="relative mt-5 font-title text-[1.85rem] leading-[1.05] lg:text-[1.55rem] xl:text-[1.85rem]">{st.title}</h3>
+              <p class="relative mt-3 max-w-[34ch] pr-10 text-[0.98rem] text-ink-soft lg:pr-2 lg:text-[0.93rem] xl:pr-4 xl:text-[0.98rem]">{st.text}</p>
+            </article>
           </li>
         ))
       }
@@ -37,6 +55,36 @@ const p = getSiteContent(Astro.currentLocale).process;
 </section>
 
 <style>
+  /* Yeni adım kartı: kontur numara, üzerine gelince dolar */
+  .step-num {
+    color: transparent;
+    -webkit-text-stroke: 1.5px color-mix(in srgb, var(--color-teal-ink) 22%, transparent);
+    transition:
+      color 0.5s ease,
+      transform 0.6s var(--ease-out-expo);
+  }
+  .step-icon {
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .step-card {
+      transition:
+        transform 0.5s var(--ease-out-expo),
+        box-shadow 0.5s ease;
+    }
+    .step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 50px -28px color-mix(in srgb, var(--color-ink) 55%, transparent);
+    }
+    .step-card:hover .step-num {
+      color: color-mix(in srgb, var(--color-teal) 22%, transparent);
+      transform: translateY(-6px);
+    }
+    .step-card:hover .step-icon {
+      transform: rotate(-8deg) scale(1.06);
+    }
+  }
+
   /*
    * Mobil/tablet: kartlar kaydırınca yukarıdan düşüp yatık hâline yaylanarak oturur.
    * data-drop sadece JS çalışınca eklenir (JS yoksa kartlar normal görünür).

@@ -9,12 +9,14 @@
 interface Props {
   items: string[];
   variant?: "battery" | "ping";
+  /** Zemin: "dark" koyu bölüm (sarı vurgu), "light" açık panel (koyu yeşil vurgu, okunurluk için) */
+  tone?: "dark" | "light";
   class?: string;
 }
-const { items, variant = "battery", class: className = "" } = Astro.props;
+const { items, variant = "battery", tone = "dark", class: className = "" } = Astro.props;
 ---
 
-<ul class:list={["slist mt-8 grid gap-3.5", className]} data-slist>
+<ul class:list={["slist mt-8 grid gap-3.5", tone === "light" && "tone-light", className]} data-slist>
   {
     items.map((it, i) => (
       <li class="flex items-start gap-3.5" style={`--d: ${i * 180}ms`}>
@@ -40,28 +42,34 @@ const { items, variant = "battery", class: className = "" } = Astro.props;
 </ul>
 
 <style>
+  .slist {
+    --acc: var(--color-sun);
+  }
+  .slist.tone-light {
+    --acc: var(--color-teal-ink);
+  }
   /* Batarya */
   .bat-body {
-    stroke: color-mix(in srgb, var(--color-sun) 70%, transparent);
+    stroke: color-mix(in srgb, var(--acc) 70%, transparent);
     stroke-width: 1.5;
   }
   .bat-nub {
-    fill: color-mix(in srgb, var(--color-sun) 70%, transparent);
+    fill: color-mix(in srgb, var(--acc) 70%, transparent);
   }
   .cell {
-    fill: var(--color-sun);
+    fill: var(--acc);
   }
 
   /* Çevrimiçi ışığı */
   .ping-dot {
-    fill: var(--color-sun);
+    fill: var(--acc);
   }
   .ping-halo {
-    stroke: color-mix(in srgb, var(--color-sun) 35%, transparent);
+    stroke: color-mix(in srgb, var(--acc) 35%, transparent);
     stroke-width: 1;
   }
   .ping-wave {
-    stroke: var(--color-sun);
+    stroke: var(--acc);
     stroke-width: 1.5;
     opacity: 0;
     transform-box: fill-box;

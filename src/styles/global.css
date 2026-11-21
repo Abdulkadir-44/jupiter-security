@@ -114,29 +114,28 @@
   width: 100%;
   max-width: 80rem;
   margin-inline: auto;
-  /* Mobilde içerik kenardan 2rem (32px) içeride; panel içinde margin + padding yine 2rem eder */
+  /* Mobilde içerik kenardan 2rem (32px) içeride */
   padding-inline: 2rem;
   @media (width >= 48rem) {
     padding-inline: 2.5rem;
   }
 }
 
-/* Panel (0.5rem margin) içindeki wrap: toplam kenar boşluğu mobilde de 2rem kalsın */
-@media (width < 48rem) {
-  .panel > .wrap {
-    padding-inline: 1.5rem;
-  }
+/*
+ * Renkli bölüm zemini: her ekranda kenardan kenara, köşesiz (mobilde eskiden 0.5rem boşluklu yuvarlak
+ * kart gibiydi; üst üste gelince köşeler kötü duruyordu). İçerik boşluğunu wrap verir (mobilde 2rem).
+ */
+/*
+ * Bölüm geçişlerinde kılcal çizgi olmasın: telefonda yükseklik piksel arasına denk gelince iki bölüm
+ * arasından sayfa zemini sızabiliyor. Her bölüm bir öncekinin üstüne 1px biner (gözle görülmez).
+ */
+#icerik > section + section {
+  margin-top: -1px;
 }
 
-/* Sayfa içinde yuvarlak köşeli panel (Super 8 tarzı) */
 @utility panel {
-  margin-inline: 0.5rem;
-  border-radius: 1.25rem;
-  /* Tablet/masaüstü: panel kenardan kenara (yan boşluk yok); mobilde 0.5rem kalır */
-  @media (width >= 48rem) {
-    margin-inline: 0;
-    border-radius: 0;
-  }
+  margin-inline: 0;
+  border-radius: 0;
 }
 
 @utility text-balance {

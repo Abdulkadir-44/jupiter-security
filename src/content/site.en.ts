@@ -71,6 +71,7 @@ export const site: SiteContent = {
   process: {
     title: "From site visit to your phone, every step of the installation is on us",
     lead: "You deal with one company. The same team handles everything from the site visit to maintenance.",
+    stepLabel: "Step",
     steps: [
       {
         icon: "search",
