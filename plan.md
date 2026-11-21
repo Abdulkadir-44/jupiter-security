@@ -218,7 +218,7 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 13. **Yazışma adresi neden gerekli?** (müşteri sordu) KVKK aydınlatma metninde "veri sorumlusu"nun adresi yazılmak zorunda; Google İşletme Profili doğrulaması da adres ister (sitede ve haritada gizli kalabilir). Tam resmi unvan için vergi levhasındaki ad gerekli ("... Ltd. Şti." dahil).
 14. **E-posta:** alan adı alınınca `info@jupiterguvenlik.com` gibi bir adres, Cloudflare Email Routing (ücretsiz) ile müşterinin Gmail'ine yönlendirilebilir; e-posta göndermek için ek ayar ya da ücretli posta servisi gerekir.
 
-### Durum özeti (son commit `520fe06`, **deploy edilmedi**: canlı site eski telefon/fiyatsız haliyle duruyor)
+### Durum özeti (son commit `7972d4d`, **2026-11-22 deploy edildi**: canlı site güncel)
 - Uygulandı: gerçek telefon, 3 yıl / 600+ / 2 yıl garanti, fiyatlı paketler (KDV ve montaj dahil), esnek saatler, resmi ad "Jüpiter Güvenlik Sistemleri", markalar, SIM notu, Wi-Fi bölümü + güneş enerjili slider (fotoğraflar bekleniyor), iki satırlı logo.
 - Fiyat girildi (2026-11-21): Wi-Fi 6.999 TL, güneş enerjili 8.999 TL'den başlayan fiyatlar, KDV ve montaj dahil (butonlarda yazıyor).
 - Bekleyen (müşteriden): Wi-Fi markası, ürünler slider'ı içeriği, resmi unvan + adres (KVKK), e-posta, fotoğraflar (kullanıcı kategorize edip verecek), gerçek yorumlar, Instagram.
