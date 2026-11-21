@@ -1,7 +1,7 @@
 ---
 /**
  * Wi-Fi (kablosuz) kameralar. Güneş enerjili bölümle aynı düzen: solda metin, sağda fotoğraf slider kartı.
- * Ayırt edilsin diye vurgu rengi yeşil (güneş enerjili bölümde sarı) ve zemin farklı (panel değil, sayfa zemini).
+ * Vurgu rengi güneş enerjili bölümdeki gibi sarı (yeşil zeminde yeşil vurgu kayboluyordu); zemin farklı (panel değil, sayfa zemini).
  * ŞABLON: metin taslak, fotoğraflar `site.*.ts` → `wifi.slides` içine eklenecek.
  */
 import { Check, Wifi } from "lucide-react";
@@ -25,20 +25,20 @@ const w = s.wifi;
       <!-- Metin -->
       <div class="lg:col-start-1 lg:row-start-2">
         <p class="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium tracking-[0.14em] text-paper/80 uppercase md:text-[13px]">
-          <span class="size-1.5 rounded-full bg-teal shadow-[0_0_10px_var(--color-teal)]" aria-hidden="true"></span>
+          <span class="size-1.5 rounded-full bg-sun shadow-[0_0_10px_var(--color-sun)]" aria-hidden="true"></span>
           {w.eyebrow}
         </p>
         <h2 id="wifi-baslik" class="mt-4 font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{w.title}</h2>
         <p class="mt-6 max-w-[48ch] text-[1.1rem] text-mist">{w.lead}</p>
 
         <!-- Kurulum yerleri: Wi-Fi simgeli liste (buton görünümü yok) -->
-        <PlaceList places={w.places} icon="wifi" accent="teal" />
+        <PlaceList places={w.places} icon="wifi" accent="sun" />
 
         <ul class="mt-8 grid gap-3">
           {
             w.features.map((f) => (
               <li class="flex items-start gap-3">
-                <Check className="mt-1 size-4 shrink-0 text-teal" strokeWidth={3} aria-hidden="true" />
+                <Check className="mt-1 size-4 shrink-0 text-sun" strokeWidth={3} aria-hidden="true" />
                 <span>{f}</span>
               </li>
             ))
@@ -48,20 +48,20 @@ const w = s.wifi;
 
       <!-- Sağ sütun (mobilde metnin altı): fotoğraf slider'ı -->
       <div class="mt-12 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:mt-0 lg:self-center">
-        <PhotoSlider slides={w.slides} label={w.screenLabel} ariaLabel={w.eyebrow} accent="teal" />
+        <PhotoSlider slides={w.slides} label={w.screenLabel} ariaLabel={w.eyebrow} accent="sun" />
       </div>
 
       <!-- Fiyat butonu ve not: mobilde slider'ın altında, masaüstünde sol sütunda metnin altında -->
       <div class="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7 lg:col-start-1 lg:row-start-3 lg:mt-12">
         {
           w.priceTag ? (
-            <PriceTag href={whatsappHref(s.contact, w.whatsappMessage)} {...w.priceTag} accent="teal" notch="var(--color-navy)" />
+            <PriceTag href={whatsappHref(s.contact, w.whatsappMessage)} {...w.priceTag} accent="sun" notch="var(--color-navy)" />
           ) : (
             <a
               href={whatsappHref(s.contact, w.whatsappMessage)}
               target="_blank"
               rel="noopener"
-              class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-teal px-6 font-semibold whitespace-nowrap text-ink transition-colors duration-200 hover:bg-teal-soft"
+              class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-sun px-6 font-semibold whitespace-nowrap text-ink transition-[filter] duration-200 hover:brightness-110"
             >
               <WhatsAppIcon className="size-[1.1rem]" />
               {w.cta}
