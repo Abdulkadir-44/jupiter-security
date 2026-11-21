@@ -4,10 +4,11 @@
  * Vurgu rengi güneş enerjili bölümdeki gibi sarı (yeşil zeminde yeşil vurgu kayboluyordu); zemin farklı (panel değil, sayfa zemini).
  * ŞABLON: metin taslak, fotoğraflar `site.*.ts` → `wifi.slides` içine eklenecek.
  */
-import { Check, Wifi } from "lucide-react";
+import { Wifi } from "lucide-react";
 import PhotoSlider from "@/components/PhotoSlider.astro";
 import PriceTag from "@/components/ui/PriceTag.astro";
 import PlaceList from "@/components/ui/PlaceList.astro";
+import StatusList from "@/components/ui/StatusList.astro";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, whatsappHref } from "@/lib/data";
 
@@ -34,16 +35,8 @@ const w = s.wifi;
         <!-- Kurulum yerleri: Wi-Fi simgeli liste (buton görünümü yok) -->
         <PlaceList places={w.places} icon="wifi" accent="sun" />
 
-        <ul class="mt-8 grid gap-3">
-          {
-            w.features.map((f) => (
-              <li class="flex items-start gap-3">
-                <Check className="mt-1 size-4 shrink-0 text-sun" strokeWidth={3} aria-hidden="true" />
-                <span>{f}</span>
-              </li>
-            ))
-          }
-        </ul>
+        <!-- Özellikler: çevrimiçi ışığı: Wi-Fi'ye bağlanan kamera (tik yerine) -->
+        <StatusList items={w.features} variant="ping" />
       </div>
 
       <!-- Sağ sütun (mobilde metnin altı): fotoğraf slider'ı -->

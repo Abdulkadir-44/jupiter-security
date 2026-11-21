@@ -224,6 +224,16 @@ export const site: SiteContent = {
       "Angles complement each other without overlapping",
       "Night vision range is taken into account",
     ],
+    detection: {
+      eyebrow: "AI cameras",
+      label: "CAM 04 · PERSON DETECTION",
+      title: "It spots people and alerts your phone",
+      text: "Our AI cameras tell a person apart from a branch swaying in the wind. The moment someone enters the area, you get a notification and the moment is marked in the recording.",
+      points: ["Real alerts instead of false alarms", "Find the moments with people fast", "Works at night too"],
+      caption: "Real footage from a camera we installed",
+      play: "Play video",
+      pause: "Pause video",
+    },
   },
 
   closing: {
@@ -365,6 +375,7 @@ export const site: SiteContent = {
     call: "Call",
     whatsappFloat: "Message on WhatsApp",
     askPackage: "Ask about this package",
+    included: "Included",
     skipToContent: "Skip to content",
     backToTop: "back to top",
     mainNav: "Main menu",

@@ -1,0 +1,132 @@
+---
+/**
+ * Madde listesi: tik yerine durum ikonu (koyu bölümler için, sarı vurgu).
+ *
+ * - "battery" (güneş enerjili): küçük batarya; ekrana girince bölmeleri tek tek dolar ("şarj oluyor").
+ * - "ping" (Wi-Fi): "çevrimiçi" ışığı; ekrana girince etrafında bir kez sinyal halkası yayılır ("bağlandı").
+ * Maddeler sırayla, bir kez. "Hareketi azalt" açıksa ikonlar baştan dolu/yanık durur.
+ */
+interface Props {
+  items: string[];
+  variant?: "battery" | "ping";
+  class?: string;
+}
+const { items, variant = "battery", class: className = "" } = Astro.props;
+---
+
+<ul class:list={["slist mt-8 grid gap-3.5", className]} data-slist>
+  {
+    items.map((it, i) => (
+      <li class="flex items-start gap-3.5" style={`--d: ${i * 180}ms`}>
+        {variant === "battery" ? (
+          <svg class="bat mt-[0.3em] h-3.5 w-6 shrink-0" viewBox="0 0 24 14" fill="none" aria-hidden="true">
+            <rect x="0.75" y="0.75" width="19.5" height="12.5" rx="2.6" class="bat-body" />
+            <rect x="21.4" y="4.4" width="1.9" height="5.2" rx="0.8" class="bat-nub" />
+            <rect x="3" y="3" width="4.4" height="8" rx="1" class="cell c1" />
+            <rect x="8.3" y="3" width="4.4" height="8" rx="1" class="cell c2" />
+            <rect x="13.6" y="3" width="4.4" height="8" rx="1" class="cell c3" />
+          </svg>
+        ) : (
+          <svg class="ping mt-[0.15em] size-5 shrink-0 overflow-visible" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="6.5" class="ping-halo" />
+            <circle cx="10" cy="10" r="3.4" class="ping-wave" />
+            <circle cx="10" cy="10" r="3.4" class="ping-dot" />
+          </svg>
+        )}
+        <span>{it}</span>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  /* Batarya */
+  .bat-body {
+    stroke: color-mix(in srgb, var(--color-sun) 70%, transparent);
+    stroke-width: 1.5;
+  }
+  .bat-nub {
+    fill: color-mix(in srgb, var(--color-sun) 70%, transparent);
+  }
+  .cell {
+    fill: var(--color-sun);
+  }
+
+  /* Çevrimiçi ışığı */
+  .ping-dot {
+    fill: var(--color-sun);
+  }
+  .ping-halo {
+    stroke: color-mix(in srgb, var(--color-sun) 35%, transparent);
+    stroke-width: 1;
+  }
+  .ping-wave {
+    stroke: var(--color-sun);
+    stroke-width: 1.5;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Başlangıç (script data-js ekleyince): bölmeler boş, ışık sönük */
+    .slist[data-js] .cell {
+      opacity: 0.12;
+      transition: opacity 0.25s ease;
+    }
+    .slist[data-js] .c1 {
+      transition-delay: calc(var(--d) + 0.1s);
+    }
+    .slist[data-js] .c2 {
+      transition-delay: calc(var(--d) + 0.3s);
+    }
+    .slist[data-js] .c3 {
+      transition-delay: calc(var(--d) + 0.5s);
+    }
+    .slist[data-js] .ping-dot,
+    .slist[data-js] .ping-halo {
+      opacity: 0.15;
+      transition: opacity 0.35s ease;
+      transition-delay: var(--d);
+    }
+
+    /* Dolma / bağlanma */
+    .slist[data-on="true"] .cell,
+    .slist[data-on="true"] .ping-dot,
+    .slist[data-on="true"] .ping-halo {
+      opacity: 1;
+    }
+    .slist[data-on="true"] .ping-wave {
+      animation: ping-wave 1.1s var(--ease-out-expo) both;
+      animation-delay: calc(var(--d) + 0.2s);
+    }
+  }
+  @keyframes ping-wave {
+    0% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(3.2);
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>("[data-slist]").forEach((list) => {
+      list.setAttribute("data-js", "");
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (e?.isIntersecting) {
+            list.setAttribute("data-on", "true");
+            io.disconnect();
+          }
+        },
+        { threshold: 0.5 },
+      );
+      io.observe(list);
+    });
+  }
+</script>

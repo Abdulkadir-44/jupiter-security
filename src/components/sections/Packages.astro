@@ -13,7 +13,7 @@ const p = s.packages;
       <p class="max-w-[46ch] text-[1.1rem] text-ink-soft">{p.lead}</p>
     </div>
 
-    <PackagesMotion client:visible={{ rootMargin: "300px" }} items={p.items} contact={s.contact} askLabel={s.ui.askPackage} messageTemplate={s.ui.packageMessage}
+    <PackagesMotion client:visible={{ rootMargin: "300px" }} items={p.items} contact={s.contact} askLabel={s.ui.askPackage} includedLabel={s.ui.included} messageTemplate={s.ui.packageMessage}
       priceTemplate={p.priceTemplate}
       priceIncludes={p.priceIncludes}
       numberLocale={s.locale.numberLocale}

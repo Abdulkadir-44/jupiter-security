@@ -1,6 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { Check } from "lucide-react";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import type { SiteContent } from "@/content/site.tr";
@@ -184,12 +183,31 @@ export default function UseCaseTabs({ items, labels }: { items: Item[]; labels: 
             <div>
               <h3 className="font-title text-[2rem] sm:text-[2.4rem]">{current.title}</h3>
               <p className="mt-3 max-w-[56ch] text-mist">{current.text}</p>
-              <ul className="mt-6 grid gap-2.5">
-                {current.setup.map((s) => (
-                  <li key={s} className="flex items-start gap-3">
-                    <Check className="mt-1 size-4 shrink-0 text-teal" strokeWidth={3} aria-hidden="true" />
-                    <span>{s}</span>
-                  </li>
+              {/*
+                Kurulum maddeleri: kayıt cihazındaki kanal satırları gibi (CH 01, CH 02…).
+                Sekme değişince satırlar sırayla gelir ve kanal kareleri tek tek sarı yanar (sağdaki ızgarayla aynı dil).
+              */}
+              <ul className="mt-6 grid gap-2">
+                {current.setup.map((s, i) => (
+                  <motion.li
+                    key={s}
+                    className="flex items-center gap-3.5 rounded-[0.7rem] border border-paper/[0.08] bg-ink/45 px-3.5 py-2.5"
+                    initial={reduced ? false : { opacity: 0, x: 14 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, ease: EASE, delay: 0.08 + i * 0.09 }}
+                  >
+                    <span className="flex shrink-0 items-center gap-2 font-mono text-[11px] text-paper/50" aria-hidden="true">
+                      <motion.span
+                        className="size-2.5 rounded-[3px] bg-sun shadow-[0_0_10px_color-mix(in_srgb,var(--color-sun)_55%,transparent)]"
+                        initial={reduced ? false : { scale: 0.3, opacity: 0.15 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 20, delay: 0.3 + i * 0.12 }}
+                      />
+                      CH {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="h-4 w-px shrink-0 bg-paper/10" aria-hidden="true" />
+                    <span className="text-[0.97rem] leading-snug">{s}</span>
+                  </motion.li>
                 ))}
               </ul>
             </div>

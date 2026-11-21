@@ -1,0 +1,132 @@
+---
+/**
+ * İnsan algılama: gerçek kayıttan kısa klip (V02'nin 3-12. saniyesi, sessiz, ~1.2 MB) + metin.
+ * Açık renkli panel (koyu bölümler arasında nefes alanı). Solda video, sağda metin; mobilde metin üstte.
+ *
+ * - Ekrana gelince sessiz döngüde oynar, ekrandan çıkınca / sekme değişince durur.
+ * - Durdur/oynat butonu var; kullanıcı durdurursa kendiliğinden başlamaz.
+ * - Video ekrana yaklaşana kadar indirilmez (preload="none", kapak resmi görünür).
+ * - "Hareketi azalt" açıksa kendiliğinden oynamaz.
+ * İçerik: site.*.ts → coverage.detection
+ */
+import { Pause, Play } from "lucide-react";
+import FeatureList from "@/components/ui/FeatureList.astro";
+import { getSiteContent } from "@/lib/data";
+
+const s = getSiteContent(Astro.currentLocale);
+const d = s.coverage.detection;
+---
+
+<section aria-labelledby="algilama-baslik" class="panel bg-cream text-ink">
+  <div class="wrap grid items-center gap-12 py-20 md:py-28 lg:grid-cols-[1fr_0.85fr] lg:gap-20">
+    <div>
+      <p class="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium tracking-[0.14em] text-ink-soft uppercase md:text-[13px]">
+        <span class="size-1.5 rounded-full bg-coral" aria-hidden="true"></span>
+        {d.eyebrow}
+      </p>
+      <h2 id="algilama-baslik" class="mt-4 font-title text-balance text-[clamp(2.4rem,5vw,4rem)]">{d.title}</h2>
+      <p class="mt-6 max-w-[46ch] text-[1.1rem] text-ink-soft">{d.text}</p>
+      <FeatureList items={d.points} tone="light" />
+    </div>
+
+    <figure class="lg:order-first" data-clip>
+      <div class="overflow-hidden rounded-[1.25rem] bg-navy-2 text-paper shadow-[0_30px_60px_-30px_rgb(26_36_24/0.55)] ring-1 ring-ink/10">
+        <div class="flex items-center justify-between border-b border-paper/10 px-4 py-3 font-mono text-[11px] text-paper/75 sm:text-xs" aria-hidden="true">
+          <span class="flex items-center gap-2"><span class="clip-rec size-2 rounded-full bg-coral"></span>{d.label}</span>
+          <span>LIVE</span>
+        </div>
+        <div class="relative aspect-video bg-ink">
+          <video
+            class="absolute inset-0 h-full w-full object-cover"
+            muted
+            loop
+            playsinline
+            preload="none"
+            poster="/medya/video/insan-algilama-kapak.webp"
+            aria-label={d.caption}
+            data-clip-video
+          >
+            <source src="/medya/video/insan-algilama.mp4" type="video/mp4" />
+          </video>
+          <button
+            type="button"
+            class="absolute right-3 bottom-3 grid size-11 cursor-pointer place-items-center rounded-full bg-ink/70 text-paper ring-1 ring-paper/20 backdrop-blur-sm transition-colors duration-200 hover:bg-ink/90"
+            data-clip-toggle
+            aria-label={d.play}
+            data-label-play={d.play}
+            data-label-pause={d.pause}
+          >
+            <Play className="size-5" aria-hidden="true" data-icon-play />
+            <Pause className="hidden size-5" aria-hidden="true" data-icon-pause />
+          </button>
+        </div>
+      </div>
+      <figcaption class="mt-3 text-sm text-ink-soft">{d.caption}</figcaption>
+    </figure>
+  </div>
+</section>
+
+<style>
+  .clip-rec {
+    animation: clip-rec 1.6s ease-in-out infinite;
+  }
+  @keyframes clip-rec {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .clip-rec {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-clip]");
+  const video = root?.querySelector<HTMLVideoElement>("[data-clip-video]");
+  const btn = root?.querySelector<HTMLButtonElement>("[data-clip-toggle]");
+  if (root && video && btn) {
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let userPaused = reduced; // hareketi azalt açıksa kullanıcı başlatana kadar oynamaz
+    let visible = false;
+
+    const sync = () => {
+      const playing = !video.paused;
+      btn.setAttribute("aria-label", (playing ? btn.dataset.labelPause : btn.dataset.labelPlay) ?? "");
+      btn.querySelector("[data-icon-play]")?.classList.toggle("hidden", playing);
+      btn.querySelector("[data-icon-pause]")?.classList.toggle("hidden", !playing);
+    };
+    const play = () => {
+      video.preload = "auto";
+      video.play().catch(() => {}); // tarayıcı engellerse kapak resmi kalır
+    };
+    video.addEventListener("play", sync);
+    video.addEventListener("pause", sync);
+
+    btn.addEventListener("click", () => {
+      if (video.paused) {
+        userPaused = false;
+        play();
+      } else {
+        userPaused = true;
+        video.pause();
+      }
+    });
+
+    // Ekrandayken oynat, çıkınca durdur (pil ve veri harcamasın)
+    new IntersectionObserver(
+      ([e]) => {
+        visible = !!e?.isIntersecting;
+        if (visible && !userPaused) play();
+        else if (!visible) video.pause();
+      },
+      { threshold: 0.4 },
+    ).observe(root);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) video.pause();
+      else if (visible && !userPaused) play();
+    });
+  }
+</script>

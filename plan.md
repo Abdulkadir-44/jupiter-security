@@ -235,7 +235,13 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
   - Fiyat butonu yerine **asma fiyat etiketi** (`src/components/ui/PriceTag.astro`): eğik, ekrana girince bir kez hafifçe sallanır, üzerine gelince düzleşir. Hover titremesi düzeltildi (dış bağlantı sabit, sadece iç kısım döner).
   - Yer etiketleri hap/buton yerine **sinyal (4G) / Wi-Fi simgeli liste** (`src/components/ui/PlaceList.astro`), altlarında renkten sağa doğru kaybolan çizgi.
   - Masaüstü: fiyat etiketi + KDV notu solda metnin altında, markalar sağda fotoğrafın altında. Mobil: metin → fotoğraf → markalar → fiyat etiketi.
-- **Sırada:** V02 "insan algılama" videosundan kısa, sessiz klip (ffmpeg gerekiyor).
+- **Video eklendi (2026-11-21):** V02'nin 3-12. saniyesi (kişi sırtı dönük, yüz görünmüyor), sessiz, 960 px, 1.2 MB: `public/medya/video/insan-algilama.mp4` + kapak `insan-algilama-kapak.webp`. Ayrı, açık renkli bölüm (`Detection.astro`, kapsama bölümünün hemen altında): "İnsanı algılar, telefonunuza haber verir".
+- **Madde listesi tasarımı (TASLAK):** Tik yerine "algılama çerçevesi" (`src/components/ui/FeatureList.astro`): köşeleri açık kare + nokta, 01/02 numara, soluklaşan çizgi; ekrana girince köşeler kilitlenir. Kullanıcı beğendi; tik işaretleri tüm sitede kaldırıldı, her bölüme konusuna uygun ayrı tasarım:
+  - Video bölümü: algılama çerçevesi (`FeatureList.astro`)
+  - Kapsama: görüş konisi + A1/A2 + kesik çizgi (`ConeList.astro`)
+  - Kullanım alanları: kanal satırı CH 01, kare sarı yanar (`UseCaseTabs.tsx`)
+  - Güneş enerjili: dolan batarya; Wi-Fi: çevrimiçi ışığı (`StatusList.astro`)
+  - Paketler: fiş / paket içeriği, noktalı çizgi + "Dahil" (`PackagesMotion.tsx`) Ekrana gelince sessiz döngüde oynar, çıkınca durur; durdur/oynat butonu var; "hareketi azalt" açıksa kendiliğinden oynamaz.
 - **Ürünler bölümü (2026-11-21, TASLAK TASARIM, kullanıcı onayı bekliyor):** "Kullanım alanları" ile "Güneş enerjili" arasında, açık renkli panel, kaydırmalı ürün vitrini (`src/components/sections/Products.astro`, içerik `products` iki dilde). Beğenilmezse kullanıcı bir carousel promptu verecek, o entegre edilecek.
   - Ürün listesi YER TUTUCU (bullet, dome, PTZ, güneş enerjili 4G, Wi-Fi, NVR). Jüpiter ürün fotoğraflarını gönderince: fotoğraflar `src/assets/medya/urunler/` + `media.ts`, ürün adları/özellikleri/markaları güncellenecek.
 

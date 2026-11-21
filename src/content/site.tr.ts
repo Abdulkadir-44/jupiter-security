@@ -186,6 +186,20 @@ export interface SiteContent {
     title: string;
     lead: string;
     points: string[];
+    /** Ayrı bölüm (Detection.astro, açık panel): gerçek kayıttan insan algılama klibi (public/medya/video/) */
+    detection: {
+      /** Başlığın üstündeki küçük etiket */
+      eyebrow: string;
+      /** Video çerçevesinin üst şeridi */
+      label: string;
+      title: string;
+      text: string;
+      points: string[];
+      /** Videonun altındaki açıklama */
+      caption: string;
+      play: string;
+      pause: string;
+    };
   };
   closing: {
     lines: string[];
@@ -261,6 +275,8 @@ export interface SiteContent {
     call: string;
     whatsappFloat: string;
     askPackage: string;
+    /** Paket içeriği satırlarının sağındaki etiket */
+    included: string;
     skipToContent: string;
     /** Logo linki için ekran okuyucu metni ("sayfa başı") */
     backToTop: string;
@@ -514,6 +530,16 @@ export const site: SiteContent = {
     lead:
       "Keşifte mekânınızın planını çıkarır, her kameranın neyi göreceğini önceden hesaplarız. Görmediği köşe kalmayana kadar yerleşimi değiştiririz.",
     points: ["Kasa, giriş ve depo ayrı ayrı görülür", "Açılar üst üste binmeden birbirini tamamlar", "Gece görüşünün menzili hesaba katılır"],
+    detection: {
+      eyebrow: "Yapay zekâlı kameralar",
+      label: "CAM 04 · İNSAN ALGILAMA",
+      title: "İnsanı algılar, telefonunuza haber verir",
+      text: "Yapay zekâlı kameralarımız rüzgârda sallanan dalı değil, insanı ayırt eder. Biri alana girdiği anda telefonunuza bildirim gelir, kayıtta o an işaretlenir.",
+      points: ["Gereksiz alarm yerine gerçek uyarı", "Kayıtta insanlı anları hızlıca bulursunuz", "Gece de çalışır"],
+      caption: "Gerçek kayıt: kurduğumuz bir kameranın görüntüsü",
+      play: "Videoyu oynat",
+      pause: "Videoyu durdur",
+    },
   },
 
   closing: {
@@ -657,6 +683,7 @@ export const site: SiteContent = {
     call: "Ara",
     whatsappFloat: "WhatsApp'tan yazın",
     askPackage: "Bu paketi sor",
+    included: "Dahil",
     skipToContent: "İçeriğe geç",
     backToTop: "sayfa başı",
     mainNav: "Ana menü",

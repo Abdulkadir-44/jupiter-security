@@ -9,24 +9,6 @@ type Pkg = SiteContent["packages"]["items"][number];
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-/** Tik işareti: çizilerek belirir */
-function DrawCheck({ className, delay, reduced }: { className?: string; delay: number; reduced: boolean }) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className={cn("mt-1 size-4 shrink-0", className)}>
-      <motion.path
-        d="M3 8.5 6.5 12 13 4.5"
-        stroke="currentColor"
-        strokeWidth={2.6}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={reduced ? false : { pathLength: 0 }}
-        whileInView={{ pathLength: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.45, ease: "easeOut", delay }}
-      />
-    </svg>
-  );
-}
 
 function PackageCard({
   it,
@@ -34,6 +16,7 @@ function PackageCard({
   reduced,
   contact,
   askLabel,
+  includedLabel,
   message,
   priceTemplate,
   priceIncludes,
@@ -44,6 +27,7 @@ function PackageCard({
   reduced: boolean;
   contact: SiteContent["contact"];
   askLabel: string;
+  includedLabel: string;
   message: string;
   priceTemplate: string;
   priceIncludes: string;
@@ -161,28 +145,43 @@ function PackageCard({
           </span>
         </p>
 
+        {/*
+          Paket içeriği: fiş gibi. Numara · madde · noktalı çizgi · "Dahil".
+          Ekrana girince satırlar yazıcıdan çıkan fiş gibi yukarıdan aşağıya tek tek basılır, noktalı çizgi uzanır.
+        */}
         <motion.ul
-          className={cn("relative mt-6 grid flex-1 content-start gap-2.5 border-t pt-6", featured ? "border-paper/15" : "border-ink/10")}
+          className={cn("relative mt-6 grid flex-1 content-start gap-3 border-t border-dashed pt-6", featured ? "border-paper/20" : "border-ink/15")}
           initial={reduced ? false : "hidden"}
           whileInView="show"
           viewport={{ once: true, amount: 0.3 }}
-          variants={{ show: { transition: { staggerChildren: 0.08, delayChildren: baseDelay + 0.55 } } }}
+          variants={{ show: { transition: { staggerChildren: 0.11, delayChildren: baseDelay + 0.55 } } }}
         >
           {it.features.map((f, i) => (
             <motion.li
               key={f}
-              className="flex items-start gap-3"
+              className="flex items-baseline gap-2.5 text-[0.97rem]"
               variants={{
-                hidden: { opacity: 0, x: -14 },
-                show: { opacity: 1, x: 0, transition: { duration: 0.45, ease } },
+                hidden: { opacity: 0, y: -8, clipPath: "inset(0 0 100% 0)" },
+                show: { opacity: 1, y: 0, clipPath: "inset(0 0 0% 0)", transition: { duration: 0.4, ease } },
               }}
             >
-              <DrawCheck
-                className={featured ? "text-teal" : "text-teal-ink"}
-                delay={baseDelay + 0.65 + i * 0.08}
-                reduced={reduced}
+              <span className={cn("shrink-0 font-mono text-[11px]", featured ? "text-paper/45" : "text-ink-soft/70")} aria-hidden="true">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span className="min-w-0">{f}</span>
+              <motion.span
+                aria-hidden="true"
+                className={cn("min-w-4 flex-1 origin-left border-b-2 border-dotted", featured ? "border-paper/25" : "border-ink/20")}
+                variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1, transition: { duration: 0.5, ease, delay: 0.12 } } }}
               />
-              <span>{f}</span>
+              <span
+                className={cn(
+                  "shrink-0 font-mono text-[10px] font-semibold tracking-[0.12em] uppercase",
+                  featured ? "text-teal" : "text-teal-ink",
+                )}
+              >
+                {includedLabel}
+              </span>
             </motion.li>
           ))}
         </motion.ul>
@@ -224,6 +223,7 @@ export default function PackagesMotion({
   items,
   contact,
   askLabel,
+  includedLabel,
   messageTemplate,
   priceTemplate,
   priceIncludes,
@@ -232,6 +232,8 @@ export default function PackagesMotion({
   items: Pkg[];
   contact: SiteContent["contact"];
   askLabel: string;
+  /** Paket içeriği satırlarının sağındaki etiket ("Dahil") */
+  includedLabel: string;
   /** WhatsApp mesaj şablonu: {name} ve {cameras} paket bilgisiyle değişir */
   messageTemplate: string;
   priceTemplate: string;
@@ -244,6 +246,7 @@ export default function PackagesMotion({
       {items.map((it, i) => (
         <PackageCard key={it.name} it={it} index={i} reduced={reduced} contact={contact}
           askLabel={askLabel}
+          includedLabel={includedLabel}
           message={fill(messageTemplate, { name: it.name, cameras: it.cameras })}
           priceTemplate={priceTemplate}
           priceIncludes={priceIncludes}

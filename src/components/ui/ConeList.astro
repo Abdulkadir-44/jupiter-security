@@ -1,0 +1,108 @@
+---
+/**
+ * Madde listesi: "görüş açısı" tasarımı (kapsama / yerleşim konuları için).
+ *
+ * Her maddenin başında kamera noktası ve ondan açılan sarı görüş konisi; koniler her maddede farklı yöne
+ * bakar (birbirini tamamlayan kameralar gibi). Maddeleri kat planındaki ölçü çizgisi gibi kesik çizgiler
+ * ayırır, önlerinde plan etiketi (A1, A2…).
+ * Ekrana girince koniler kameradan açılarak yayılır, maddeler sırayla (bir kez).
+ * "Hareketi azalt" açıksa koniler baştan açık durur.
+ */
+interface Props {
+  items: string[];
+  class?: string;
+}
+const { items, class: className = "" } = Astro.props;
+// Konilerin yönleri (derece): her madde farklı yöne bakar
+const angles = [-28, 8, 40, -10, 24];
+---
+
+<ol class:list={["clist mt-8 grid", className]} data-clist>
+  {
+    items.map((it, i) => (
+      <li class="citem flex items-center gap-4 py-4" style={`--d: ${i * 160}ms`}>
+        <svg class="cone size-9 shrink-0" viewBox="0 0 36 36" aria-hidden="true">
+          <g style={`transform: rotate(${angles[i % angles.length]}deg)`} class="cone-dir">
+            <path class="cone-fan" d="M18 18 L34 9 A18 18 0 0 1 34 27 Z" />
+          </g>
+          <circle class="cone-cam" cx="18" cy="18" r="3.2" />
+          <circle class="cone-ring" cx="18" cy="18" r="5.6" />
+        </svg>
+        <span class="font-mono text-[11px] tracking-wider text-paper/45" aria-hidden="true">A{i + 1}</span>
+        <span class="flex-1 text-[1.05rem]">{it}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  /* Kesik ayırıcı çizgi (kat planı ölçü çizgisi gibi) */
+  .citem + .citem {
+    border-top: 1px dashed color-mix(in srgb, var(--color-paper) 18%, transparent);
+  }
+
+  .cone {
+    overflow: visible; /* döndürülen koninin ucu kırpılmasın */
+  }
+  .cone-dir {
+    transform-origin: 18px 18px;
+  }
+  .cone-fan {
+    fill: color-mix(in srgb, var(--color-sun) 28%, transparent);
+    stroke: var(--color-sun);
+    stroke-width: 1.2;
+    stroke-linejoin: round;
+    transform-origin: 18px 18px;
+  }
+  .cone-cam {
+    fill: var(--color-sun);
+  }
+  .cone-ring {
+    fill: none;
+    stroke: color-mix(in srgb, var(--color-sun) 45%, transparent);
+    stroke-width: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Başlangıç: koni kapalı (kameranın içinde), script data-js ekleyince */
+    .clist[data-js] .cone-fan {
+      transform: scale(0.1) rotate(-25deg);
+      opacity: 0;
+      transition:
+        transform 0.8s var(--ease-out-expo),
+        opacity 0.4s ease;
+      transition-delay: var(--d);
+    }
+    .clist[data-js] .cone-ring {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      transition-delay: calc(var(--d) + 0.35s);
+    }
+    /* Açılma */
+    .clist[data-on="true"] .cone-fan {
+      transform: none;
+      opacity: 1;
+    }
+    .clist[data-on="true"] .cone-ring {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>("[data-clist]").forEach((list) => {
+      list.setAttribute("data-js", "");
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (e?.isIntersecting) {
+            list.setAttribute("data-on", "true");
+            io.disconnect();
+          }
+        },
+        { threshold: 0.5 },
+      );
+      io.observe(list);
+    });
+  }
+</script>

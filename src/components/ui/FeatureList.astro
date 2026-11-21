@@ -1,0 +1,144 @@
+---
+/**
+ * Madde listesi: klasik tik yerine "algılama çerçevesi".
+ *
+ * Her maddenin başında, kamera vizöründeki gibi köşeleri açık küçük bir kare ve ortasında bir nokta
+ * (videodaki yapay zekâ kutusundan esinlenildi), yanında sıra numarası (01, 02…), altında soluklaşan çizgi.
+ * Ekrana girince köşeler dışarıdan içeri kayıp "kilitlenir", maddeler sırayla. Bir kez oynar.
+ * "Hareketi azalt" açıksa her şey baştan yerinde durur.
+ */
+interface Props {
+  items: string[];
+  /** Zemin: "light" açık panel (krem), "dark" koyu bölüm */
+  tone?: "light" | "dark";
+  class?: string;
+}
+const { items, tone = "dark", class: className = "" } = Astro.props;
+---
+
+<ol class:list={["flist mt-8 grid", tone === "light" ? "tone-light" : "tone-dark", className]} data-flist>
+  {
+    items.map((it, i) => (
+      <li class="fitem relative flex items-start gap-3.5 py-3.5" style={`--d: ${i * 140}ms`}>
+        <svg class="lock mt-[0.1em] size-[1.15rem] shrink-0" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path class="c c1" d="M2 7V2h5" />
+          <path class="c c2" d="M13 2h5v5" />
+          <path class="c c3" d="M18 13v5h-5" />
+          <path class="c c4" d="M7 18H2v-5" />
+          <circle class="dot" cx="10" cy="10" r="2.2" />
+        </svg>
+        <span class="fnum mt-[0.2em] font-mono text-[11px] tracking-wider" aria-hidden="true">
+          {String(i + 1).padStart(2, "0")}
+        </span>
+        <span class="flex-1">{it}</span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .tone-dark {
+    --acc: var(--color-teal);
+    --num: color-mix(in srgb, var(--color-paper) 45%, transparent);
+    --line: var(--color-paper);
+  }
+  .tone-light {
+    --acc: var(--color-teal-ink);
+    --num: var(--color-ink-soft);
+    --line: var(--color-ink);
+  }
+
+  .lock .c {
+    stroke: var(--acc);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .lock .dot {
+    fill: var(--acc);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .fnum {
+    color: var(--num);
+  }
+
+  /* Alt çizgi: soldan vurgu renginde başlar, sağa doğru kaybolur */
+  .fitem::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--acc) 55%, transparent) 0%,
+      color-mix(in srgb, var(--line) 10%, transparent) 45%,
+      transparent 100%
+    );
+    transform-origin: left center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Başlangıç: köşeler dışarıda ve soluk, nokta küçük (script data-js ekleyince) */
+    .flist[data-js] .c {
+      opacity: 0;
+      transition:
+        transform 0.55s var(--ease-out-expo),
+        opacity 0.3s ease;
+      transition-delay: var(--d);
+    }
+    .flist[data-js] .c1 {
+      transform: translate(-3px, -3px);
+    }
+    .flist[data-js] .c2 {
+      transform: translate(3px, -3px);
+    }
+    .flist[data-js] .c3 {
+      transform: translate(3px, 3px);
+    }
+    .flist[data-js] .c4 {
+      transform: translate(-3px, 3px);
+    }
+    .flist[data-js] .dot {
+      transform: scale(0);
+      transition: transform 0.4s var(--ease-out-expo);
+      transition-delay: calc(var(--d) + 0.3s);
+    }
+    .flist[data-js] .fitem::after {
+      transform: scaleX(0);
+      transition: transform 0.9s var(--ease-out-expo);
+      transition-delay: calc(var(--d) + 0.15s);
+    }
+
+    /* Kilitlenme */
+    .flist[data-on="true"] .c {
+      opacity: 1;
+      transform: none;
+    }
+    .flist[data-on="true"] .dot {
+      transform: scale(1);
+    }
+    .flist[data-on="true"] .fitem::after {
+      transform: scaleX(1);
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>("[data-flist]").forEach((list) => {
+      list.setAttribute("data-js", "");
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (e?.isIntersecting) {
+            list.setAttribute("data-on", "true");
+            io.disconnect();
+          }
+        },
+        { threshold: 0.5 },
+      );
+      io.observe(list);
+    });
+  }
+</script>

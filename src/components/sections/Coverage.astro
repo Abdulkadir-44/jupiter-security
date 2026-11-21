@@ -1,5 +1,5 @@
 ---
-import { Check } from "lucide-react";
+import ConeList from "@/components/ui/ConeList.astro";
 import CoverageScene from "@/components/motion/CoverageScene";
 import { getSiteContent } from "@/lib/data";
 
@@ -13,16 +13,8 @@ const scene = s.hero.scene;
     <div>
       <h2 id="kapsama-baslik" class="font-title text-balance text-[clamp(2.4rem,5vw,4rem)]">{c.title}</h2>
       <p class="mt-6 max-w-[46ch] text-[1.1rem] text-mist">{c.lead}</p>
-      <ul class="mt-8 grid gap-3">
-        {
-          c.points.map((pt) => (
-            <li class="flex items-start gap-3">
-              <Check className="mt-1 size-4 shrink-0 text-teal" strokeWidth={3} aria-hidden="true" />
-              <span>{pt}</span>
-            </li>
-          ))
-        }
-      </ul>
+      <!-- Maddeler: görüş konili liste (sağdaki kapsama çizimiyle aynı dil) -->
+      <ConeList items={c.points} />
     </div>
     <CoverageScene client:visible label={scene.label} result={scene.result} rooms={scene.rooms} />
   </div>
