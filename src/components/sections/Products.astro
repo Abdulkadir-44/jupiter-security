@@ -1,0 +1,330 @@
+---
+/**
+ * Ürün vitrini: açık renkli panel, kaydırmalı ürün kartları.
+ *
+ * - Masaüstünde 3 kart, tablette 2, telefonda 1 kart + bir sonrakinin ucu görünür (CSS scroll-snap).
+ * - Parmakla / trackpad ile kaydırma, masaüstünde fareyle sürükleme, oklar ve klavye (← →).
+ * - Odak efekti: tam görünen kartlar net, kenarda yarım kalan kart soluk ve hafif küçük.
+ * - Ekrana girince kartlar sırayla yükselir (bir kez). Sayaç + ilerleme çubuğu.
+ * - "Hareketi azalt" açıksa giriş ve odak animasyonları kapalı.
+ * - Fotoğraf yoksa ürün tipine uygun ikon + "Fotoğraf yakında".
+ */
+import { Image } from "astro:assets";
+import { ArrowLeft, ArrowRight, Cctv, HardDrive, Rotate3d, Sun, Webcam, Wifi } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+import { fill, getSiteContent, whatsappHref } from "@/lib/data";
+
+const s = getSiteContent(Astro.currentLocale);
+const p = s.products;
+const icons = { bullet: Cctv, dome: Webcam, ptz: Rotate3d, solar: Sun, wifi: Wifi, nvr: HardDrive };
+const total = String(p.items.length).padStart(2, "0");
+---
+
+<section id="urunler" aria-labelledby="urunler-baslik" class="panel overflow-hidden bg-cream text-ink">
+  <div class="wrap py-20 md:py-28">
+    <!-- Başlık + kontroller -->
+    <div class="grid gap-6 lg:grid-cols-[1fr_0.8fr] lg:items-end lg:gap-20">
+      <div>
+        <p class="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium tracking-[0.14em] text-ink-soft uppercase md:text-[13px]">
+          <span class="size-1.5 rounded-full bg-teal-ink" aria-hidden="true"></span>
+          {p.eyebrow}
+        </p>
+        <h2 id="urunler-baslik" class="mt-4 font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{p.title}</h2>
+      </div>
+      <div>
+        <p class="max-w-[46ch] text-[1.1rem] text-ink-soft">{p.lead}</p>
+        <div class="mt-7 flex items-center gap-4">
+          <button type="button" class="pr-btn" data-pr-prev aria-label={p.prev}>
+            <ArrowLeft className="size-5" aria-hidden="true" />
+          </button>
+          <button type="button" class="pr-btn" data-pr-next aria-label={p.next}>
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </button>
+          <div class="ml-2 flex flex-1 items-center gap-3 font-mono text-xs text-ink-soft" aria-hidden="true">
+            <span><span data-pr-count>01</span> / {total}</span>
+            <span class="relative h-[2px] flex-1 overflow-hidden rounded-full bg-ink/10">
+              <span class="pr-progress absolute inset-0 origin-left bg-teal-ink" data-pr-progress></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kartlar -->
+    <ul
+      class="pr-track mt-12 -mx-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-6 pb-4 md:-mx-10 md:mt-16 md:gap-5 md:px-10"
+      data-pr-track
+      tabindex="0"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label={p.title}
+    >
+      {
+        p.items.map((it, i) => {
+          const Icon = icons[it.icon];
+          return (
+            <li class="pr-card group snap-start" style={`--i: ${i}`} aria-roledescription="slide" aria-label={`${i + 1} / ${p.items.length}: ${it.name}`}>
+              <article class="flex h-full flex-col overflow-hidden rounded-[1.25rem] bg-paper ring-1 ring-ink/10">
+                <!-- Görsel alanı -->
+                <div class="pr-media relative aspect-square overflow-hidden">
+                  {it.image && typeof it.image !== "string" ? (
+                    <Image
+                      src={it.image}
+                      alt={it.alt ?? it.name}
+                      widths={[360, 560, 800]}
+                      sizes="(min-width: 1024px) 400px, (min-width: 640px) 45vw, 80vw"
+                      loading="lazy"
+                      decoding="async"
+                      class="pr-img absolute inset-0 h-full w-full object-contain p-6"
+                    />
+                  ) : it.image ? (
+                    <img src={it.image} alt={it.alt ?? it.name} loading="lazy" decoding="async" class="pr-img absolute inset-0 h-full w-full object-contain p-6" />
+                  ) : (
+                    <div class="absolute inset-0 grid place-items-center">
+                      <Icon className="pr-img size-[38%] text-teal-ink/70" strokeWidth={1} aria-hidden="true" />
+                      <span class="absolute bottom-4 font-mono text-[10px] tracking-[0.2em] text-ink-soft/70 uppercase">{s.ui.photoSoon}</span>
+                    </div>
+                  )}
+                  <span class="absolute top-4 left-4 font-mono text-xs text-ink-soft" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                  <span class="absolute top-3.5 right-4 rounded-full bg-paper/85 px-2.5 py-1 text-[11px] font-semibold tracking-wide text-teal-ink uppercase ring-1 ring-ink/10">
+                    {it.category}
+                  </span>
+                </div>
+
+                <!-- Bilgi -->
+                <div class="flex flex-1 flex-col border-t border-ink/10 p-5 md:p-6">
+                  <h3 class="font-tall text-[1.9rem] leading-[0.95] tracking-[0.01em] uppercase">{it.name}</h3>
+                  <ul class="mt-4 grid gap-1.5 text-[15px] text-ink-soft">
+                    {it.specs.map((sp) => (
+                      <li class="flex items-start gap-2.5">
+                        <span class="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-teal" aria-hidden="true" />
+                        {sp}
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="mt-auto flex items-end justify-between gap-3 pt-6">
+                    <span class="text-xs text-ink-soft">{it.brand}</span>
+                    <a
+                      href={whatsappHref(s.contact, fill(p.message, { name: it.name }))}
+                      target="_blank"
+                      rel="noopener"
+                      class="pr-ask inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm font-semibold text-ink transition-colors duration-200 hover:text-teal-ink"
+                    >
+                      <WhatsAppIcon className="size-4" />
+                      {p.ask}
+                      <ArrowRight className="pr-ask-arrow size-4" aria-hidden="true" />
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .pr-btn {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+    color: var(--color-ink);
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease,
+      opacity 0.25s ease;
+  }
+  .pr-btn:hover:not(:disabled) {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+  .pr-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .pr-progress {
+    transform: scaleX(var(--p, 0.17));
+    transition: transform 0.3s var(--ease-out-expo);
+  }
+
+  .pr-track {
+    scrollbar-width: none;
+    scroll-padding-inline: 1.5rem;
+    overscroll-behavior-x: contain;
+  }
+  .pr-track::-webkit-scrollbar {
+    display: none;
+  }
+  @media (width >= 48rem) {
+    .pr-track {
+      scroll-padding-inline: 2.5rem;
+    }
+  }
+  .pr-track:focus-visible {
+    outline: 2px solid var(--color-teal-ink);
+    outline-offset: 4px;
+    border-radius: 1rem;
+  }
+  .pr-track.dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+    user-select: none;
+  }
+  .pr-track.dragging a {
+    pointer-events: none;
+  }
+
+  /* Kart genişliği: telefonda ~%80 (sonraki görünür), tablette 2, masaüstünde 3 */
+  .pr-card {
+    flex: 0 0 80%;
+    transition:
+      opacity 0.5s ease,
+      transform 0.6s var(--ease-out-expo);
+  }
+  @media (width >= 40rem) {
+    .pr-card {
+      flex-basis: calc((100% - 1.25rem) / 2);
+    }
+  }
+  @media (width >= 64rem) {
+    .pr-card {
+      flex-basis: calc((100% - 2.5rem) / 3);
+    }
+  }
+
+  /* Görsel alanı: hafif degrade zemin; üzerine gelince görsel büyür */
+  .pr-media {
+    background: radial-gradient(120% 90% at 50% 35%, var(--color-paper) 0%, var(--color-cream-2) 100%);
+  }
+  .pr-img {
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .pr-card:hover .pr-img {
+    transform: scale(1.05) translateY(-2%);
+  }
+  .pr-ask-arrow {
+    transition: transform 0.25s var(--ease-out-expo);
+  }
+  .pr-ask:hover .pr-ask-arrow {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Odak: kenarda yarım kalan kartlar soluk ve hafif küçük (script data-edge ekler) */
+    .pr-card[data-edge="true"] {
+      opacity: 0.45;
+      transform: scale(0.96);
+    }
+    /* Giriş: kartlar sırayla yükselir (script bölüm görünür olunca data-in ekler) */
+    /* data-js: script çalışmıyorsa kartlar gizlenmez */
+    .pr-track[data-js]:not([data-in="true"]) .pr-card {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .pr-track[data-in="true"] .pr-card {
+      transition-delay: calc(var(--i) * 90ms);
+    }
+    .pr-track[data-in-done="true"] .pr-card {
+      transition-delay: 0ms;
+    }
+  }
+</style>
+
+<script>
+  const track = document.querySelector<HTMLElement>("[data-pr-track]");
+  if (track) {
+    track.setAttribute("data-js", "");
+    const cards = [...track.querySelectorAll<HTMLElement>(".pr-card")];
+    const prev = document.querySelector<HTMLButtonElement>("[data-pr-prev]")!;
+    const next = document.querySelector<HTMLButtonElement>("[data-pr-next]")!;
+    const count = document.querySelector<HTMLElement>("[data-pr-count]")!;
+    const progress = document.querySelector<HTMLElement>("[data-pr-progress]")!;
+
+    // Bir kart + boşluk kadar kaydır
+    const step = () => (cards[1] ? cards[1].offsetLeft - cards[0]!.offsetLeft : track.clientWidth);
+    const go = (dir: number) => track.scrollBy({ left: dir * step(), behavior: "smooth" });
+    prev.addEventListener("click", () => go(-1));
+    next.addEventListener("click", () => go(1));
+    track.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") (e.preventDefault(), go(1));
+      if (e.key === "ArrowLeft") (e.preventDefault(), go(-1));
+    });
+
+    // Sayaç, ilerleme çubuğu, okların durumu
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const ratio = max > 0 ? track.scrollLeft / max : 1;
+      const visible = Math.max(1, Math.round(track.clientWidth / step()));
+      const first = Math.min(cards.length - 1, Math.round(track.scrollLeft / step()));
+      count.textContent = String(first + 1).padStart(2, "0");
+      progress.style.setProperty("--p", String(Math.min(1, (first + visible) / cards.length)));
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = ratio >= 0.995;
+    };
+    track.addEventListener("scroll", () => requestAnimationFrame(update), { passive: true });
+    addEventListener("resize", update);
+    update();
+
+    // Odak: kartın %90'ından azı görünüyorsa "kenarda"
+    const edgeIo = new IntersectionObserver(
+      (entries) => entries.forEach((e) => e.target.setAttribute("data-edge", String(e.intersectionRatio < 0.9))),
+      { root: track, threshold: [0, 0.9, 1] },
+    );
+    cards.forEach((c) => edgeIo.observe(c));
+
+    // Giriş animasyonu (bir kez)
+    const inIo = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        track.setAttribute("data-in", "true");
+        setTimeout(() => track.setAttribute("data-in-done", "true"), 1200);
+        inIo.disconnect();
+      },
+      { threshold: 0.25 },
+    );
+    inIo.observe(track);
+
+    // Masaüstü: fareyle sürükleyerek kaydırma (dokunmatikte tarayıcının kendi kaydırması çalışır)
+    let startX = 0;
+    let startLeft = 0;
+    let moved = false;
+    track.addEventListener("pointerdown", (e) => {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      startX = e.clientX;
+      startLeft = track.scrollLeft;
+      moved = false;
+      const onMove = (ev: PointerEvent) => {
+        const dx = ev.clientX - startX;
+        if (!moved && Math.abs(dx) > 5) {
+          moved = true;
+          track.classList.add("dragging");
+        }
+        if (moved) track.scrollLeft = startLeft - dx;
+      };
+      const onUp = () => {
+        removeEventListener("pointermove", onMove);
+        removeEventListener("pointerup", onUp);
+        if (!moved) return;
+        // Sürükleme bitince bırakılan yerdeki bağlantı tıklanmasın
+        const block = (ce: Event) => (ce.preventDefault(), ce.stopPropagation());
+        track.addEventListener("click", block, { capture: true, once: true });
+        setTimeout(() => track.removeEventListener("click", block, { capture: true }), 0);
+        // Sürükleme bitince en yakın karta otur
+        const target = Math.round(track.scrollLeft / step()) * step();
+        track.classList.remove("dragging");
+        track.scrollTo({ left: target, behavior: "smooth" });
+      };
+      addEventListener("pointermove", onMove);
+      addEventListener("pointerup", onUp);
+    });
+  }
+</script>

@@ -6,6 +6,8 @@
  */
 import { Check, Signal } from "lucide-react";
 import PhotoSlider from "@/components/PhotoSlider.astro";
+import PriceTag from "@/components/ui/PriceTag.astro";
+import PlaceList from "@/components/ui/PlaceList.astro";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, whatsappHref } from "@/lib/data";
 
@@ -15,9 +17,13 @@ const r = s.remote;
 
 <section id="arazi" aria-labelledby="arazi-baslik" class="panel bg-ink text-paper">
   <div class="wrap py-20 md:py-28">
-    <div class="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
+    <!--
+      Mobil: metin → slider (+ markalar) → fiyat butonu ve not (tek sütun, sırayla).
+      Masaüstü: solda metin ve altında fiyat butonu + not, sağda slider (+ markalar); sol grup dikeyde ortalanır.
+    -->
+    <div class="grid lg:grid-cols-[1fr_1.05fr] lg:grid-rows-[1fr_auto_auto_1fr] lg:gap-x-20">
       <!-- Metin -->
-      <div>
+      <div class="lg:col-start-1 lg:row-start-2">
         <p class="inline-flex items-center gap-2.5 font-mono text-[12px] font-medium tracking-[0.14em] text-paper/80 uppercase md:text-[13px]">
           <span class="size-1.5 rounded-full bg-sun shadow-[0_0_10px_var(--color-sun)]" aria-hidden="true"></span>
           {r.eyebrow}
@@ -25,13 +31,8 @@ const r = s.remote;
         <h2 id="arazi-baslik" class="mt-4 font-title text-balance text-[clamp(2.6rem,6vw,4.75rem)]">{r.title}</h2>
         <p class="mt-6 max-w-[48ch] text-[1.1rem] text-mist">{r.lead}</p>
 
-        <ul class="mt-8 flex flex-wrap gap-2">
-          {
-            r.places.map((p) => (
-              <li class="rounded-full border border-paper/15 bg-paper/[0.04] px-3.5 py-1.5 text-sm text-paper/90">{p}</li>
-            ))
-          }
-        </ul>
+        <!-- Kurulum yerleri: 4G sinyal çubuklu liste (buton görünümü yok) -->
+        <PlaceList places={r.places} icon="signal" accent="sun" />
 
         <ul class="mt-8 grid gap-3">
           {
@@ -43,31 +44,41 @@ const r = s.remote;
             ))
           }
         </ul>
-
-        <p class="mt-6 text-sm text-mist">
-          {s.packages.brandsLabel}:
-          <span class="font-semibold text-paper">{s.brands.solar.join(" · ")}</span>
-        </p>
-
-        <div class="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
-          <a
-            href={whatsappHref(s.contact, r.whatsappMessage)}
-            target="_blank"
-            rel="noopener"
-            class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-sun px-6 font-semibold whitespace-nowrap text-ink transition-[filter] duration-200 hover:brightness-110"
-          >
-            <WhatsAppIcon className="size-[1.1rem]" />
-            {r.cta}
-          </a>
-          <p class="flex items-center gap-2 text-sm text-mist">
-            <Signal className="size-4 shrink-0 text-paper/60" aria-hidden="true" />
-            {r.note}
-          </p>
-        </div>
       </div>
 
-      <!-- Fotoğraf slider'ı (bağ, bahçe, inşaat şantiyesi) -->
-      <PhotoSlider slides={r.slides} label={r.screenLabel} ariaLabel={r.eyebrow} accent="sun" icon="signal" />
+      <!-- Sağ sütun (mobilde metnin altı): fotoğraf slider'ı ve altında markalar -->
+      <div class="mt-12 lg:col-start-2 lg:row-span-4 lg:row-start-1 lg:mt-0 lg:self-center">
+        <PhotoSlider slides={r.slides} label={r.screenLabel} ariaLabel={r.eyebrow} accent="sun" icon="signal" aspect="portrait" />
+
+        <p class="mt-6 text-sm text-mist">
+          {s.packages.brandsLabel}:{" "}
+          <span class="font-semibold text-paper">{s.brands.solar.join(" · ")}</span>
+        </p>
+      </div>
+
+      <!-- Fiyat butonu ve not: mobilde slider'ın altında, masaüstünde sol sütunda metnin altında -->
+      <div class="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7 lg:col-start-1 lg:row-start-3 lg:mt-12">
+        {
+          r.priceTag ? (
+            <PriceTag href={whatsappHref(s.contact, r.whatsappMessage)} {...r.priceTag} accent="sun" />
+          ) : (
+            <a
+              href={whatsappHref(s.contact, r.whatsappMessage)}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-sun px-6 font-semibold whitespace-nowrap text-ink transition-[filter] duration-200 hover:brightness-110"
+            >
+              <WhatsAppIcon className="size-[1.1rem]" />
+              {r.cta}
+            </a>
+          )
+        }
+        <p class="flex items-center gap-2 text-sm text-mist">
+          <Signal className="size-4 shrink-0 text-paper/60" aria-hidden="true" />
+          {r.note}
+        </p>
+      </div>
     </div>
   </div>
 </section>
+

@@ -1,0 +1,144 @@
+---
+/**
+ * "Nerelere kuruyoruz" listesi (güneş enerjili ve Wi-Fi bölümleri).
+ * Tıklanmayan bilgi olduğu için buton gibi değil: her satırda bağlantı ikonu (4G sinyal çubukları ya da Wi-Fi)
+ * ve altında vurgu renginden sağa doğru kaybolan çizgi.
+ * Ekrana girince bir kez: ikon dolar, ardından çizgi soldan sağa çizilir (satırlar sırayla).
+ * "Hareketi azalt" açıksa hepsi hazır ve sabit durur.
+ */
+interface Props {
+  places: string[];
+  /** "signal": 4G sinyal çubukları (güneş enerjili), "wifi": Wi-Fi dalgaları */
+  icon?: "signal" | "wifi";
+  accent?: "sun" | "teal";
+}
+const { places, icon = "signal", accent = "sun" } = Astro.props;
+---
+
+<ul
+  class:list={["places mt-6 grid grid-cols-2 gap-x-5 sm:grid-cols-3", accent === "teal" ? "acc-teal" : "acc-sun"]}
+  data-places
+>
+  {
+    places.map((p) => (
+      <li class="place relative flex items-center gap-2.5 py-3 pr-2 text-[15px] text-paper/90">
+        {icon === "wifi" ? (
+          <svg class="conn size-4 shrink-0" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="13" r="1.4" fill="currentColor" stroke="none" />
+            <path d="M5.4 10.3a3.7 3.7 0 0 1 5.2 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            <path d="M3.2 8a6.8 6.8 0 0 1 9.6 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            <path d="M1 5.6a9.9 9.9 0 0 1 14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        ) : (
+          <svg class="conn bars size-4 shrink-0" viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="1" y="11" width="2.6" height="4" rx="0.6" />
+            <rect x="5.1" y="8" width="2.6" height="7" rx="0.6" />
+            <rect x="9.2" y="5" width="2.6" height="10" rx="0.6" />
+            <rect x="13.3" y="2" width="2.6" height="13" rx="0.6" />
+          </svg>
+        )}
+        {p}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .acc-sun {
+    --acc: var(--color-sun);
+  }
+  .acc-teal {
+    --acc: var(--color-teal);
+  }
+  .conn {
+    color: var(--acc);
+  }
+  .conn > * {
+    transform-box: fill-box;
+  }
+  .bars rect {
+    fill: currentColor;
+    transform-origin: 50% 100%;
+  }
+
+  /* Satır çizgisi: ikon hizasından vurgu renginde başlar, sağa doğru kaybolur */
+  .place::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--acc) 70%, transparent) 0%,
+      color-mix(in srgb, var(--acc) 25%, transparent) 35%,
+      color-mix(in srgb, var(--color-paper) 8%, transparent) 75%,
+      transparent 100%
+    );
+    transform-origin: left center;
+  }
+
+  /* Ekrana girince: ikon parçaları sırayla belirir, ardından çizgi çizilir */
+  .places[data-on="true"] .conn > * {
+    animation: conn-in 0.5s var(--ease-out-expo) both;
+    animation-delay: var(--d, 0ms);
+  }
+  .places[data-on="true"] .conn > :nth-child(2) {
+    animation-delay: calc(var(--d, 0ms) + 80ms);
+  }
+  .places[data-on="true"] .conn > :nth-child(3) {
+    animation-delay: calc(var(--d, 0ms) + 160ms);
+  }
+  .places[data-on="true"] .conn > :nth-child(4) {
+    animation-delay: calc(var(--d, 0ms) + 240ms);
+  }
+  /* Sinyal çubukları aşağıdan yükselir, Wi-Fi dalgaları içten dışa belirir */
+  .places[data-on="true"] .bars rect {
+    animation-name: bar-up;
+  }
+  .places[data-on="true"] .place::after {
+    animation: line-draw 0.9s var(--ease-out-expo) both;
+    animation-delay: calc(var(--d, 0ms) + 120ms);
+  }
+  @keyframes conn-in {
+    from {
+      opacity: 0.15;
+    }
+  }
+  @keyframes bar-up {
+    from {
+      transform: scaleY(0.15);
+      opacity: 0.3;
+    }
+  }
+  @keyframes line-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .places[data-on="true"] .conn > *,
+    .places[data-on="true"] .place::after {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLElement>("[data-places]").forEach((list) => {
+      // Her satıra küçük bir gecikme: satırlar sırayla dolsun
+      list.querySelectorAll<HTMLElement>("li").forEach((li, i) => li.style.setProperty("--d", `${i * 90}ms`));
+      const io = new IntersectionObserver(
+        ([e]) => {
+          if (e?.isIntersecting) {
+            list.setAttribute("data-on", "true");
+            io.disconnect();
+          }
+        },
+        { threshold: 0.6 },
+      );
+      io.observe(list);
+    });
+  }
+</script>

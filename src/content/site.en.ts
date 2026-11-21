@@ -6,6 +6,7 @@
  * Placeholder notes (YER TUTUCU) in site.tr.ts apply here too.
  */
 import { site as tr, type SiteContent } from "./site.tr";
+import { media } from "./media";
 
 export const site: SiteContent = {
   locale: { lang: "en", ogLocale: "en_US", numberLocale: "en-US", short: "EN", name: "English" },
@@ -142,6 +143,24 @@ export const site: SiteContent = {
     ],
   },
 
+  products: {
+    eyebrow: "Our products",
+    title: "The cameras and devices we install",
+    lead: "Some of the products we use in our installations. All come with a warranty; we pick the right one together during the site visit.",
+    ask: "Ask on WhatsApp",
+    message: "Hello, I'd like information about the {name}.",
+    prev: "Previous product",
+    next: "Next product",
+    items: [
+      { name: "5 MP bullet camera", category: "Outdoor", icon: "bullet", specs: ["Metal housing", "2.8 mm wide-angle lens", "Audio recording", "Full-colour night vision"], brand: "Dahua · Hikvision" },
+      { name: "5 MP dome camera", category: "Indoor", icon: "dome", specs: ["Ceiling mount, discreet", "Night vision", "Wide field of view"], brand: "Dahua · Hikvision" },
+      { name: "PTZ camera", category: "360° view", icon: "ptz", specs: ["Pan and tilt from your phone", "Zoom", "Motion tracking"] },
+      { name: "Solar 4G camera", category: "Off-grid", icon: "solar", specs: ["Solar panel and battery", "Internet via SIM card", "No socket needed"], brand: "O-KAM · IOMA" },
+      { name: "Wi-Fi camera", category: "Wireless", icon: "wifi", specs: ["Plugs in, no cabling", "Two-way talk", "Live view on your phone"] },
+      { name: "NVR recorder", category: "Recording", icon: "nvr", specs: ["4, 8 and 16 channels", "500 GB – 1 TB drive", "Remote viewing"], brand: "ZTEC" },
+    ],
+  },
+
   remote: {
     eyebrow: "Solar-powered 4G cameras",
     title: "No power, no internet, no problem",
@@ -155,14 +174,18 @@ export const site: SiteContent = {
       "Night vision in a weatherproof outdoor housing",
       "We supply and set up the SIM card, no separate line needed",
     ],
-    note: "Before installing, we check the mobile signal on site.",
-    cta: "Ask about my land",
+    note: "VAT and installation included. Before installing, we check the mobile signal on site.",
+    cta: "From 8,999 TL",
+    priceTag: { lead: "Starting from", amount: "8,999 TL", action: "Ask on WhatsApp" },
     whatsappMessage: "Hello, I'd like information about a solar-powered 4G camera. Location: ",
     screenLabel: "CAM 07 · LAND",
     slides: [
-      { caption: "Vineyard" },
-      { caption: "Garden" },
-      { caption: "Construction site" },
+      { caption: "Mounted on a palm tree", image: media.gunes.palmiye, alt: "4G camera mounted on a palm tree with a solar panel above it" },
+      { caption: "Utility pole next to a building site", image: media.gunes.elektrikDiregi, alt: "Solar-powered 4G camera on a steel pole in front of a building under construction" },
+      { caption: "Pine tree, with its solar panel", image: media.gunes.camAgaci, alt: "4G camera on a pine trunk with its solar panel next to it" },
+      { caption: "Pole mount on a construction site", image: media.gunes.santiyeDiregi, alt: "Solar-powered camera being installed on top of a tall pole at a construction site" },
+      { caption: "Installing high up on a palm", image: media.gunes.palmiyeMontaj, alt: "Tall palm trees with a ladder against the trunk during a camera installation" },
+      { caption: "Pole on top of a site container", image: media.gunes.konteyner, alt: "Camera on a pole above a site container at sunset" },
     ],
   },
 
@@ -179,8 +202,9 @@ export const site: SiteContent = {
       "Motion alerts straight to your phone",
       "Take it with you when you move",
     ],
-    note: "We check the Wi-Fi signal on site before installing.",
-    cta: "Ask about Wi-Fi cameras",
+    note: "VAT and installation included. We check the Wi-Fi signal on site before installing.",
+    cta: "From 6,999 TL",
+    priceTag: { lead: "Starting from", amount: "6,999 TL", action: "Ask on WhatsApp" },
     whatsappMessage: "Hello, I'd like information about Wi-Fi cameras. Location: ",
     screenLabel: "CAM 08 · WI-FI",
     slides: [
@@ -272,14 +296,14 @@ export const site: SiteContent = {
 
   work: {
     title: "Our camera installations",
-    lead: "We will be sharing photos of our installations here soon.",
+    lead: "Real camera footage from systems we installed. Number plates and faces are blurred for privacy.",
     items: [
-      { cam: "CAM 01", place: "Market entrance", area: "Çay Mah.", kind: "store" },
-      { cam: "CAM 02", place: "Loading dock", area: "Organised Industrial Zone", kind: "factory" },
-      { cam: "CAM 03", place: "Complex car park", area: "Modern Evler", kind: "building" },
-      { cam: "CAM 04", place: "Garden gate", area: "Arsuz", kind: "home" },
-      { cam: "CAM 05", place: "Till area", area: "Savaş Mah.", kind: "store" },
-      { cam: "CAM 06", place: "Workshop floor", area: "Payas", kind: "wrench" },
+      { cam: "CAM 01", place: "Café front, daytime", kind: "store", image: media.isler.kafeOnuGunduz, alt: "Daytime camera view of a café front and the street" },
+      { cam: "CAM 01", place: "Same camera, at night", kind: "store", image: media.isler.kafeOnuGece, alt: "The same café front at night, clear thanks to night vision" },
+      { cam: "CAM 02", place: "Café, indoors", kind: "store", image: media.isler.kafeIcMekan, alt: "Indoor camera view of the café tables and counter" },
+      { cam: "CAM 03", place: "Café garden, evening", kind: "store", image: media.isler.kafeBahcesiGece, alt: "Camera view of the café garden in the evening" },
+      { cam: "NVR", place: "Recorder screen, 13 cameras", kind: "building", image: media.isler.kayitEkrani, alt: "Wall monitor showing the feeds of 13 cameras" },
+      { cam: "NVR", place: "Recorder and monitor install", kind: "wrench", image: media.isler.kayitCihazi, alt: "Ceiling-mounted monitor next to the Jüpiter Güvenlik recorder box" },
     ],
     allLink: "All projects",
   },

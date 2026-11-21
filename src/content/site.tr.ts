@@ -10,6 +10,11 @@
  * üzerinden alır; geçiş tek noktadan yapılacak.
  */
 
+import { media, type Photo } from "./media";
+
+/** Slider karesi. `image` boşsa "fotoğraf yakında" yer tutucusu görünür. */
+export type Slide = { caption: string; image?: Photo; alt?: string };
+
 export type IconName =
   | "search"
   | "clipboard"
@@ -112,6 +117,31 @@ export interface SiteContent {
       cameras: string;
     }[];
   };
+  /**
+   * Ürün vitrini (kullanım alanları ile güneş enerjili bölüm arasında, açık renkli panel, kaydırmalı kartlar).
+   * Fotoğraflar Jüpiter'den gelince `image` doldurulur (src/assets/medya/urunler/ + src/content/media.ts).
+   */
+  products: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    /** Kartlardaki WhatsApp bağlantısı */
+    ask: string;
+    /** WhatsApp mesajı; {name} ürün adıyla değişir */
+    message: string;
+    prev: string;
+    next: string;
+    items: {
+      name: string;
+      category: string;
+      /** Fotoğraf yokken gösterilecek ikon */
+      icon: "bullet" | "dome" | "ptz" | "solar" | "wifi" | "nvr";
+      specs: string[];
+      brand?: string;
+      image?: Photo;
+      alt?: string;
+    }[];
+  };
   /** Elektrik/internet olmayan yerler: güneş enerjili 4G (SIM kartlı) kameralar */
   remote: {
     eyebrow: string;
@@ -121,14 +151,16 @@ export interface SiteContent {
     features: string[];
     note: string;
     cta: string;
+    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. */
+    priceTag?: { lead?: string; amount: string; trail?: string; action: string };
     whatsappMessage: string;
     /** Slider kartının üst şeridi */
     screenLabel: string;
     /**
-     * Slider fotoğrafları. `image` boşsa "fotoğraf yakında" yer tutucusu gösterilir.
-     * Fotoğraf eklemek için: dosyayı public/medya/gunes/ içine koyun, image: "/medya/gunes/dosya.webp" yazın.
+     * Slider fotoğrafları (dikey 4:5). `image` boşsa "fotoğraf yakında" yer tutucusu gösterilir.
+     * Fotoğraf eklemek için: src/assets/medya/gunes/ içine koyup src/content/media.ts'e ekleyin.
      */
-    slides: { caption: string; image?: string; alt?: string }[];
+    slides: Slide[];
   };
   /** Wi-Fi (kablosuz) kameralar: güneş enerjili bölümün altında, sağda fotoğraf slider'ı */
   wifi: {
@@ -139,14 +171,16 @@ export interface SiteContent {
     features: string[];
     note: string;
     cta: string;
+    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. */
+    priceTag?: { lead?: string; amount: string; trail?: string; action: string };
     whatsappMessage: string;
     /** Slider kartının üst şeridi */
     screenLabel: string;
     /**
      * Slider fotoğrafları. `image` boşsa "fotoğraf yakında" yer tutucusu gösterilir.
-     * Fotoğraf eklemek için: dosyayı public/medya/wifi/ içine koyun, image: "/medya/wifi/dosya.webp" yazın.
+     * Fotoğraf eklemek için: src/assets/medya/wifi/ içine koyup src/content/media.ts'e ekleyin.
      */
-    slides: { caption: string; image?: string; alt?: string }[];
+    slides: Slide[];
   };
   coverage: {
     title: string;
@@ -186,7 +220,11 @@ export interface SiteContent {
   work: {
     title: string;
     lead: string;
-    items: { cam: string; place: string; area: string; kind: IconName }[];
+    /**
+     * Kurulum kareleri. `area` (mahalle/semt/ilçe) bilinmiyorsa boş bırakılır, kartta görünmez.
+     * Jüpiter konum bilgisini verince doldurulacak. `image` yoksa ikonlu yer tutucu görünür.
+     */
+    items: { cam: string; place: string; area?: string; kind: IconName; image?: Photo; alt?: string }[];
     allLink: string;
   };
   reviews: {
@@ -396,6 +434,26 @@ export const site: SiteContent = {
     ],
   },
 
+  // YER TUTUCU ürünler: Jüpiter ürün fotoğraflarını ve listesini gönderince güncellenecek.
+  // (Bullet kameranın özellikleri Jüpiter'in kendi tanıtım videosundan.)
+  products: {
+    eyebrow: "Ürünlerimiz",
+    title: "Taktığımız kameralar ve cihazlar",
+    lead: "Kurulumlarda kullandığımız ürünlerden bazıları. Hepsi garantili; hangisinin size uygun olduğunu keşifte birlikte seçiyoruz.",
+    ask: "WhatsApp'tan sor",
+    message: "Merhaba, {name} hakkında bilgi almak istiyorum.",
+    prev: "Önceki ürün",
+    next: "Sonraki ürün",
+    items: [
+      { name: "5 MP bullet kamera", category: "Dış mekân", icon: "bullet", specs: ["Metal kasa", "2.8 mm geniş açı lens", "Sesli kayıt", "Gece renkli görüntü"], brand: "Dahua · Hikvision" },
+      { name: "5 MP dome kamera", category: "İç mekân", icon: "dome", specs: ["Tavana montaj, göze batmaz", "Gece görüşü", "Geniş görüş açısı"], brand: "Dahua · Hikvision" },
+      { name: "PTZ dönebilen kamera", category: "360° görüş", icon: "ptz", specs: ["Telefondan sağa sola çevirme", "Yakınlaştırma", "Hareket takibi"] },
+      { name: "Güneş enerjili 4G kamera", category: "Elektriksiz alan", icon: "solar", specs: ["Güneş paneli ve batarya", "SIM kartla internet", "Prize gerek yok"], brand: "O-KAM · IOMA" },
+      { name: "Wi-Fi kamera", category: "Kablosuz", icon: "wifi", specs: ["Prize takılır, kablo çekilmez", "İki yönlü konuşma", "Telefondan canlı izleme"] },
+      { name: "NVR kayıt cihazı", category: "Kayıt", icon: "nvr", specs: ["4, 8 ve 16 kanal", "500 GB – 1 TB disk", "Uzaktan izleme"], brand: "ZTEC" },
+    ],
+  },
+
   remote: {
     eyebrow: "Güneş enerjili 4G kameralar",
     title: "Elektrik yok, internet yok, sorun değil",
@@ -409,14 +467,18 @@ export const site: SiteContent = {
       "Gece görüşlü, her mevsime dayanıklı dış mekân kasası",
       "SIM kartı biz temin edip kuruyoruz, ayrıca hat almanıza gerek yok",
     ],
-    note: "Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
-    cta: "Arazim için bilgi al",
+    note: "KDV ve montaj dahil. Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
+    cta: "8.999 TL'den başlayan fiyatlarla",
+    priceTag: { amount: "8.999 TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
     whatsappMessage: "Merhaba, güneş enerjili 4G kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
     screenLabel: "CAM 07 · ARAZİ",
     slides: [
-      { caption: "Bağ" },
-      { caption: "Bahçe" },
-      { caption: "İnşaat şantiyesi" },
+      { caption: "Palmiye ağacına montaj", image: media.gunes.palmiye, alt: "Palmiye ağacına monte edilmiş, üstünde güneş paneli olan 4G kamera" },
+      { caption: "Şantiye yanında elektrik direğine", image: media.gunes.elektrikDiregi, alt: "İnşaat halindeki binanın önünde, demir direğe takılmış güneş panelli 4G kamera" },
+      { caption: "Çam ağacına, güneş paneliyle", image: media.gunes.camAgaci, alt: "Çam ağacının gövdesine takılmış 4G kamera ve yanındaki güneş paneli" },
+      { caption: "Şantiyede direğe montaj", image: media.gunes.santiyeDiregi, alt: "Şantiyede yüksek bir direğin tepesine kurulan güneş enerjili kamera" },
+      { caption: "Yüksek palmiyeye merdivenle montaj", image: media.gunes.palmiyeMontaj, alt: "Uzun palmiye ağaçları ve gövdeye dayalı merdivenle yapılan kamera montajı" },
+      { caption: "Konteyner üstüne direkle", image: media.gunes.konteyner, alt: "Gün batımında şantiye konteynerinin üstündeki direğe takılmış kamera" },
     ],
   },
 
@@ -434,8 +496,9 @@ export const site: SiteContent = {
       "Hareket algılayınca telefonunuza bildirim",
       "Taşınırken yanınızda götürebilirsiniz",
     ],
-    note: "Kurulum yerinde Wi-Fi çekimini kontrol ediyoruz.",
-    cta: "Wi-Fi kamera için bilgi al",
+    note: "KDV ve montaj dahil. Kurulum yerinde Wi-Fi çekimini kontrol ediyoruz.",
+    cta: "6.999 TL'den başlayan fiyatlarla",
+    priceTag: { amount: "6.999 TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
     whatsappMessage: "Merhaba, Wi-Fi kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
     screenLabel: "CAM 08 · WI-FI",
     slides: [
@@ -523,14 +586,15 @@ export const site: SiteContent = {
 
   work: {
     title: "Yaptığımız kamera kurulumları",
-    lead: "Kurulum fotoğraflarımızı yakında burada paylaşacağız.",
+    lead: "Kurduğumuz sistemlerden gerçek kamera görüntüleri. Gizlilik için plakaları ve yüzleri bulanıklaştırdık.",
+    // area: konum bilgisi Jüpiter'den gelince doldurulacak (örn. "Savaş Mah., İskenderun")
     items: [
-      { cam: "CAM 01", place: "Market girişi", area: "Çay Mah.", kind: "store" }, // YER TUTUCU
-      { cam: "CAM 02", place: "Depo rampası", area: "Organize Sanayi", kind: "factory" }, // YER TUTUCU
-      { cam: "CAM 03", place: "Site otoparkı", area: "Modern Evler", kind: "building" }, // YER TUTUCU
-      { cam: "CAM 04", place: "Bahçe kapısı", area: "Arsuz", kind: "home" }, // YER TUTUCU
-      { cam: "CAM 05", place: "Kasa önü", area: "Savaş Mah.", kind: "store" }, // YER TUTUCU
-      { cam: "CAM 06", place: "Atölye içi", area: "Payas", kind: "wrench" }, // YER TUTUCU
+      { cam: "CAM 01", place: "Kafe önü, gündüz", kind: "store", image: media.isler.kafeOnuGunduz, alt: "Kafenin önünü ve yolu gösteren gündüz kamera görüntüsü" },
+      { cam: "CAM 01", place: "Aynı kamera, gece", kind: "store", image: media.isler.kafeOnuGece, alt: "Aynı kafe önünün gece görüşüyle net kamera görüntüsü" },
+      { cam: "CAM 02", place: "Kafe, iç mekan", kind: "store", image: media.isler.kafeIcMekan, alt: "Kafenin masalarını ve tezgâhını gören iç mekan kamera görüntüsü" },
+      { cam: "CAM 03", place: "Kafe bahçesi, gece", kind: "store", image: media.isler.kafeBahcesiGece, alt: "Kafe bahçesinin akşam saatindeki kamera görüntüsü" },
+      { cam: "NVR", place: "Kayıt ekranı, 13 kamera", kind: "building", image: media.isler.kayitEkrani, alt: "Duvardaki monitörde 13 kameranın görüntüsünü gösteren kayıt ekranı" },
+      { cam: "NVR", place: "Kayıt cihazı ve monitör montajı", kind: "wrench", image: media.isler.kayitCihazi, alt: "Tavana monte edilmiş monitör ve yanında Jüpiter Güvenlik kayıt cihazı kutusu" },
     ],
     allLink: "Tüm işler",
   },

@@ -1,0 +1,206 @@
+---
+/**
+ * Asma fiyat etiketi (WhatsApp bağlantısı): klasik hap buton yerine dükkândaki fiyat etiketi görünümü.
+ *
+ * - Solda ipe asılı delik, ortada büyük fiyat, sağda kesik çizgiyle ayrılmış "WhatsApp'tan sor" kuponu.
+ * - Hafif eğik durur; ekrana ilk girdiğinde ipe asılıymış gibi bir kez hafifçe sallanır (sürekli animasyon yok).
+ * - Üzerine gelince / klavyeyle odaklanınca düzleşir. "Hareketi azalt" açıksa sallanmaz.
+ * - Dış <a> hiç hareket etmez (fareyi o algılar); sadece içteki .tag-inner döner. Böylece etiket
+ *   farenin altından kayıp hover'ı kaybetmez, kenarda titreme (aç-kapa döngüsü) olmaz.
+ * - Animasyonlar yalnızca transform ile (performans).
+ */
+import { WhatsAppIcon } from "@/components/ui/BrandIcons";
+
+interface Props {
+  href: string;
+  /** Fiyatın üstündeki küçük satır (örn. "Starting from") */
+  lead?: string;
+  /** Büyük yazılan fiyat (örn. "8.999 TL'den") */
+  amount: string;
+  /** Fiyatın altındaki küçük satır (örn. "başlayan fiyatlarla") */
+  trail?: string;
+  /** Kupon kısmındaki eylem (örn. "WhatsApp'tan sor") */
+  action: string;
+  /** Etiket rengi */
+  accent?: "sun" | "teal";
+  /** Kupon çentiklerinin rengi = bölümün arka plan rengi */
+  notch?: string;
+}
+const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-ink)" } = Astro.props;
+---
+
+<a
+  href={href}
+  target="_blank"
+  rel="noopener"
+  class:list={["price-tag group", accent === "teal" ? "tag-teal" : "tag-sun"]}
+  style={`--notch: ${notch}`}
+  data-price-tag
+>
+  <span class="tag-inner">
+  <!-- İp -->
+  <svg class="tag-cord" viewBox="0 0 40 46" fill="none" aria-hidden="true">
+    <path d="M38 40 C 26 30, 18 14, 2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+  </svg>
+
+  <span class="tag-body">
+    <span class="tag-hole" aria-hidden="true"></span>
+    <span class="flex flex-col">
+      {lead && <span class="text-[11px] font-semibold tracking-[0.12em] uppercase opacity-75">{lead}</span>}
+      <span class="font-tall text-[2.15rem] leading-[0.95] tracking-[0.01em] sm:text-[2.4rem]">{amount}</span>
+      {trail && <span class="mt-0.5 text-[13px] font-semibold opacity-80">{trail}</span>}
+    </span>
+  </span>
+
+  <span class="tag-stub">
+    <WhatsAppIcon className="size-5" />
+    <span class="text-[13px] leading-tight font-semibold">{action}</span>
+    <svg class="tag-arrow size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M4 10 10 4M5 4h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </span>
+  </span>
+</a>
+
+<style>
+  /* Dış bağlantı: sabit (hover alanı hareket etmez) */
+  .price-tag {
+    --tilt: -3deg;
+    display: inline-flex;
+    align-self: flex-start;
+    margin-left: 1.1rem; /* ip için yer */
+    padding-block: 0.35rem; /* eğik köşeler de hover alanında kalsın */
+    color: var(--color-ink);
+    border-radius: 0.9rem;
+  }
+  .price-tag:focus-visible {
+    outline: 2px solid var(--color-paper);
+    outline-offset: 4px;
+  }
+  /* İçerik: döner ve kalkar */
+  .tag-inner {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+    transform: rotate(var(--tilt));
+    transform-origin: 1.4rem 50%; /* delik etrafında döner */
+    filter: drop-shadow(0 14px 18px rgb(0 0 0 / 0.35));
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  .price-tag:hover .tag-inner,
+  .price-tag:focus-visible .tag-inner {
+    transform: rotate(0deg) translateY(-2px);
+  }
+
+  .tag-sun {
+    --tag: var(--color-sun);
+  }
+  .tag-teal {
+    --tag: var(--color-teal);
+  }
+
+  .tag-body {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.7rem 1.1rem 0.75rem 0.85rem;
+    border-radius: 0.9rem 0 0 0.9rem;
+    background: var(--tag);
+  }
+  .tag-hole {
+    flex-shrink: 0;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: var(--notch);
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-ink) 35%, transparent);
+  }
+
+  /* Kupon: kesik çizgi + üst/alt çentikler */
+  .tag-stub {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1rem;
+    border-left: 2px dashed color-mix(in srgb, var(--color-ink) 35%, transparent);
+    border-radius: 0 0.9rem 0.9rem 0;
+    background: color-mix(in srgb, var(--tag) 82%, var(--color-paper));
+  }
+  .tag-stub::before,
+  .tag-stub::after {
+    content: "";
+    position: absolute;
+    left: -0.5rem;
+    width: 0.9rem;
+    height: 0.9rem;
+    border-radius: 999px;
+    background: var(--notch);
+  }
+  .tag-stub::before {
+    top: -0.45rem;
+  }
+  .tag-stub::after {
+    bottom: -0.45rem;
+  }
+  .tag-arrow {
+    transition: transform 0.25s var(--ease-out-expo);
+  }
+  .price-tag:hover .tag-arrow,
+  .price-tag:focus-visible .tag-arrow {
+    transform: translate(2px, -2px);
+  }
+
+  /* İp: delikten sol üste uzanır */
+  .tag-cord {
+    position: absolute;
+    left: -1.55rem;
+    top: -1.6rem;
+    width: 2.5rem;
+    height: 2.9rem;
+    color: color-mix(in srgb, var(--color-paper) 45%, transparent);
+    pointer-events: none;
+  }
+
+  /*
+   * Ekrana girince bir kez, sade sallanma. "backwards": animasyon bitince normal kurallar geçerli olur,
+   * böylece hover sırasında animasyon ile hover birbirini ezmez.
+   */
+  .price-tag[data-swing="true"] .tag-inner {
+    animation: tag-swing 1s var(--ease-out-expo) backwards;
+  }
+  @keyframes tag-swing {
+    0% {
+      transform: rotate(-9deg);
+    }
+    45% {
+      transform: rotate(1deg);
+    }
+    100% {
+      transform: rotate(var(--tilt));
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tag-inner,
+    .price-tag[data-swing="true"] .tag-inner {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          e.target.setAttribute("data-swing", "true");
+          io.unobserve(e.target);
+        }
+      },
+      { threshold: 0.9 },
+    );
+    document.querySelectorAll("[data-price-tag]").forEach((el) => io.observe(el));
+  }
+</script>

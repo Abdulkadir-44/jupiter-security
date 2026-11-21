@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { Icon } from "@/components/ui/Icon";
 import { getSiteContent } from "@/lib/data";
 
@@ -16,21 +17,39 @@ const w = s.work;
       </p>
     </div>
 
-    <!-- Kayıt cihazı çoklu ekran görünümü. Gerçek kurulum fotoğrafları gelince her karenin arka planına konacak. -->
+    <!-- Kayıt cihazı çoklu ekran görünümü: gerçek kurulum fotoğrafları (fotoğrafı olmayan kare ikonlu yer tutucu) -->
     <ul class="mt-12 grid grid-cols-2 gap-2 md:mt-16 lg:grid-cols-3">
       {
         w.items.map((it) => (
           <li class="relative aspect-[4/3] overflow-hidden rounded-[0.9rem] bg-gradient-to-br from-navy-2 to-navy">
-            <Icon
-              name={it.kind}
-              className="absolute top-1/2 left-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 text-paper/10"
-              strokeWidth={1}
-            />
-            <div class="scanlines absolute inset-0" aria-hidden="true" />
-            <span class="absolute top-3 left-3.5 font-mono text-[11px] text-paper/70 sm:text-xs">{it.cam}</span>
-            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent px-3.5 pt-10 pb-3">
-              <p class="text-sm font-semibold leading-tight sm:text-base">{it.place}</p>
-              <p class="text-xs text-mist sm:text-sm">{it.area}</p>
+            {it.image && typeof it.image !== "string" ? (
+              <Image
+                src={it.image}
+                alt={it.alt ?? it.place}
+                widths={[360, 640, 960]}
+                sizes="(min-width: 1024px) 400px, 50vw"
+                loading="lazy"
+                decoding="async"
+                class="absolute inset-0 h-full w-full object-cover"
+              />
+            ) : it.image ? (
+              <img src={it.image} alt={it.alt ?? it.place} loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <>
+                <Icon
+                  name={it.kind}
+                  className="absolute top-1/2 left-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 text-paper/10"
+                  strokeWidth={1}
+                />
+                <div class="scanlines absolute inset-0" aria-hidden="true" />
+              </>
+            )}
+            <span class="absolute top-2.5 left-2.5 rounded bg-ink/70 px-1.5 py-0.5 font-mono text-[10px] text-paper/85 sm:top-3 sm:left-3 sm:text-xs" aria-hidden="true">
+              {it.cam}
+            </span>
+            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 via-ink/50 to-transparent px-3 pt-10 pb-2.5 sm:px-3.5 sm:pb-3">
+              <p class="text-[13px] font-semibold leading-tight sm:text-base">{it.place}</p>
+              {it.area && <p class="text-xs text-mist sm:text-sm">{it.area}</p>}
             </div>
           </li>
         ))

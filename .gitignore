@@ -7,6 +7,6 @@ node_modules/
 .dev.vars
 .DS_Store
 .playwright-mcp/
-
+/fotograflar
 # Müşteriden gelen ham bilgiler (kişisel/ticari bilgi, repoya girmez)
 musteri-bilgileri.txt

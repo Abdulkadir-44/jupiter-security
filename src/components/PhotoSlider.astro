@@ -1,7 +1,7 @@
 ---
 /**
- * Fotoğraf slider kartı (kamera ekranı görünümlü). Wi-Fi bölümünde kullanılıyor; güneş enerjili
- * bölüm ve ürünler için de aynı bileşen kullanılabilir.
+ * Fotoğraf slider kartı (kamera ekranı görünümlü). Güneş enerjili (dikey) ve Wi-Fi bölümlerinde kullanılıyor.
+ * Fotoğraflar build sırasında WebP'ye çevrilir ve ekran boyuna göre küçük/büyük dosya seçilir.
  *
  * - Mobilde parmakla kaydırılır (CSS scroll-snap), masaüstünde oklar ve noktalar.
  * - Kendiliğinden ilerler; fare üstündeyken, dokunulunca, klavyeyle odaklanınca ve ekran dışındayken durur.
@@ -9,11 +9,15 @@
  * - `image` olmayan slaytlarda "Fotoğraf yakında" yer tutucusu görünür.
  * - Ekstra kütüphane yok: küçük bir script.
  */
+import { Image } from "astro:assets";
 import { ChevronLeft, ChevronRight, ImageIcon, Signal, Wifi } from "lucide-react";
 import { getSiteContent, fill } from "@/lib/data";
+import type { Slide } from "@/content/site.tr";
 
 interface Props {
-  slides: { caption: string; image?: string; alt?: string }[];
+  slides: Slide[];
+  /** Kare oranı: "landscape" 4:3 (varsayılan) ya da "portrait" 4:5 (dikey çekilmiş fotoğraflar için) */
+  aspect?: "landscape" | "portrait";
   /** Üst şeritteki etiket (örn. "CAM 08 · WI-FI") */
   label: string;
   /** Ekran okuyucu için slider adı */
@@ -25,7 +29,10 @@ interface Props {
   /** Otomatik ilerleme aralığı (ms) */
   interval?: number;
 }
-const { slides, label, ariaLabel, accent = "teal", icon = "wifi", interval = 4500 } = Astro.props;
+const { slides, label, ariaLabel, accent = "teal", icon = "wifi", interval = 4500, aspect = "landscape" } = Astro.props;
+const aspectClass = aspect === "portrait" ? "aspect-[4/5]" : "aspect-[4/3]";
+// Slider sayfanın sağ sütununda (~560 px), telefonda tam genişlik
+const sizes = "(min-width: 1024px) 560px, calc(100vw - 4rem)";
 const s = getSiteContent(Astro.currentLocale);
 const accentBg = accent === "sun" ? "bg-sun" : "bg-teal";
 ---
@@ -52,12 +59,22 @@ const accentBg = accent === "sun" ? "bg-sun" : "bg-teal";
     {
       slides.map((sl, i) => (
         <li
-          class="relative aspect-[4/3] w-full shrink-0 snap-start overflow-hidden"
+          class:list={["relative w-full shrink-0 snap-start overflow-hidden bg-ink", aspectClass]}
           role="group"
           aria-roledescription="slide"
           aria-label={`${i + 1} / ${slides.length}: ${sl.caption}`}
         >
-          {sl.image ? (
+          {sl.image && typeof sl.image !== "string" ? (
+            <Image
+              src={sl.image}
+              alt={sl.alt ?? sl.caption}
+              widths={[480, 720, 1080]}
+              sizes={sizes}
+              loading="lazy"
+              decoding="async"
+              class="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : sl.image ? (
             <img
               src={sl.image}
               alt={sl.alt ?? sl.caption}

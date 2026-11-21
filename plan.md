@@ -214,9 +214,96 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 9. ✅ **Güneş enerjili bölüm:** animasyonlu çizim kaldırıldı, yerine slider. **SIM kartı Jüpiter temin edip kuruyor** (avantajlara eklendi). Hâlâ eksik: örnek fiyat.
 10. ✅ **Wi-Fi bölümü:** metin müşteri tarafından **onaylandı**, olduğu gibi kalıyor. Eksik: marka/model ve fiyat (sonra), fotoğraflar.
 11. ✅ **Slider fotoğrafları admin panelinden yönetilecek** → admin tasarım dokümanında galeri kategorili olacak: yapılan işler / güneş enerjili / Wi-Fi / ürünler.
-12. ✅ **Logo:** gezegen işareti aynı kaldı; yazı iki satır: **JÜPİTER** + altında **GÜVENLİK SİSTEMLERİ** (`Logo.astro`). İki satır ortak genişlikte: header'da "JÜPİTER" harfleri aralanır, footer'daki dev logoda alt satır aralanır. Footer logosu mobilde biraz küçültüldü (taşmasın). Not: og.jpg / og-en.jpg paylaşım görsellerinde hâlâ eski tek satırlı logo var (gerekirse yeniden üretilecek). Header logosu büyütüldü ve ekran genişliğiyle ölçekleniyor (`clamp(11.5px, 3.6vw, 16.5px)`, 1024-1280 px'te 14.5px); telefonda dil düğmesinin dünya ikonu gizli. Header'daki arama butonu "Hemen ara" → "Ara" (küçülen header'a sığsın).
+12. ✅ **Logo:** gezegen işareti aynı kaldı; yazı iki satır: **JÜPİTER** + altında **GÜVENLİK SİSTEMLERİ** (`Logo.astro`). İki satır ortak genişlikte: header'da "JÜPİTER" harfleri aralanır, footer'daki dev logoda alt satır aralanır. Footer logosu mobilde biraz küçültüldü (taşmasın). Not: og.jpg / og-en.jpg paylaşım görsellerinde hâlâ eski tek satırlı logo var (gerekirse yeniden üretilecek). Header logosu büyütüldü ve ekran genişliğiyle ölçekleniyor (`clamp(11.5px, 3.6vw, 16.5px)`, 1024-1280 px'te 14.5px); telefonda dil düğmesinin dünya ikonu gizli. Header'daki arama butonu "Hemen ara" → "Ara" (küçülen header'a sığsın). Küçülen (kompakt) header genişliği 1040 → 1180 px (masaüstünde kenarlarda en az 12 px boşluk). Henüz tarayıcıda ölçülmedi: 320 px telefon ve 1024-1100 px laptop genişliğinde header sığması kontrol edilmeli.
 13. **Yazışma adresi neden gerekli?** (müşteri sordu) KVKK aydınlatma metninde "veri sorumlusu"nun adresi yazılmak zorunda; Google İşletme Profili doğrulaması da adres ister (sitede ve haritada gizli kalabilir). Tam resmi unvan için vergi levhasındaki ad gerekli ("... Ltd. Şti." dahil).
 14. **E-posta:** alan adı alınınca `info@jupiterguvenlik.com` gibi bir adres, Cloudflare Email Routing (ücretsiz) ile müşterinin Gmail'ine yönlendirilebilir; e-posta göndermek için ek ayar ya da ücretli posta servisi gerekir.
+
+### Durum özeti (son commit `520fe06`, **deploy edilmedi**: canlı site eski telefon/fiyatsız haliyle duruyor)
+- Uygulandı: gerçek telefon, 3 yıl / 600+ / 2 yıl garanti, fiyatlı paketler (KDV ve montaj dahil), esnek saatler, resmi ad "Jüpiter Güvenlik Sistemleri", markalar, SIM notu, Wi-Fi bölümü + güneş enerjili slider (fotoğraflar bekleniyor), iki satırlı logo.
+- Fiyat girildi (2026-11-21): Wi-Fi 6.999 TL, güneş enerjili 8.999 TL'den başlayan fiyatlar, KDV ve montaj dahil (butonlarda yazıyor).
+- Bekleyen (müşteriden): Wi-Fi markası, ürünler slider'ı içeriği, resmi unvan + adres (KVKK), e-posta, fotoğraflar (kullanıcı kategorize edip verecek), gerçek yorumlar, Instagram.
+- Sonra: admin paneli (tasarım dokümanı onay bekliyor), alan adı bağlama, KVKK sayfası, og görsellerini yeni logoyla yenileme.
+
+### Fotoğraf ve video planı (2026-11-21, onaylandı, fotoğraflar siteye EKLENDİ; video bekliyor)
+
+**Yapılan (2026-11-21, commit edilmedi):**
+- Güneş enerjili slider'ı: 6 gerçek fotoğraf, dikey (4:5) kare: palmiye (16), şantiye yanındaki elektrik direği (15), çam ağacı (19), şantiye direği (52, yüzler bulanık), palmiyede merdivenle montaj (40), konteyner üstü direk (51).
+- "Yaptığımız kamera kurulumları": 6 gerçek kare: kafe önü gündüz (07) + aynı kamera gece (03), kafe iç mekan (05), kafe bahçesi gece (08), 13 kameralı kayıt ekranı (42), kayıt cihazı ve monitör (34, olduğu gibi). Uydurma semt adları kaldırıldı; "nerede" alanı boş ve kartta görünmüyor, Jüpiter bilgi verince doldurulacak.
+- Siteye giren kopyalar `src/assets/medya/` içinde (kırpılmış, en fazla 1440 px, konum bilgisi silinmiş). Hangi fotoğrafın kullanıldığı `src/content/media.ts` içinde. Astro build sırasında WebP'ye çevirip ekran boyuna göre küçük/büyük dosya üretiyor.
+- Wi-Fi slider'ı yer tutucu kaldı (fotoğraflar müşteriden gelecek).
+- Güneş enerjili ve Wi-Fi bölümleri (2026-11-21):
+  - Fiyat butonu yerine **asma fiyat etiketi** (`src/components/ui/PriceTag.astro`): eğik, ekrana girince bir kez hafifçe sallanır, üzerine gelince düzleşir. Hover titremesi düzeltildi (dış bağlantı sabit, sadece iç kısım döner).
+  - Yer etiketleri hap/buton yerine **sinyal (4G) / Wi-Fi simgeli liste** (`src/components/ui/PlaceList.astro`), altlarında renkten sağa doğru kaybolan çizgi.
+  - Masaüstü: fiyat etiketi + KDV notu solda metnin altında, markalar sağda fotoğrafın altında. Mobil: metin → fotoğraf → markalar → fiyat etiketi.
+- **Sırada:** V02 "insan algılama" videosundan kısa, sessiz klip (ffmpeg gerekiyor).
+- **Ürünler bölümü (2026-11-21, TASLAK TASARIM, kullanıcı onayı bekliyor):** "Kullanım alanları" ile "Güneş enerjili" arasında, açık renkli panel, kaydırmalı ürün vitrini (`src/components/sections/Products.astro`, içerik `products` iki dilde). Beğenilmezse kullanıcı bir carousel promptu verecek, o entegre edilecek.
+  - Ürün listesi YER TUTUCU (bullet, dome, PTZ, güneş enerjili 4G, Wi-Fi, NVR). Jüpiter ürün fotoğraflarını gönderince: fotoğraflar `src/assets/medya/urunler/` + `media.ts`, ürün adları/özellikleri/markaları güncellenecek.
+
+Gelen: **52 fotoğraf + 17 video**, proje içinde `fotograflar/` klasöründe (gitignore'da, GitHub'a gitmez). Aşağıdaki numaralar Claude'un hazırladığı önizleme sırasıdır (dosya adı sırası).
+
+**1. Gelen dosyaların gruplanması**
+
+| Grup | Fotoğraflar | Ne gösteriyor |
+|---|---|---|
+| A. Güneş enerjili 4G kurulumları | 12-33, 40, 49-52 | Palmiye ve çam ağaçlarına, şantiye yanındaki elektrik direğine, arazide metal direğe güneş panelli kamera |
+| B. Kurulumdan gerçek kamera görüntüsü | 01-09, 11, 41 | Bir kafe/restoran: iç mekan, bahçe, yol; gündüz ve gece; 4'lü ekran |
+| C. Kayıt cihazı monitörleri | 34-36, 42-44 | Duvara asılı monitörde çoklu kamera görüntüsü |
+| D. Telefondan izleme ekranı | 10, 48 | Telefon uygulamasında canlı görüntü |
+| E. Ağaca takılı beyaz kameralar | 37-39 | Bağlantı kutulu kameralar (Wi-Fi mi kablolu mu belli değil) |
+| F. Uyarı levhası | 47 | "Bu alan 24 saat kamera ile izlenmektedir, JÜPİTER GÜVENLİK 0545 142 3131" |
+| G. Usta fotoğrafları (selfie) | 45, 46 | Yüz var; şimdilik kullanılmayacak |
+
+| Video | Ne gösteriyor | Karar |
+|---|---|---|
+| V03 | Kurulum tanıtımı: gündüz/gece karşılaştırma + özellikler (5 MP metal kasa, 2.8 mm lens, sesli, gece renkli, yapay zekâ, 2 yıl garanti) | Bilgi kaynağı; özellikler pakete eklenebilir |
+| V02 | Kamera insanı algılıyor (görüntüde yeşil kutu) | **Sitede kullanılacak**: 6-8 saniyelik sessiz döngü |
+| V01, V04, V15 | Kameranın yanında telefondan canlı izleme, gece PTZ kontrolü | V01 veya V04 Wi-Fi/güneş bölümüne aday |
+| V05, V10, V12, V14, V16 | Monitör çekimleri | Gerek yok (fotoğraflar yeterli) |
+| V06, V07, V08, V11, V13 | Mekan tanıtımı (Çınaraltı Çekim Platosu), kamera yok | Kullanılmayacak |
+| V09 | Uyarı levhası | Kullanılmayacak (foto 47 yeterli) |
+| V17 | Üretici reklamı (360° 3 kameralı PTZ) | Kullanılmayacak (telif üreticinin) |
+
+**2. Sitede nereye konacak (öneri)**
+1. **Güneş enerjili bölüm slider'ı** (şu an 3 boş kare): 6 fotoğraf, örneğin 16 (palmiye, yakın), 19 (çam, panel), 23, 15 (şantiye yanındaki elektrik direği), 52 (arazide direk, ekip çalışıyor), 13 (uzak palmiye). Her karenin altında kısa başlık: "Palmiyeye montaj", "Elektrik direğine montaj, şantiye" gibi.
+2. **Wi-Fi bölümü slider'ı:** Gerçek fotoğraf yok (37-39 kablolu çıktı). Yer tutucu kalır, fotoğraflar müşteriden sonra alınacak.
+3. **"Yaptığımız kamera kurulumları"** (şu an 6 yer tutucu kart): gerçek kamera görüntüleri ve monitörler, örneğin 05 (iç mekan), 07 (yol, gündüz), 03 (gece), 08 (bahçe), 42 (16 kameralı monitör), 04 (4'lü ekran). Kartlardaki uydurma semt adları kaldırılır.
+4. **Video:** V02'den kısa, sessiz, döngülü "insan algılama" klibi. Yaklaşık 1 MB, ekrana gelince oynar.
+5. **Hero (en üstteki büyük fotoğraf):** Şimdilik değişmiyor. Gelen fotoğraflar telefonla çekilmiş; tam ekran kullanım için ışık ve çözünürlük zayıf. Hero yine stok fotoğrafla kalır.
+6. **Paylaşım görseli (og.jpg):** Yeni logoyla yeniden üretilirken gerçek bir kurulum fotoğrafı (ör. 16) kullanılabilir.
+
+**3. Gizlilik ve hukuk**
+- Kamera görüntülerinde (01-11, 41, V02) insanlar ve araçlar var. Okunabilir plaka ve tanınabilir yüz bulanıklaştırılır.
+- Foto 34'te müşterinin işletme adı ("Çınaraltı Çekim Platosu") görünüyor. Yayınlamak için o işletmenin izni gerekir; izin yoksa kırpılır ya da kullanılmaz.
+- 43-44'te İstiklal Marşı/Atatürk panosu var (okul ya da kurum olabilir); kırpılır.
+- Telefon fotoğraflarında GPS konumu saklı olabilir. Dönüştürürken bu bilgiler silinir.
+- Fotoğraflardan adres çıkmamalı (tabela, kapı numarası); tek tek kontrol edilir.
+
+**Kırpma/bulanıklaştırma karşılaştırması** (`fotograflar/_karsilastirma/`, kullanıcı bakacak):
+- 34: Kutudaki "Jüpiter Güvenlik & Internet" yazısı Jüpiter'in kendi etiketi; sadece altındaki "(Çınaraltı Çekim Platosu)" müşteri adı. Seçenek A: sadece müşteri adı bulanık. Seçenek B: sadece monitör. (35 aynı monitörün etiketsiz hali.)
+- 07 (gündüz) ve 03 (gece) aynı kamera açısı: "gündüz / gece" karşılaştırması olarak kullanılabilir. Komşu işyeri tabelaları ve motosiklet plakaları bulanık, uygulama butonlarının olduğu sağ şerit kırpık.
+- 09: Araç plakaları ve "... Büfe" tabelası bulanık.
+- 43: İstiklal Marşı panosu kırpılınca görüntü bulanık kalıyor; aynı monitörün net hali olan **42 tercih edilmeli**.
+- Kamera görüntülerindeki tarih/saat yazısı bırakılır (gerçek kayıt olduğunu gösterir).
+
+**Klasörleme YAPILDI (2026-11-21):** `fotograflar/` içinde `a-gunes-enerjili/`, `b-kamera-goruntusu/`, `c-monitor/`, `d-telefon-izleme/`, `e-kablolu-agac/`, `f-levha/`, `g-usta/`, `h-videolar/`. Fotoğraflar önizleme numarasıyla (`07.jpeg`), videolar içerikleriyle (`V02-insan-algilama.mp4`) adlandırıldı. Eski WhatsApp adları `fotograflar/_liste.txt` içinde.
+- **Orijinaller hiç değiştirilmez.** Düzenlenen fotoğrafın kopyası orijinalin yanında `NN-duzenlenmis.jpg` adıyla durur. Jüpiter bulanık halden memnun kalmazsa sitede orijinali kullanılır.
+- Düzenlenenler: 01, 03, 04, 07, 08, 09, 11 (komşu işyeri tabelaları, Pepsi şemsiyesi gibi başka markalar, plakalar, yüzler bulanık; uygulama buton şeridi kırpık) ve 52 (işçi yüzleri bulanık).
+- **Kural (kullanıcı onayladı):** Plaka, yüz, başka işletme tabelası ve başka marka logoları bulanıklaştırılır. Satılan kamera markaları (O-KAM, ZTECH vb.) kalabilir. 34 olduğu gibi kullanılır.
+
+**4. Teknik yol**
+- Orijinaller `fotograflar/` içinde kalır, hiçbiri silinmez. Claude bunları gruplara göre alt klasörlere taşır (`a-gunes-enerjili/`, `b-kamera-goruntusu/` ...).
+- Seçilen yaklaşık 15 fotoğraf kırpılır, en fazla 1600 px'e küçültülür ve anlamlı adlarla (`gunes-enerjili-kamera-palmiye.jpg` gibi, Google görsel araması için) `src/assets/` içine konur. Astro, build sırasında her ekran boyu için WebP üretir: telefona küçük dosya, masaüstüne büyük dosya gider, sayfa yavaşlamaz.
+- Video, geçici bir araçla (ffmpeg, projeye eklenmez) kırpılıp sıkıştırılır: ses yok, kapak resmi var, "hareketi azalt" ayarında oynamaz. Site kendi dosyası olduğu için güvenlik ayarında değişiklik gerekmez.
+- Her fotoğrafa Türkçe ve İngilizce açıklama (alt metin) yazılır.
+- Admin paneli gelince bu fotoğraflar R2'ye taşınır ve panelden değiştirilebilir olur.
+
+**5. Cevap gereken sorular**
+1. ✅ 37-39 Wi-Fi değil, kablolu. Wi-Fi slider'ının fotoğrafları sonra müşteriden alınacak; şimdilik yer tutucu kalır. 37-39 "Yaptığımız kurulumlar"a aday.
+2. ✅ İşletme ve semt şimdilik bilinmiyor → kartlara genel başlık yazılır ("Kafe, iç mekan" gibi). İşletme adı görünen fotoğrafların hem kırpılmış hem kırpılmamış hali kullanıcıya gösterilir; kırpılmamış hali güzelse Jüpiter kendi müşterisinden izin alabilir.
+   - **Şablon hazır olacak:** Her kurulum kartında "nerede yapıldı" (mahalle/semt/ilçe) alanı boş durur, doldurulunca hem kartta hem Google'a giden bilgide görünür. Bilgiyi Jüpiter kullanıcıya, kullanıcı Claude'a verecek.
+3. V03'teki özellikler (5 MP metal kasa, 2.8 mm lens, sesli, gece renkli, yapay zekâ) paket kartlarına eklensin mi?
+4. Foto 34'te "Jüpiter Güvenlik & Internet" yazıyor, levhada da Wi-Fi ikonlu "JÜPİTER GÜVENLİK" logosu var. Firma internet hizmeti de veriyor mu? Kullandıkları hazır bir logo var mı?
+5. 45-46 usta fotoğrafları ileride bir "Hakkımızda" alanında kullanılsın mı? (Şimdilik hayır.)
 
 ### C) Önerilen sıra (konuşmaya göre değişebilir)
 1. **Net içerik güncellemeleri** (telefon, istatistik, paketler + fiyatlar, sahte yorumların kaldırılması, Instagram gizleme, saat metni) → hemen, kod dosyalarından.
