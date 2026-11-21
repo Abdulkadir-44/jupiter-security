@@ -218,7 +218,8 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
 13. **Yazışma adresi neden gerekli?** (müşteri sordu) KVKK aydınlatma metninde "veri sorumlusu"nun adresi yazılmak zorunda; Google İşletme Profili doğrulaması da adres ister (sitede ve haritada gizli kalabilir). Tam resmi unvan için vergi levhasındaki ad gerekli ("... Ltd. Şti." dahil).
 14. **E-posta:** alan adı alınınca `info@jupiterguvenlik.com` gibi bir adres, Cloudflare Email Routing (ücretsiz) ile müşterinin Gmail'ine yönlendirilebilir; e-posta göndermek için ek ayar ya da ücretli posta servisi gerekir.
 
-### Durum özeti (son commit `7972d4d`, **2026-11-22 deploy edildi**: canlı site güncel)
+### Durum özeti (son commit `55a1086`, **2026-11-22 deploy edildi**: canlı site güncel)
+- **Logo:** Müşteri mevcut logoyu beğenmedi. Claude 4 SVG konsept çizdi (gezegen mercek, gezegen dome kamera, yörünge göz, uydular gece ışığı); kullanıcı **profesyonel bir tasarımcıya yaptırmaya** karar verdi. Gelince: siteye (Logo.astro), favicon, apple-touch-icon ve og görsellerine uygulanacak.
 - Uygulandı: gerçek telefon, 3 yıl / 600+ / 2 yıl garanti, fiyatlı paketler (KDV ve montaj dahil), esnek saatler, resmi ad "Jüpiter Güvenlik Sistemleri", markalar, SIM notu, Wi-Fi bölümü + güneş enerjili slider (fotoğraflar bekleniyor), iki satırlı logo.
 - Fiyat girildi (2026-11-21): Wi-Fi 6.999 TL, güneş enerjili 8.999 TL'den başlayan fiyatlar, KDV ve montaj dahil (butonlarda yazıyor).
 - Bekleyen (müşteriden): Wi-Fi markası, ürünler slider'ı içeriği, resmi unvan + adres (KVKK), e-posta, fotoğraflar (kullanıcı kategorize edip verecek), gerçek yorumlar, Instagram.
@@ -446,6 +447,12 @@ Temel gerçek: yerel hizmet aramalarında trafiğin büyük kısmı haritadaki "
 **Admin paneli tasarım kararları (karar defteri, 20.11.2026'dan itibaren)**
 Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşağıdaki **tasarım dokümanında**; kullanıcı onayından sonra uygulama aşamalarına geçilecek.
 1. **Kapsam:** Panelden 5 bölüm yönetilecek: yapılan işler galerisi, iletişim bilgileri, paketler, müşteri yorumları, kampanya şeridi.
+   - **Güncelleme (22.11.2026, sitede sonradan eklenen bölümler):** Kapsam genişledi: **8 bölüm**:
+     1. **Yapılan işler (klasörler):** klasör ekle/sil/sırala/adlandır, klasöre fotoğraf ekle, her fotoğrafa açıklama + konum (semt/ilçe)
+     2. **Ürünler:** ürün ekle/sil/sırala; ad, kategori, ikon tipi, özellikler, marka, fotoğraf
+     3. **Slider fotoğrafları:** güneş enerjili ve Wi-Fi bölümlerindeki fotoğraflar + alt yazıları
+     4. **Fiyatlar:** paket fiyatları (sayı) + güneş enerjili ve Wi-Fi "…TL'den başlayan" fiyat etiketleri
+     5. **Paketler** (içerik), 6. **Yorumlar**, 7. **İletişim** (+ marka listeleri), 8. **Kampanya şeridi**
 2. **Görünüm:** Basit, göze hoş, hafif animasyonlu; **özellikle responsive** (telefondan da rahat kullanılmalı).
 3. **Düzen (masaüstü):** Solda **sidebar**, her başlık **ayrı sayfa** (tek sayfaya her şey konmaz). Örn. `/admin/yapilan-isler`, `/admin/iletisim`, `/admin/paketler`, `/admin/yorumlar`, `/admin/kampanya`. Mobilde sidebar açılır menüye dönüşür.
 4. **İlk açılış:** `/admin` = **"Genel bakış"**: kampanya şeridi durumu + tek tıkla aç/kapa, içerik sayıları (iş fotoğrafı, yorum, paket; tıklanınca ilgili sayfa), son değişiklikler, bu haftanın ziyaretçi sayısı (Cloudflare Web Analytics), "Siteyi görüntüle".
@@ -455,8 +462,11 @@ Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşa�
 8. **Giriş: e-posta + şifre + 2FA (TOTP).** Şifre hash'li saklanır (PBKDF2, Web Crypto), 5 hatalı denemede geçici kilit, oturum çerezi HttpOnly + Secure + SameSite, CSRF koruması. 2FA: Google/Microsoft Authenticator; ilk girişte QR ile kurulum, 10 tek kullanımlık yedek kod. Kurtarma: `npm` komutuyla şifre/2FA sıfırlama (komut satırından). Kullanıcı 2FA'yı bilmiyor → panel bitince müşteri için adım adım **"Panele ilk giriş" rehberi** yazılacak.
 9. **İki dil: Türkçe yazılır, "İngilizceye çevir" butonu.** Çeviri Cloudflare Workers AI ile (ücretsiz günlük kota); sonuç elle düzeltilebilir. İngilizce alan boşsa İngilizce sayfada Türkçe metin gösterilir. Maliyet güvencesi: buton sadece giriş yapmış admin'de çalışır + kodda günlük üst sınır (örn. 200 çeviri/gün). Kullanıcı ücret çıkmasından endişeli: uygulamada Cloudflare'in güncel fiyatlandırması tekrar doğrulanacak (ücretsiz planda kota aşımı = hata, ücret değil).
 10. **Sabit metinler kodda kalır** (hero, bölüm başlıkları/açıklamaları, süreç adımları, kullanım alanı sekmeleri, güneş enerjili 4G bölümü). Değişiklik gerekirse Claude/geliştirici `site.tr.ts` / `site.en.ts` üzerinden yapar. Panel sade kalır, müşteri tasarımı bozamaz.
+   - **Güncelleme (22.11.2026):** İnsan algılama videosu, bölüm tasarımları ve madde listeleri de kodda kalır (onaylandı). Video nadiren değişir ve dönüştürmek için ffmpeg gerekir; panelden yükletmek gereksiz karmaşıklık.
 
-**d) Admin paneli: tasarım dokümanı (ONAY BEKLİYOR)**
+**d) Admin paneli: tasarım dokümanı (ONAYLANDI 22.11.2026; sıradaki iş: 1. aşama veritabanı)**
+
+> **22.11.2026 güncellemesi özeti:** Site, doküman yazıldıktan sonra büyüdü. Panelin yönetmesi gereken yeni şeyler eklendi: ürünler vitrini, kurulum klasörleri (macOS penceresi), güneş enerjili/Wi-Fi slider fotoğrafları ve fiyat etiketleri, sayı olarak paket fiyatları. Aşağıdaki veri modeli, panel sayfaları ve aşamalar buna göre güncellendi. Değişmeyenler: mimari (Astro sunucu tarafı + D1 + R2), güvenlik, giriş (şifre + 2FA), tarayıcıda WebP, Türkçe yaz + "İngilizceye çevir".
 
 *Mimari*
 - Astro sunucu tarafı render (`@astrojs/cloudflare`, Workers). Halka açık sayfalar (`/`, `/en/`) her istekte veriyi **D1**'den okur; sabit metinler yine `site.tr.ts`/`site.en.ts`'ten gelir. `src/lib/data.ts` tek veri katmanı: D1 verisi + sabit metinleri birleştirir (bileşenler değişmez).
@@ -469,23 +479,29 @@ Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşa�
 *Veri modeli (D1 tabloları, taslak)*
 | Tablo | Alanlar |
 |---|---|
-| `settings` (tek satır) | telefon (görünen + E.164), WhatsApp, Instagram, Facebook, çalışma saatleri (TR/EN metin + gün/saat), ilçeler (liste), WhatsApp karşılama mesajı (TR/EN) |
+| `settings` (tek satır) | telefon (görünen + E.164), WhatsApp, Instagram, Facebook, çalışma saatleri (TR/EN metin + gün/saat), ilçeler (liste), WhatsApp karşılama mesajı (TR/EN), **kullanılan markalar** (CCTV listesi, güneş enerjili listesi) |
 | `campaign` (tek satır) | açık/kapalı, metin (TR/EN), buton metni (TR/EN), bitiş tarihi (opsiyonel, geçince otomatik kapanır) |
-| `works` (galeri: yapılan işler + slider'lar) | **kategori** (yapılan işler / güneş enerjili / Wi-Fi / ürünler), başlık/yer (TR/EN), ilçe/semt, tür (ev, dükkan, fabrika, site, arazi), fotoğraf anahtarları (480/960/1600 WebP + genişlik/yükseklik), alt metin (TR/EN), sıra, yayında mı, tarih |
-| `packages` | ad, kamera sayısı, kimler için, özellikler (liste), fiyat metni (TR/EN), öne çıkan mı, sıra, yayında mı |
+| `folders` (yapılan işler klasörleri) | ad (TR/EN), sıra, yayında mı. Kapak: içindeki ilk 3 fotoğraf |
+| `photos` (tüm fotoğraflar tek tabloda) | **nerede**: `klasör:<id>` / `slider:gunes` / `slider:wifi`, açıklama (TR/EN), konum (semt/ilçe), alt metin (TR/EN), fotoğraf anahtarları (480/960/1600 WebP + genişlik/yükseklik), sıra, yayında mı, tarih |
+| `products` (ürün vitrini) | ad (TR/EN), kategori etiketi (TR/EN), ikon tipi (bullet/dome/ptz/güneş/wifi/nvr: fotoğraf yoksa), özellikler (liste, TR/EN), marka, fotoğraf (anahtarlar), sıra, yayında mı |
+| `price_tags` (2 satır: güneş enerjili, Wi-Fi) | başlangıç fiyatı (sayı, TL), yayında mı. Metin kalıbı kodda ("…TL'den başlayan fiyatlarla", "KDV ve montaj dahil") |
+| `packages` | ad, kamera sayısı, kimler için, özellikler (liste), **başlangıç fiyatı (sayı, TL)**, öne çıkan mı, sıra, yayında mı. "KDV ve montaj dahil" notu kodda |
 | `reviews` | alıntı (TR/EN), isim (Mehmet K.), unvan/semt (TR/EN), sıra, yayında mı |
 | `admin_user` (tek satır) | e-posta, şifre hash + salt, TOTP gizli anahtarı, yedek kod hash'leri |
 | `sessions` | oturum id hash, son kullanma, IP/cihaz özeti |
 | `login_attempts` | IP, zaman (5 hatalı → 15 dk kilit) |
 | `activity_log` | ne değişti, ne zaman (Genel bakış'taki "son değişiklikler") |
 | `ai_usage` | gün, çeviri sayısı (günlük üst sınır) |
-- İlk kurulumda mevcut içerik (`site.tr.ts`/`site.en.ts`'teki paketler, yorumlar, iletişim) D1'e aktarılır (seed); site görünümü değişmez.
+- İlk kurulumda mevcut içerik (`site.tr.ts`/`site.en.ts`'teki paketler, yorumlar, iletişim, ürünler, klasörler + açıklamalar, fiyatlar) D1'e aktarılır (seed); mevcut fotoğraflar (klasörler, slider'lar, ürünler) R2'ye yüklenir. Site görünümü değişmez.
 
 *Panel sayfaları*
 - `/admin/giris` (e-posta + şifre → 2FA kodu), ilk girişte `/admin/2fa-kurulum` (QR + yedek kodlar).
 - `/admin` **Genel bakış**: kampanya aç/kapa, içerik sayıları, son değişiklikler, haftalık ziyaretçi (Cloudflare analytics API, sunucu tarafında; bunun için kısıtlı bir API token'ı `wrangler secret` olarak).
-- `/admin/yapilan-isler` (galeri; kategori sekmeleri: yapılan işler, güneş enerjili slider, Wi-Fi slider, ürünler slider): ızgara görünüm, sürükle-bırak ya da ok ile sıralama, yayında/gizli, ekle/düzenle/sil; fotoğraf seçince tarayıcıda WebP'ye çevirme + önizleme + yükleme ilerlemesi.
-- `/admin/iletisim`, `/admin/paketler`, `/admin/yorumlar`, `/admin/kampanya`: liste + düzenleme formu.
+- `/admin/yapilan-isler`: klasör kartları (sitedeki gibi). Klasör ekle/yeniden adlandır/sırala/gizle/sil. Klasöre girince fotoğraf ızgarası: çoklu fotoğraf yükleme (tarayıcıda WebP + önizleme + ilerleme), her fotoğrafa açıklama + konum, sürükle-bırak ya da okla sıralama, yayında/gizli, sil. Fotoğrafı başka klasöre taşıma.
+- `/admin/sliderlar`: iki sekme (güneş enerjili, Wi-Fi). Fotoğraf + alt yazı ekle/sırala/sil. Wi-Fi fotoğrafları gelince buradan girilecek.
+- `/admin/urunler`: ürün kartları listesi; ekle/düzenle/sırala/gizle/sil. Form: ad, kategori, ikon tipi, özellikler (satır satır), marka, fotoğraf.
+- `/admin/fiyatlar`: tek sayfada tüm fiyatlar: 3 paket + güneş enerjili + Wi-Fi başlangıç fiyatı. Sadece sayı girilir (ör. 9999); site "9.999 TL'den başlayan" diye biçimler.
+- `/admin/iletisim` (+ marka listeleri), `/admin/paketler` (içerik), `/admin/yorumlar`, `/admin/kampanya`: liste + düzenleme formu.
 - Her formda: Türkçe alanlar + "İngilizceye çevir" butonu + İngilizce alanlar (düzenlenebilir), kaydedilmemiş değişiklik uyarısı, başarılı kayıtta küçük bildirim, form hataları (alan altında, anlaşılır Türkçe).
 - Tasarım: sitenin paleti (koyu yeşil sidebar, açık içerik alanı), sitenin fontları, hafif geçişler; masaüstünde sol sidebar, mobilde üstte menü düğmesi + açılır sidebar. Büyük dokunma alanları (telefondan kullanım).
 - Ayrıca: "Çıkış yap", "Siteyi görüntüle", şifre değiştirme.
@@ -502,8 +518,10 @@ Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşa�
 2. Giriş sistemi: şifre + 2FA + oturum + kilit + kurtarma komutları.
 3. Panel iskeleti: sidebar, responsive düzen, Genel bakış.
 4. Basit modüller: iletişim, kampanya, yorumlar, paketler (+ çeviri butonu).
-5. R2 + yapılan işler galerisi (fotoğraf işleme, yükleme). Kullanıcı: R2'yi etkinleştirip sanal kart ekleme.
-6. Son kontroller: güvenlik testi, mobil test, Lighthouse, "Panele ilk giriş" rehberi, deploy.
+5. R2 + fotoğraf modülleri: yapılan işler klasörleri, slider'lar, ürünler (fotoğraf işleme, yükleme; mevcut fotoğrafların R2'ye aktarılması). Kullanıcı: R2'yi etkinleştirip sanal kart ekleme.
+6. Fiyatlar sayfası (paketler + güneş enerjili + Wi-Fi tek ekranda).
+7. Son kontroller: güvenlik testi, mobil test, Lighthouse, "Panele ilk giriş" rehberi, deploy.
+- Not (22.11.2026): Aşama 4 artık iletişim (+ markalar), kampanya, yorumlar, paketler; ürünler fotoğraflı olduğu için 5. aşamada.
 
 **e) Sonra**
 - [ ] Ürünler ve Yapılan İşler ayrı sayfaları (gerçek içerik gelince)
