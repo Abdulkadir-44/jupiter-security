@@ -103,6 +103,7 @@ const folders = await Promise.all(
 
       <div class="fwin-stage" data-fwin-stage>
         <img class="fwin-img" data-fwin-img alt="" decoding="async" />
+        <span class="fwin-spin" aria-hidden="true"></span>
         <button type="button" class="fwin-nav left-3" data-fwin-prev aria-label={w.prevLabel}>
           <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5 7 10l5.5 5.5" /></svg>
         </button>
@@ -358,6 +359,36 @@ const folders = await Promise.all(
   .fwin-img[data-loading] {
     opacity: 0;
   }
+  /* Yükleniyor halkası: fotoğraf 0.2 sn'den uzun sürerse görünür (hızlı bağlantıda yanıp sönmesin) */
+  .fwin-spin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border-radius: 999px;
+    border: 3px solid rgb(255 255 255 / 0.18);
+    border-top-color: var(--color-paper);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+  .fwin-stage[data-busy] .fwin-spin {
+    opacity: 1;
+    transition-delay: 0.2s;
+    animation: fwin-spin 0.8s linear infinite;
+  }
+  @keyframes fwin-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fwin-stage[data-busy] .fwin-spin {
+      animation-duration: 2.4s;
+    }
+  }
   .fwin-nav {
     position: absolute;
     top: 50%;
@@ -469,16 +500,19 @@ const folders = await Promise.all(
       index = (i + items.length) % items.length;
       const it = items[index]!;
       img.setAttribute("data-loading", "");
+      stage.setAttribute("data-busy", "");
       const next = new Image();
       next.srcset = it.srcset;
       next.sizes = "min(1040px, 100vw)";
       next.src = it.src;
       const swap = () => {
+        if (items[index] !== it) return; // bu arada başka fotoğrafa geçildiyse eskiyi gösterme
         img.srcset = it.srcset;
         img.sizes = "min(1040px, 100vw)";
         img.src = it.src;
         img.alt = it.caption;
         img.removeAttribute("data-loading");
+        stage.removeAttribute("data-busy");
       };
       next.decode().then(swap, swap);
       captionEl.textContent = it.caption;
@@ -500,6 +534,7 @@ const folders = await Promise.all(
           t.src = it.thumb;
           t.alt = "";
           t.loading = "lazy";
+          (window as unknown as { watchImage?: (i: HTMLImageElement) => void }).watchImage?.(t);
           b.append(t);
           b.addEventListener("click", () => show(k));
           return b;

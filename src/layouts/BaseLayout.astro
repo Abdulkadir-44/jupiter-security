@@ -96,6 +96,23 @@ const jsonLd = buildJsonLd(s, Astro.site!, canonical);
       >{s.ui.skipToContent}</a
     >
     <slot />
+    <script>
+      // Fotoğraf yükleniyor göstergesi (stil: global.css → img-wait / img-in).
+      // Henüz gelmemiş gecikmeli görsellerde kayan parıltı; gelince yumuşakça belirir.
+      // Önbellekten anında gelenlere dokunulmaz. Sonradan eklenen görseller için: window.watchImage(img)
+      const watch = (img: HTMLImageElement) => {
+        if (img.complete && img.naturalWidth > 0) return;
+        img.classList.add("img-wait");
+        const done = (ok: boolean) => {
+          img.classList.remove("img-wait");
+          if (ok) img.classList.add("img-in");
+        };
+        img.addEventListener("load", () => done(true), { once: true });
+        img.addEventListener("error", () => done(false), { once: true });
+      };
+      document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach(watch);
+      (window as unknown as { watchImage: typeof watch }).watchImage = watch;
+    </script>
     {
       analytics && (
         <script

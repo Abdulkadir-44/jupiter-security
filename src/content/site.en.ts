@@ -153,12 +153,12 @@ export const site: SiteContent = {
     prev: "Previous product",
     next: "Next product",
     items: [
-      { name: "5 MP bullet camera", category: "Outdoor", icon: "bullet", specs: ["Metal housing", "2.8 mm wide-angle lens", "Audio recording", "Full-colour night vision"], brand: "Dahua · Hikvision" },
-      { name: "5 MP dome camera", category: "Indoor", icon: "dome", specs: ["Ceiling mount, discreet", "Night vision", "Wide field of view"], brand: "Dahua · Hikvision" },
-      { name: "PTZ camera", category: "360° view", icon: "ptz", specs: ["Pan and tilt from your phone", "Zoom", "Motion tracking"] },
-      { name: "Solar 4G camera", category: "Off-grid", icon: "solar", specs: ["Solar panel and battery", "Internet via SIM card", "No socket needed"], brand: "O-KAM · IOMA" },
-      { name: "Wi-Fi camera", category: "Wireless", icon: "wifi", specs: ["Plugs in, no cabling", "Two-way talk", "Live view on your phone"] },
-      { name: "NVR recorder", category: "Recording", icon: "nvr", specs: ["4, 8 and 16 channels", "500 GB – 1 TB drive", "Remote viewing"], brand: "ZTEC" },
+      { name: "5 MP bullet camera", category: "Outdoor", icon: "bullet", image: media.urunler.bullet, alt: "White bullet cameras mounted on a tree", specs: ["Metal housing", "2.8 mm wide-angle lens", "Audio recording", "Full-colour night vision"], brand: "Dahua · Hikvision" },
+      { name: "5 MP dome camera", category: "Indoor", icon: "dome", image: media.urunler.dome, alt: "Indoor camera mounted on a ceiling", specs: ["Ceiling mount, discreet", "Night vision", "Wide field of view"], brand: "Dahua · Hikvision" },
+      { name: "PTZ camera", category: "360° view", icon: "ptz", image: media.urunler.ptz, alt: "PTZ camera mounted on a pole", specs: ["Pan and tilt from your phone", "Zoom", "Motion tracking"] },
+      { name: "Solar 4G camera", category: "Off-grid", icon: "solar", image: media.urunler.gunes, alt: "Solar 4G camera mounted on a palm tree", specs: ["Solar panel and battery", "Internet via SIM card", "No socket needed"], brand: "O-KAM · IOMA" },
+      { name: "Wi-Fi camera", category: "Wireless", icon: "wifi", image: media.urunler.wifi, alt: "White Wi-Fi camera next to a phone", specs: ["Plugs in, no cabling", "Two-way talk", "Live view on your phone"] },
+      { name: "NVR recorder", category: "Recording", icon: "nvr", image: media.urunler.nvr, alt: "Monitor showing 13 camera feeds from the recorder", specs: ["4, 8 and 16 channels", "500 GB – 1 TB drive", "Remote viewing"], brand: "ZTEC" },
     ],
   },
 

@@ -482,12 +482,12 @@ export const site: SiteContent = {
     prev: "Önceki ürün",
     next: "Sonraki ürün",
     items: [
-      { name: "5 MP bullet kamera", category: "Dış mekân", icon: "bullet", specs: ["Metal kasa", "2.8 mm geniş açı lens", "Sesli kayıt", "Gece renkli görüntü"], brand: "Dahua · Hikvision" },
-      { name: "5 MP dome kamera", category: "İç mekân", icon: "dome", specs: ["Tavana montaj, göze batmaz", "Gece görüşü", "Geniş görüş açısı"], brand: "Dahua · Hikvision" },
-      { name: "PTZ dönebilen kamera", category: "360° görüş", icon: "ptz", specs: ["Telefondan sağa sola çevirme", "Yakınlaştırma", "Hareket takibi"] },
-      { name: "Güneş enerjili 4G kamera", category: "Elektriksiz alan", icon: "solar", specs: ["Güneş paneli ve batarya", "SIM kartla internet", "Prize gerek yok"], brand: "O-KAM · IOMA" },
-      { name: "Wi-Fi kamera", category: "Kablosuz", icon: "wifi", specs: ["Prize takılır, kablo çekilmez", "İki yönlü konuşma", "Telefondan canlı izleme"] },
-      { name: "NVR kayıt cihazı", category: "Kayıt", icon: "nvr", specs: ["4, 8 ve 16 kanal", "500 GB – 1 TB disk", "Uzaktan izleme"], brand: "ZTEC" },
+      { name: "5 MP bullet kamera", category: "Dış mekân", icon: "bullet", image: media.urunler.bullet, alt: "Ağaca monte edilmiş beyaz bullet kameralar", specs: ["Metal kasa", "2.8 mm geniş açı lens", "Sesli kayıt", "Gece renkli görüntü"], brand: "Dahua · Hikvision" },
+      { name: "5 MP dome kamera", category: "İç mekân", icon: "dome", image: media.urunler.dome, alt: "Tavana monte edilmiş iç mekân kamerası", specs: ["Tavana montaj, göze batmaz", "Gece görüşü", "Geniş görüş açısı"], brand: "Dahua · Hikvision" },
+      { name: "PTZ dönebilen kamera", category: "360° görüş", icon: "ptz", image: media.urunler.ptz, alt: "Direğe monte edilmiş dönebilen PTZ kamera", specs: ["Telefondan sağa sola çevirme", "Yakınlaştırma", "Hareket takibi"] },
+      { name: "Güneş enerjili 4G kamera", category: "Elektriksiz alan", icon: "solar", image: media.urunler.gunes, alt: "Palmiyeye monte edilmiş güneş panelli 4G kamera", specs: ["Güneş paneli ve batarya", "SIM kartla internet", "Prize gerek yok"], brand: "O-KAM · IOMA" },
+      { name: "Wi-Fi kamera", category: "Kablosuz", icon: "wifi", image: media.urunler.wifi, alt: "Telefonun yanında beyaz Wi-Fi kamera", specs: ["Prize takılır, kablo çekilmez", "İki yönlü konuşma", "Telefondan canlı izleme"] },
+      { name: "NVR kayıt cihazı", category: "Kayıt", icon: "nvr", image: media.urunler.nvr, alt: "Kayıt cihazına bağlı monitörde 13 kamera görüntüsü", specs: ["4, 8 ve 16 kanal", "500 GB – 1 TB disk", "Uzaktan izleme"], brand: "ZTEC" },
     ],
   },
 

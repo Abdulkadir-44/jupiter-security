@@ -147,3 +147,43 @@
   background-image: repeating-linear-gradient(to bottom, rgb(255 255 255 / 0.035) 0 1px, transparent 1px 3px);
 }
 
+
+/*
+ * Fotoğraf yükleniyor göstergesi (BaseLayout'taki küçük script sınıfları ekler).
+ * img-wait: görsel henüz gelmedi → görselin kendi kutusunda kayan parıltı. Renk bulunduğu bölümün yazı
+ *   renginden türetilir (currentColor): koyu bölümde açık, açık bölümde koyu parıltı.
+ * img-in: görsel geldi → yumuşakça belirir. Hızlı bağlantıda neredeyse hiç görünmez.
+ */
+img.img-wait {
+  background-color: color-mix(in srgb, currentColor 8%, transparent);
+  background-image: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, currentColor 12%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  animation: img-shimmer 1.4s linear infinite;
+}
+img.img-in {
+  animation: img-in 0.55s ease both;
+}
+@keyframes img-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+@keyframes img-in {
+  from {
+    opacity: 0.15;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  img.img-wait,
+  img.img-in {
+    animation: none;
+  }
+}

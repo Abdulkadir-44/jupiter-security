@@ -12,7 +12,28 @@ import gunesSantiyeDiregi from "@/assets/medya/gunes/gunes-enerjili-kamera-santi
 import gunesPalmiyeMontaj from "@/assets/medya/gunes/gunes-enerjili-kamera-palmiye-montaj.jpg";
 import gunesKonteyner from "@/assets/medya/gunes/gunes-enerjili-kamera-konteyner-diregi.jpg";
 
+/*
+ * Ürün vitrini: GEÇİCİ görseller (Jüpiter ürün fotoğraflarını gönderince değişecek).
+ * Bullet, güneş enerjili ve NVR: Jüpiter'in kendi kurulum fotoğrafları.
+ * Dome (Alex Knight), PTZ (Miguel A Amutio), Wi-Fi (Jakub Żerdzicki): Unsplash, ücretsiz Unsplash Lisansı
+ * (ticari kullanım serbest, kaynak gösterme zorunlu değil). Not: "dome" görseli aslında tavana asılı kutu kamera.
+ */
+import urunBullet from "@/assets/medya/urunler/bullet-kamera.jpg";
+import urunDome from "@/assets/medya/urunler/dome-kamera.jpg";
+import urunPtz from "@/assets/medya/urunler/ptz-kamera.jpg";
+import urunGunes from "@/assets/medya/urunler/gunes-enerjili-4g-kamera.jpg";
+import urunWifi from "@/assets/medya/urunler/wifi-kamera.jpg";
+import urunNvr from "@/assets/medya/urunler/nvr-kayit-ekrani.jpg";
+
 export const media = {
+  urunler: {
+    bullet: urunBullet,
+    dome: urunDome,
+    ptz: urunPtz,
+    gunes: urunGunes,
+    wifi: urunWifi,
+    nvr: urunNvr,
+  },
   gunes: {
     palmiye: gunesPalmiye,
     elektrikDiregi: gunesElektrikDiregi,

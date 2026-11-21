@@ -246,6 +246,7 @@ Kaynak: `musteri-bilgileri.txt` (müşteri bilgisi içerdiği için **gitignore'
   - Güneş enerjili: dolan batarya; Wi-Fi: çevrimiçi ışığı (`StatusList.astro`)
   - Paketler: fiş / paket içeriği, noktalı çizgi + "Dahil" (`PackagesMotion.tsx`) Ekrana gelince sessiz döngüde oynar, çıkınca durur; durdur/oynat butonu var; "hareketi azalt" açıksa kendiliğinden oynamaz.
 - **Ürünler bölümü (2026-11-21, TASLAK TASARIM, kullanıcı onayı bekliyor):** "Kullanım alanları" ile "Güneş enerjili" arasında, açık renkli panel, kaydırmalı ürün vitrini (`src/components/sections/Products.astro`, içerik `products` iki dilde). Beğenilmezse kullanıcı bir carousel promptu verecek, o entegre edilecek.
+  - **Geçici ürün görselleri (2026-11-22):** bullet, güneş enerjili ve NVR kartlarında Jüpiter'in kendi kurulum fotoğrafları; dome (Alex Knight), PTZ (Miguel A Amutio), Wi-Fi (Jakub Żerdzicki) Unsplash'ten, ücretsiz Unsplash Lisansı. "Dome" görseli aslında tavana asılı kutu kamera. Gerçek ürün fotoğrafları gelince `src/assets/medya/urunler/` içinde değiştirilecek.
   - Ürün listesi YER TUTUCU (bullet, dome, PTZ, güneş enerjili 4G, Wi-Fi, NVR). Jüpiter ürün fotoğraflarını gönderince: fotoğraflar `src/assets/medya/urunler/` + `media.ts`, ürün adları/özellikleri/markaları güncellenecek.
 
 Gelen: **52 fotoğraf + 17 video**, proje içinde `fotograflar/` klasöründe (gitignore'da, GitHub'a gitmez). Aşağıdaki numaralar Claude'un hazırladığı önizleme sırasıdır (dosya adı sırası).

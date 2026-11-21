@@ -75,10 +75,10 @@ const total = String(p.items.length).padStart(2, "0");
                       sizes="(min-width: 1024px) 400px, (min-width: 640px) 45vw, 80vw"
                       loading="lazy"
                       decoding="async"
-                      class="pr-img absolute inset-0 h-full w-full object-contain p-6"
+                      class="pr-img absolute inset-0 h-full w-full object-cover"
                     />
                   ) : it.image ? (
-                    <img src={it.image} alt={it.alt ?? it.name} loading="lazy" decoding="async" class="pr-img absolute inset-0 h-full w-full object-contain p-6" />
+                    <img src={it.image} alt={it.alt ?? it.name} loading="lazy" decoding="async" class="pr-img absolute inset-0 h-full w-full object-cover" />
                   ) : (
                     <div class="absolute inset-0 grid place-items-center">
                       <Icon className="pr-img size-[38%] text-teal-ink/70" strokeWidth={1} aria-hidden="true" />
