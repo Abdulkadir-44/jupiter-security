@@ -1,0 +1,235 @@
+---
+/**
+ * Fiyatlar (/admin/fiyatlar): sitedeki tüm "…TL'den başlayan" fiyatlar tek ekranda.
+ *  - Paketler (packages.price_from): Paketler sayfasındaki fiyat alanıyla aynı; yeni paket eklenince listeye kendiliğinden girer.
+ *  - Asma fiyat etiketleri (price_tags): güneş enerjili + Wi-Fi; "sitede göster" kapalıysa etiket yerine düz WhatsApp düğmesi.
+ * Yeni fiyatlı bir bölüm eklenirse: price_tags'e satır + aşağıdaki `tagNames`'e ad (migration ile id kontrolü genişletilir).
+ * "Hepsine % ekle": tarayıcıda kutulardaki rakamları günceller (…99 ile biter); kaydetmeden siteye gitmez.
+ */
+import { env } from "cloudflare:workers";
+import { Percent } from "lucide-react";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import { logActivity } from "@/lib/auth";
+
+export const prerender = false;
+
+type PkgRow = { id: number; name_tr: string; cameras_tr: string; price_from: number; published: number };
+type TagRow = { id: string; amount: number; published: number };
+const tagNames: Record<string, { label: string; where: string }> = {
+  gunes: { label: "Güneş enerjili 4G kameralar", where: "Bölümdeki asılı fiyat etiketi" },
+  wifi: { label: "Wi-Fi kameralar", where: "Bölümdeki asılı fiyat etiketi" },
+};
+
+const db = env.DB;
+const session = Astro.locals.admin!;
+const errors: Record<string, string> = {};
+const typed: Record<string, string> = {};
+
+const load = async () => {
+  const [p, t] = await db.batch([
+    db.prepare("SELECT id, name_tr, cameras_tr, price_from, published FROM packages ORDER BY sort, id"),
+    db.prepare("SELECT id, amount, published FROM price_tags ORDER BY id = 'wifi', id"),
+  ]);
+  return { packages: p.results as unknown as PkgRow[], tags: t.results as unknown as TagRow[] };
+};
+let { packages, tags } = await load();
+
+/** "14.999", "14999 TL" → 14999; geçersizse null */
+const parsePrice = (v: FormDataEntryValue | null): number | null => {
+  const d = String(v ?? "").replace(/[.\s]|TL/gi, "");
+  return /^\d{3,7}$/.test(d) && Number(d) >= 100 ? Number(d) : null;
+};
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const stmts = [];
+  const changed: string[] = [];
+
+  for (const p of packages) {
+    const key = `pkg_${p.id}`;
+    typed[key] = String(form.get(key) ?? "");
+    const n = parsePrice(form.get(key));
+    if (n === null) errors[key] = "Sadece rakam (örn. 14999).";
+    else if (n !== p.price_from) {
+      stmts.push(db.prepare("UPDATE packages SET price_from = ?, updated_at = datetime('now') WHERE id = ?").bind(n, p.id));
+      changed.push(`${p.name_tr} ${n.toLocaleString("tr-TR")}`);
+    }
+  }
+  for (const t of tags) {
+    const key = `tag_${t.id}`;
+    typed[key] = String(form.get(key) ?? "");
+    const n = parsePrice(form.get(key));
+    const pub = form.get(`pub_${t.id}`) === "on" ? 1 : 0;
+    typed[`pub_${t.id}`] = String(pub);
+    if (n === null) errors[key] = "Sadece rakam (örn. 8999).";
+    else if (n !== t.amount || pub !== t.published) {
+      stmts.push(db.prepare("UPDATE price_tags SET amount = ?, published = ?, updated_at = datetime('now') WHERE id = ?").bind(n, pub, t.id));
+      const name = tagNames[t.id]?.label ?? t.id;
+      changed.push(`${name} ${n.toLocaleString("tr-TR")}${pub ? "" : " (gizli)"}`);
+    }
+  }
+
+  if (!Object.keys(errors).length) {
+    if (stmts.length) {
+      await db.batch(stmts);
+      await logActivity(db, `Fiyatlar güncellendi: ${changed.join(", ")}`.slice(0, 300));
+    }
+    return Astro.redirect(`/admin/fiyatlar?ok=${stmts.length ? "1" : "0"}`, 303);
+  }
+}
+
+const value = (key: string, n: number) => (key in typed ? typed[key] : String(n));
+const pubChecked = (t: TagRow) => (`pub_${t.id}` in typed ? typed[`pub_${t.id}`] === "1" : t.published === 1);
+const ok = Astro.url.searchParams.get("ok");
+---
+
+<PanelLayout title="Fiyatlar" eyebrow="Bilgiler" lead="Sitedeki tüm fiyatlar tek ekranda. Sadece rakam yazın: 14999 → sitede '14.999 TL'den başlayan'. 'KDV ve montaj dahil' notu sitede kendiliğinden yazılır.">
+  {ok === "1" && <p class="p-toast" role="status">Fiyatlar kaydedildi. Sitede güncellendi.</p>}
+  {ok === "0" && <p class="p-toast" role="status">Değişiklik yoktu.</p>}
+  {Object.keys(errors).length > 0 && <p class="admin-error" role="alert">Bazı fiyatlar hatalı, aşağıda işaretli. Hiçbiri kaydedilmedi.</p>}
+
+  <form method="post" class="grid gap-6" data-guard data-prices>
+    <input type="hidden" name="csrf" value={session.csrf} />
+
+    <section class="p-card" aria-labelledby="h-paket">
+      <div class="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="h-paket" class="font-title text-[1.5rem]">Paketler</h2>
+        <a href="/admin/paketler" class="text-sm font-semibold text-teal-ink hover:underline">Paket içeriğini düzenle →</a>
+      </div>
+      <ul class="mt-3 divide-y divide-ink/10">
+        {
+          packages.map((p) => (
+            <li class="p-price-row">
+              <label for={`pkg_${p.id}`} class="min-w-0">
+                <span class="block font-semibold">
+                  {p.name_tr}
+                  {!p.published && <span class="p-badge ml-2">sitede gizli</span>}
+                </span>
+                <span class="block text-sm text-ink-soft">{p.cameras_tr}</span>
+              </label>
+              <div>
+                <div class="p-price-input">
+                  <input
+                    class="admin-input"
+                    id={`pkg_${p.id}`}
+                    name={`pkg_${p.id}`}
+                    inputmode="numeric"
+                    value={value(`pkg_${p.id}`, p.price_from)}
+                    required
+                    data-price
+                    aria-invalid={errors[`pkg_${p.id}`] ? "true" : undefined}
+                  />
+                  <span aria-hidden="true">TL</span>
+                </div>
+                {errors[`pkg_${p.id}`] && <p class="admin-field-error">{errors[`pkg_${p.id}`]}</p>}
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="p-card" aria-labelledby="h-etiket">
+      <h2 id="h-etiket" class="font-title text-[1.5rem]">Fiyat etiketleri</h2>
+      <p class="mt-1 text-sm text-ink-soft">"Sitede göster" kapalıysa etiket yerine "Fiyat için WhatsApp'tan sorun" düğmesi görünür.</p>
+      <ul class="mt-3 divide-y divide-ink/10">
+        {
+          tags.map((t) => (
+            <li class="p-price-row">
+              <label for={`tag_${t.id}`} class="min-w-0">
+                <span class="block font-semibold">{tagNames[t.id]?.label ?? t.id}</span>
+                <span class="block text-sm text-ink-soft">{tagNames[t.id]?.where}</span>
+              </label>
+              <div class="grid gap-2">
+                <div class="p-price-input">
+                  <input
+                    class="admin-input"
+                    id={`tag_${t.id}`}
+                    name={`tag_${t.id}`}
+                    inputmode="numeric"
+                    value={value(`tag_${t.id}`, t.amount)}
+                    required
+                    data-price
+                    aria-invalid={errors[`tag_${t.id}`] ? "true" : undefined}
+                  />
+                  <span aria-hidden="true">TL</span>
+                </div>
+                {errors[`tag_${t.id}`] && <p class="admin-field-error">{errors[`tag_${t.id}`]}</p>}
+                <label class="flex cursor-pointer items-center gap-2 text-sm">
+                  <input type="checkbox" name={`pub_${t.id}`} class="size-[1.1rem] accent-[var(--color-teal-ink)]" checked={pubChecked(t)} />
+                  Sitede göster
+                </label>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <div class="p-savebar">
+      <div class="flex flex-wrap items-center gap-2">
+        <label for="zam" class="text-sm font-semibold">Hepsine</label>
+        <div class="p-price-input w-24">
+          <input id="zam" class="admin-input" inputmode="decimal" placeholder="15" data-raise-input form="" />
+          <Percent className="size-4" aria-hidden="true" />
+        </div>
+        <button type="button" class="admin-btn admin-btn-ghost !w-auto !px-4" data-raise>ekle</button>
+        <p class="w-full text-xs text-ink-soft sm:w-auto" data-raise-msg aria-live="polite">Kutulardaki fiyatları günceller (…99 ile biter). Kaydetmeden siteye gitmez.</p>
+      </div>
+      <button class="admin-btn" type="submit">Kaydet</button>
+    </div>
+  </form>
+</PanelLayout>
+
+<script>
+  // "Hepsine % ekle": her fiyatı yüzde kadar artırır, …99'a yuvarlar (11.498,85 → 11.499). Eksi değer indirim yapar.
+  const form = document.querySelector<HTMLFormElement>("[data-prices]");
+  const input = document.querySelector<HTMLInputElement>("[data-raise-input]");
+  const msg = document.querySelector<HTMLElement>("[data-raise-msg]");
+  document.querySelector("[data-raise]")?.addEventListener("click", () => {
+    const pct = Number((input?.value ?? "").replace(",", "."));
+    if (!form || !msg || !pct || Math.abs(pct) > 100) {
+      if (msg) msg.textContent = "Bir yüzde yazın (örn. 15 ya da indirim için -10).";
+      return;
+    }
+    form.querySelectorAll<HTMLInputElement>("[data-price]").forEach((el) => {
+      const n = Number(el.value.replace(/[.\s]|TL/gi, ""));
+      if (!n) return;
+      el.value = String(Math.max(99, Math.ceil((n * (1 + pct / 100)) / 100) * 100 - 1));
+    });
+    form.dispatchEvent(new Event("input", { bubbles: true })); // kaydedilmemiş değişiklik uyarısı
+    msg.textContent = `Fiyatlara %${pct} uygulandı. Kontrol edip Kaydet'e basın.`;
+  });
+</script>
+
+<style>
+  .p-price-row {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.9rem 0;
+  }
+  @media (width >= 40rem) {
+    .p-price-row {
+      grid-template-columns: 1fr 13rem;
+      align-items: center;
+    }
+  }
+  .p-price-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .p-price-input .admin-input {
+    padding-right: 2.6rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .p-price-input > span,
+  .p-price-input > :global(svg) {
+    position: absolute;
+    right: 0.95rem;
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    pointer-events: none;
+  }
+</style>

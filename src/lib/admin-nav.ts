@@ -36,7 +36,7 @@ export const adminNav: { title?: string; items: AdminNavItem[] }[] = [
   {
     title: "Bilgiler",
     items: [
-      { href: "/admin/fiyatlar", label: "Fiyatlar", icon: "prices", ready: false, phase: 6 },
+      { href: "/admin/fiyatlar", label: "Fiyatlar", icon: "prices", ready: true },
       { href: "/admin/paketler", label: "Paketler", icon: "packages", ready: true },
       { href: "/admin/yorumlar", label: "Yorumlar", icon: "reviews", ready: true },
       { href: "/admin/iletisim", label: "İletişim ve markalar", icon: "contact", ready: true },
