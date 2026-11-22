@@ -10,3 +10,7 @@ node_modules/
 /fotograflar
 # Müşteriden gelen ham bilgiler (kişisel/ticari bilgi, repoya girmez)
 musteri-bilgileri.txt
+# Üretilen dosyalar (npm run media / db:seed her seferinde yeniden üretir)
+/public/medya/foto/
+/src/content/media.manifest.json
+/db/seed.sql

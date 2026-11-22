@@ -10,7 +10,7 @@
  * üzerinden alır; geçiş tek noktadan yapılacak.
  */
 
-import { media, type Photo } from "./media";
+import { media, folderPhotos, type FolderPhoto, type Photo } from "./media";
 
 /** Slider karesi. `image` boşsa "fotoğraf yakında" yer tutucusu görünür. */
 export type Slide = { caption: string; image?: Photo; alt?: string };
@@ -154,8 +154,13 @@ export interface SiteContent {
     places: string[];
     features: string[];
     note: string;
+    /** Başlangıç fiyatı (TL, sayı). Admin panelinden değişir; `cta` ve `priceTag.amount` içindeki {price} bununla dolar. */
+    price: number;
+    /** Fiyat yayında değilse (panelden gizlenince) etiket yerine gösterilen düz düğme metni */
+    ctaNoPrice: string;
+    /** {price} dile göre biçimlenmiş fiyatla değişir (8.999 / 8,999) */
     cta: string;
-    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. */
+    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. {price} dolar. */
     priceTag?: { lead?: string; amount: string; trail?: string; action: string };
     whatsappMessage: string;
     /** Slider kartının üst şeridi */
@@ -174,8 +179,13 @@ export interface SiteContent {
     places: string[];
     features: string[];
     note: string;
+    /** Başlangıç fiyatı (TL, sayı). Admin panelinden değişir; `cta` ve `priceTag.amount` içindeki {price} bununla dolar. */
+    price: number;
+    /** Fiyat yayında değilse (panelden gizlenince) etiket yerine gösterilen düz düğme metni */
+    ctaNoPrice: string;
+    /** {price} dile göre biçimlenmiş fiyatla değişir (8.999 / 8,999) */
     cta: string;
-    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. */
+    /** Asma fiyat etiketi (varsa düz buton yerine gösterilir). `cta` ekran okuyucu/yedek metin olarak kalır. {price} dolar. */
     priceTag?: { lead?: string; amount: string; trail?: string; action: string };
     whatsappMessage: string;
     /** Slider kartının üst şeridi */
@@ -252,14 +262,14 @@ export interface SiteContent {
     prevLabel: string;
     nextLabel: string;
     folders: {
-      /** src/assets/medya/klasorler/ altındaki klasör adı */
+      /** Klasör kimliği (src/assets/medya/klasorler/ altındaki klasör adı; panelde eklenenlerde otomatik) */
       id: string;
       title: string;
       /**
-       * Fotoğraf açıklamaları, dosya adıyla (uzantısız) eşleşir. `area`: mahalle/semt/ilçe; bilinmiyorsa boş,
-       * Jüpiter konum bilgisini verince doldurulacak.
+       * Fotoğraflar + açıklamaları. İçerik dosyasında `folderPhotos(id, { dosya-adı: { caption, area } })` ile.
+       * `area`: mahalle/semt/ilçe; bilinmiyorsa boş, Jüpiter konum bilgisini verince doldurulacak.
        */
-      captions: Record<string, { caption: string; area?: string }>;
+      photos: FolderPhoto[];
     }[];
     allLink: string;
   };
@@ -514,8 +524,10 @@ export const site: SiteContent = {
       "SIM kartı biz temin edip kuruyoruz, ayrıca hat almanıza gerek yok",
     ],
     note: "KDV ve montaj dahil. Kurulumdan önce yerinde operatör çekimini kontrol ediyoruz.",
-    cta: "8.999 TL'den başlayan fiyatlarla",
-    priceTag: { amount: "8.999 TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
+    price: 8999,
+    ctaNoPrice: "Fiyat için WhatsApp'tan sorun",
+    cta: "{price} TL'den başlayan fiyatlarla",
+    priceTag: { amount: "{price} TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
     whatsappMessage: "Merhaba, güneş enerjili 4G kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
     screenLabel: "CAM 07 · ARAZİ",
     slides: [
@@ -543,8 +555,10 @@ export const site: SiteContent = {
       "Taşınırken yanınızda götürebilirsiniz",
     ],
     note: "KDV ve montaj dahil. Kurulum yerinde Wi-Fi çekimini kontrol ediyoruz.",
-    cta: "6.999 TL'den başlayan fiyatlarla",
-    priceTag: { amount: "6.999 TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
+    price: 6999,
+    ctaNoPrice: "Fiyat için WhatsApp'tan sorun",
+    cta: "{price} TL'den başlayan fiyatlarla",
+    priceTag: { amount: "{price} TL'den", trail: "başlayan fiyatlarla", action: "WhatsApp'tan sor" },
     whatsappMessage: "Merhaba, Wi-Fi kamera hakkında bilgi almak istiyorum. Kurulum yeri: ",
     screenLabel: "CAM 08 · WI-FI",
     slides: [
@@ -653,7 +667,7 @@ export const site: SiteContent = {
       {
         id: "kafe-isyeri",
         title: "Kafe ve işyeri",
-        captions: {
+        photos: folderPhotos("kafe-isyeri", {
           "01-kafe-ic-mekan-gunduz": { caption: "İç mekan, gündüz" },
           "02-kafe-ic-mekan-gece": { caption: "İç mekan, gece" },
           "03-kafe-onu-gunduz": { caption: "Kafe önü, gündüz" },
@@ -663,12 +677,12 @@ export const site: SiteContent = {
           "07-yol-tarafi-gunduz": { caption: "Yol tarafı, gündüz" },
           "08-yol-tarafi-gece": { caption: "Yol tarafı, gece" },
           "09-dortlu-ekran": { caption: "Dört kamera tek ekranda" },
-        },
+        }),
       },
       {
         id: "gunes-enerjili",
         title: "Güneş enerjili kurulumlar",
-        captions: {
+        photos: folderPhotos("gunes-enerjili", {
           "01-palmiye": { caption: "Palmiye ağacına, güneş paneliyle" },
           "02-elektrik-diregi-santiye": { caption: "Şantiye yanında elektrik direğine" },
           "03-cam-agaci-gunes-paneli": { caption: "Çam ağacına, paneli yanında" },
@@ -677,22 +691,22 @@ export const site: SiteContent = {
           "06-palmiye-montaj": { caption: "Yüksek palmiyeye merdivenle" },
           "07-konteyner-diregi": { caption: "Konteyner üstüne direkle" },
           "08-elektrik-diregi-bina": { caption: "Yeni binanın önünde direğe" },
-        },
+        }),
       },
       {
         id: "kayit-ekranlari",
         title: "Kayıt ekranları",
-        captions: {
+        photos: folderPhotos("kayit-ekranlari", {
           "01-13-kamerali-ekran": { caption: "13 kamera tek ekranda" },
           "02-monitor-ve-kayit-cihazi": { caption: "Monitör ve kayıt cihazı kutusu" },
           "03-monitor-yakin": { caption: "Tavana askılı monitör" },
           "04-monitor-kapi-ustu": { caption: "Kapı üstüne monitör montajı" },
-        },
+        }),
       },
       {
         id: "agac-direk-montaj",
         title: "Ağaca ve direğe montaj",
-        captions: {
+        photos: folderPhotos("agac-direk-montaj", {
           "01-agaca-uc-kamera": { caption: "Bir ağaçta üç kamera" },
           "02-agaca-baglanti-kutusu": { caption: "Bağlantı kutusuyla düzenli kablolama" },
           "03-merdivenle-montaj": { caption: "Montaj sırasında" },
@@ -700,7 +714,7 @@ export const site: SiteContent = {
           "05-palmiye-govdesi": { caption: "Palmiye gövdesine" },
           "06-palmiye-gunes-paneli": { caption: "Palmiyede güneş paneliyle" },
           "07-cam-agaci-gunes-paneli": { caption: "Çam ağacında güneş paneliyle" },
-        },
+        }),
       },
     ],
     allLink: "Tüm işler",

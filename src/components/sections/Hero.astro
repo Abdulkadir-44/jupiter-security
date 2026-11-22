@@ -1,25 +1,22 @@
 ---
-import { Picture } from "astro:assets";
 import { Phone } from "lucide-react";
-import heroImage from "@/assets/hero/8fLnkZ8Y0eM.jpg";
+import Img from "@/components/ui/Img.astro";
+import { media } from "@/content/media";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import HeroTitle from "@/components/motion/HeroTitle";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
-/*
- * Fotoğraf: Unsplash (ücretsiz Unsplash lisansı), "Security cameras mounted on a pole against clouds"
- * https://unsplash.com/photos/8fLnkZ8Y0eM
- */
-const s = getSiteContent(Astro.currentLocale);
+/* Fotoğraf: Unsplash (kaynak src/content/media.ts → media.hero). AVIF + WebP, scripts/media.mjs üretir. */
+const s = getSiteContent(Astro);
 const h = s.hero;
 ---
 
 <section id="top" class="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-navy">
-  <Picture
-    src={heroImage}
+  <Img
+    photo={media.hero}
     alt={h.imageAlt}
-    formats={["avif", "webp"]}
-    widths={[640, 1024, 1600, 2400]}
+    fallbackWidth={1600}
+    decoding="async"
     sizes="(min-width: 1024px) 68vw, 100vw"
     loading="eager"
     fetchpriority="high"

@@ -13,7 +13,7 @@ import { Pause, Play } from "lucide-react";
 import FeatureList from "@/components/ui/FeatureList.astro";
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const d = s.coverage.detection;
 ---
 

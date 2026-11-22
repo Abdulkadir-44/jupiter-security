@@ -1,7 +1,7 @@
 ---
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 // Mobil "ipte asılı kartlar" için kart başına eğim ve ip uzunluğu (sırayla değişir, doğal dursun)
 const TILTS = [-2.5, 2, -1.5, 2.5, -2, 1.5];
 const ROPES = ["1.6rem", "2.3rem", "2.1rem", "1.5rem", "1.8rem", "2.4rem"];

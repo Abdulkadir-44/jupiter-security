@@ -3,7 +3,7 @@ import Logo from "@/components/Logo.astro";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const year = new Date().getFullYear();
 ---
 

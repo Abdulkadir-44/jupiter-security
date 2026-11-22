@@ -10,36 +10,28 @@
  *  - Başlık çubuğu: kırmızı = kapat, sarı = küçült (ikisi de klasöre geri gönderir), yeşil = süs.
  *  - Büyük görsel + önizleme şeridi; oklar, klavye (← → Esc) ve mobilde kaydırma.
  *  - "Hareketi azalt" açıksa pencere sade bir solmayla açılıp kapanır.
- * Fotoğraflar: src/assets/medya/klasorler/<id>/ (media.ts → folderPhotos), açıklamalar: site.*.ts → work.folders.
+ * Fotoğraflar ve açıklamalar: site.*.ts → work.folders (veritabanı varsa oradan; src/lib/data.ts).
  */
-import { Image, getImage } from "astro:assets";
+import Img from "@/components/ui/Img.astro";
 import { fill, getSiteContent } from "@/lib/data";
-import { folderPhotos } from "@/content/media";
+import { photoSrc, photoSrcset } from "@/lib/photo";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const w = s.work;
 
-// Her klasör için pencerede kullanılacak görsel adresleri (WebP, ekran boyuna göre)
-const folders = await Promise.all(
-  w.folders.map(async (f) => {
-    const photos = folderPhotos(f.id);
-    const items = await Promise.all(
-      photos.map(async (p) => {
-        const big = await getImage({ src: p.image, widths: [640, 1024, 1600], format: "webp" });
-        const thumb = await getImage({ src: p.image, width: 240, format: "webp" });
-        const c = f.captions[p.slug];
-        return {
-          src: big.src,
-          srcset: big.srcSet.attribute,
-          thumb: thumb.src,
-          caption: c?.caption ?? "",
-          area: c?.area ?? "",
-        };
-      }),
-    );
-    return { ...f, photos, items };
-  }),
-);
+// Her klasör için pencerede kullanılacak görsel adresleri (WebP, ekran boyuna göre). Boş klasörler gösterilmez.
+const folders = w.folders
+  .filter((f) => f.photos.length > 0)
+  .map((f) => ({
+    ...f,
+    items: f.photos.map((p) => ({
+      src: photoSrc(p.image, 1024),
+      srcset: photoSrcset(p.image),
+      thumb: photoSrc(p.image, 240),
+      caption: p.caption,
+      area: p.area ?? "",
+    })),
+  }));
 ---
 
 <section id="isler" aria-labelledby="isler-baslik" class="panel bg-ink">
@@ -67,7 +59,7 @@ const folders = await Promise.all(
               <span class="f-back" aria-hidden="true" />
               <span class="f-papers" aria-hidden="true">
                 {f.photos.slice(0, 3).map((p, k) => (
-                  <Image src={p.image} alt="" widths={[240, 400]} sizes="(min-width: 1024px) 240px, 40vw" loading="lazy" decoding="async" class={`f-paper f-paper-${k + 1}`} />
+                  <Img photo={p.image} alt="" sizes="(min-width: 1024px) 240px, 40vw" fallbackWidth={480} loading="lazy" decoding="async" class={`f-paper f-paper-${k + 1}`} />
                 ))}
               </span>
               <span class="f-front" aria-hidden="true">

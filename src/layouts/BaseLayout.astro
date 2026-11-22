@@ -17,7 +17,7 @@ interface Props {
 }
 const { title, utility = false } = Astro.props;
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // Paylaşım görseli (WhatsApp, Facebook, X vb. link önizlemesi), dile göre: public/og.jpg, public/og-en.jpg (1200x630)
 const ogImage = new URL(s.seo.ogImage, Astro.site).href;

@@ -2,7 +2,7 @@
 import { Icon } from "@/components/ui/Icon";
 import { getSiteContent } from "@/lib/data";
 
-const p = getSiteContent(Astro.currentLocale).process;
+const p = getSiteContent(Astro).process;
 ---
 
 <!-- Mobilde de kenardan kenara, köşesiz (panel yerine full-bleed); içerik boşluğu wrap ile aynı (2rem) -->

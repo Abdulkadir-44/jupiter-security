@@ -1,7 +1,7 @@
 ---
 /**
  * Fotoğraf slider kartı (kamera ekranı görünümlü). Güneş enerjili (dikey) ve Wi-Fi bölümlerinde kullanılıyor.
- * Fotoğraflar build sırasında WebP'ye çevrilir ve ekran boyuna göre küçük/büyük dosya seçilir.
+ * Fotoğraflar WebP (scripts/media.mjs ya da admin paneli), ekran boyuna göre küçük/büyük dosya seçilir.
  *
  * - Mobilde parmakla kaydırılır (CSS scroll-snap), masaüstünde oklar ve noktalar.
  * - Kendiliğinden ilerler; fare üstündeyken, dokunulunca, klavyeyle odaklanınca ve ekran dışındayken durur.
@@ -9,7 +9,7 @@
  * - `image` olmayan slaytlarda "Fotoğraf yakında" yer tutucusu görünür.
  * - Ekstra kütüphane yok: küçük bir script.
  */
-import { Image } from "astro:assets";
+import Img from "@/components/ui/Img.astro";
 import { ChevronLeft, ChevronRight, ImageIcon, Signal, Wifi } from "lucide-react";
 import { getSiteContent, fill } from "@/lib/data";
 import type { Slide } from "@/content/site.tr";
@@ -33,7 +33,7 @@ const { slides, label, ariaLabel, accent = "teal", icon = "wifi", interval = 450
 const aspectClass = aspect === "portrait" ? "aspect-[4/5]" : "aspect-[4/3]";
 // Slider sayfanın sağ sütununda (~560 px), telefonda tam genişlik
 const sizes = "(min-width: 1024px) 560px, calc(100vw - 4rem)";
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const accentBg = accent === "sun" ? "bg-sun" : "bg-teal";
 ---
 
@@ -64,20 +64,11 @@ const accentBg = accent === "sun" ? "bg-sun" : "bg-teal";
           aria-roledescription="slide"
           aria-label={`${i + 1} / ${slides.length}: ${sl.caption}`}
         >
-          {sl.image && typeof sl.image !== "string" ? (
-            <Image
-              src={sl.image}
+          {sl.image ? (
+            <Img
+              photo={sl.image}
               alt={sl.alt ?? sl.caption}
-              widths={[480, 720, 1080]}
               sizes={sizes}
-              loading="lazy"
-              decoding="async"
-              class="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : sl.image ? (
-            <img
-              src={sl.image}
-              alt={sl.alt ?? sl.caption}
               loading="lazy"
               decoding="async"
               class="absolute inset-0 h-full w-full object-cover"

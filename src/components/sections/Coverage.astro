@@ -3,7 +3,7 @@ import ConeList from "@/components/ui/ConeList.astro";
 import CoverageScene from "@/components/motion/CoverageScene";
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const c = s.coverage;
 const scene = s.hero.scene;
 ---

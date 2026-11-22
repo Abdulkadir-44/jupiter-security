@@ -9,12 +9,12 @@
  * - "Hareketi azalt" açıksa giriş ve odak animasyonları kapalı.
  * - Fotoğraf yoksa ürün tipine uygun ikon + "Fotoğraf yakında".
  */
-import { Image } from "astro:assets";
+import Img from "@/components/ui/Img.astro";
 import { ArrowLeft, ArrowRight, Cctv, HardDrive, Rotate3d, Sun, Webcam, Wifi } from "lucide-react";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { fill, getSiteContent, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const p = s.products;
 const icons = { bullet: Cctv, dome: Webcam, ptz: Rotate3d, solar: Sun, wifi: Wifi, nvr: HardDrive };
 const total = String(p.items.length).padStart(2, "0");
@@ -67,18 +67,16 @@ const total = String(p.items.length).padStart(2, "0");
               <article class="flex h-full flex-col overflow-hidden rounded-[1.25rem] bg-paper ring-1 ring-ink/10">
                 <!-- Görsel alanı -->
                 <div class="pr-media relative aspect-square overflow-hidden">
-                  {it.image && typeof it.image !== "string" ? (
-                    <Image
-                      src={it.image}
+                  {it.image ? (
+                    <Img
+                      photo={it.image}
                       alt={it.alt ?? it.name}
-                      widths={[360, 560, 800]}
                       sizes="(min-width: 1024px) 400px, (min-width: 640px) 45vw, 80vw"
+                      fallbackWidth={480}
                       loading="lazy"
                       decoding="async"
                       class="pr-img absolute inset-0 h-full w-full object-cover"
                     />
-                  ) : it.image ? (
-                    <img src={it.image} alt={it.alt ?? it.name} loading="lazy" decoding="async" class="pr-img absolute inset-0 h-full w-full object-cover" />
                   ) : (
                     <div class="absolute inset-0 grid place-items-center">
                       <Icon className="pr-img size-[38%] text-teal-ink/70" strokeWidth={1} aria-hidden="true" />
@@ -120,7 +118,10 @@ const total = String(p.items.length).padStart(2, "0");
                       class="pr-ask flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-paper transition-colors duration-200 hover:bg-teal-ink"
                     >
                       <WhatsAppIcon className="size-4 shrink-0" />
-                      {p.ask}
+                      {/* Mobilde sadece "WhatsApp" (dar kartta sığmıyordu); tam metin ekran okuyucuda kalır */}
+                      <span class="max-sm:hidden">{p.ask}</span>
+                      <span class="sm:hidden" aria-hidden="true">WhatsApp</span>
+                      <span class="sr-only sm:hidden">{p.ask}</span>
                       <ArrowRight className="pr-ask-arrow size-4 shrink-0" aria-hidden="true" />
                     </a>
                   </div>

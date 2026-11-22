@@ -7,5 +7,16 @@
     // Bulunamayan adreslerde boş yanıt yerine 404.html (durum kodu 404 kalır).
     // /en/... altındaki adreslerde de aynı (iki dilli) 404 sayfası gösterilir.
     "not_found_handling": "404-page"
-  }
+  },
+  // Veritabanı (Cloudflare D1, Doğu Avrupa). Kodda: import { env } from "cloudflare:workers" → env.DB
+  // Tablolar: db/migrations/ (npm run db:migrate:local|remote), ilk içerik: npm run db:seed:local|remote
+  // Yerel geliştirmede `npm run dev` bilgisayardaki kopyayı kullanır (.wrangler/state), canlıyı değil.
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jupiter-kamera",
+      "database_id": "5fdf08a9-9eee-4399-a14c-c41177fa76b2",
+      "migrations_dir": "db/migrations"
+    }
+  ]
 }

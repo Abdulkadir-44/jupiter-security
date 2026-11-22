@@ -1,0 +1,37 @@
+---
+/**
+ * Fotoğraf: ekran boyuna göre uygun WebP kopyası (srcset) + gerçek en/boy (sayfa kayması olmasın).
+ * AVIF kopyası olan fotoğraflarda (hero) <picture> ile önce AVIF denenir.
+ * Adresler: src/lib/photo.ts
+ */
+import type { HTMLAttributes } from "astro/types";
+import type { Photo } from "@/content/media";
+import { photoSrc, photoSrcset } from "@/lib/photo";
+
+interface Props extends Omit<HTMLAttributes<"img">, "src" | "srcset" | "width" | "height"> {
+  photo: Photo;
+  alt: string;
+  sizes: string;
+  /** Tek `src` olarak verilen yedek kopyanın hedef genişliği */
+  fallbackWidth?: number;
+}
+const { photo, sizes, fallbackWidth = 960, ...rest } = Astro.props;
+const img = {
+  src: photoSrc(photo, fallbackWidth),
+  srcset: photoSrcset(photo),
+  sizes,
+  width: photo.width,
+  height: photo.height,
+};
+---
+
+{
+  photo.avif ? (
+    <picture>
+      <source type="image/avif" srcset={photoSrcset(photo, "avif")} sizes={sizes} />
+      <img {...img} {...rest} />
+    </picture>
+  ) : (
+    <img {...img} {...rest} />
+  )
+}

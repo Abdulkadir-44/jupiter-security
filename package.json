@@ -4,12 +4,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "node scripts/astro.mjs dev",
-    "build": "node scripts/astro.mjs check && node scripts/astro.mjs build",
+    "dev": "node scripts/media.mjs && node scripts/astro.mjs dev",
+    "build": "node scripts/media.mjs && node scripts/astro.mjs check && node scripts/astro.mjs build",
     "preview": "node scripts/astro.mjs preview",
     "deploy": "npm run build && wrangler deploy",
     "astro": "node scripts/astro.mjs",
-    "stop": "node scripts/stop.mjs"
+    "stop": "node scripts/stop.mjs",
+    "media": "node scripts/media.mjs",
+    "db:migrate:local": "wrangler d1 migrations apply jupiter-kamera --local",
+    "db:migrate:remote": "wrangler d1 migrations apply jupiter-kamera --remote",
+    "db:seed:local": "tsx scripts/db-seed.ts && wrangler d1 execute jupiter-kamera --local --file db/seed.sql",
+    "db:seed:remote": "tsx scripts/db-seed.ts && wrangler d1 execute jupiter-kamera --remote --file db/seed.sql"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
@@ -32,8 +37,11 @@
     "typescript": "^6.0.3"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261121.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "sharp": "^0.35.5",
+    "tsx": "^4.23.15",
     "wrangler": "^4.165.0"
   }
 }

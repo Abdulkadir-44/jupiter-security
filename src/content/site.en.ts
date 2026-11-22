@@ -6,7 +6,7 @@
  * Placeholder notes (YER TUTUCU) in site.tr.ts apply here too.
  */
 import { site as tr, type SiteContent } from "./site.tr";
-import { media } from "./media";
+import { media, folderPhotos } from "./media";
 
 export const site: SiteContent = {
   locale: { lang: "en", ogLocale: "en_US", numberLocale: "en-US", short: "EN", name: "English" },
@@ -177,8 +177,10 @@ export const site: SiteContent = {
       "We supply and set up the SIM card, no separate line needed",
     ],
     note: "VAT and installation included. Before installing, we check the mobile signal on site.",
-    cta: "From 8,999 TL",
-    priceTag: { lead: "Starting from", amount: "8,999 TL", action: "Ask on WhatsApp" },
+    price: tr.remote.price,
+    ctaNoPrice: "Ask for a price on WhatsApp",
+    cta: "From {price} TL",
+    priceTag: { lead: "Starting from", amount: "{price} TL", action: "Ask on WhatsApp" },
     whatsappMessage: "Hello, I'd like information about a solar-powered 4G camera. Location: ",
     screenLabel: "CAM 07 · LAND",
     slides: [
@@ -205,8 +207,10 @@ export const site: SiteContent = {
       "Take it with you when you move",
     ],
     note: "VAT and installation included. We check the Wi-Fi signal on site before installing.",
-    cta: "From 6,999 TL",
-    priceTag: { lead: "Starting from", amount: "6,999 TL", action: "Ask on WhatsApp" },
+    price: tr.wifi.price,
+    ctaNoPrice: "Ask for a price on WhatsApp",
+    cta: "From {price} TL",
+    priceTag: { lead: "Starting from", amount: "{price} TL", action: "Ask on WhatsApp" },
     whatsappMessage: "Hello, I'd like information about Wi-Fi cameras. Location: ",
     screenLabel: "CAM 08 · WI-FI",
     slides: [
@@ -319,7 +323,7 @@ export const site: SiteContent = {
       {
         id: "kafe-isyeri",
         title: "Café and business",
-        captions: {
+        photos: folderPhotos("kafe-isyeri", {
           "01-kafe-ic-mekan-gunduz": { caption: "Indoors, daytime" },
           "02-kafe-ic-mekan-gece": { caption: "Indoors, at night" },
           "03-kafe-onu-gunduz": { caption: "Café front, daytime" },
@@ -329,12 +333,12 @@ export const site: SiteContent = {
           "07-yol-tarafi-gunduz": { caption: "Street side, daytime" },
           "08-yol-tarafi-gece": { caption: "Street side, at night" },
           "09-dortlu-ekran": { caption: "Four cameras on one screen" },
-        },
+        }),
       },
       {
         id: "gunes-enerjili",
         title: "Solar installations",
-        captions: {
+        photos: folderPhotos("gunes-enerjili", {
           "01-palmiye": { caption: "On a palm tree, with its solar panel" },
           "02-elektrik-diregi-santiye": { caption: "Utility pole next to a building site" },
           "03-cam-agaci-gunes-paneli": { caption: "Pine tree, panel alongside" },
@@ -343,22 +347,22 @@ export const site: SiteContent = {
           "06-palmiye-montaj": { caption: "High up a palm, by ladder" },
           "07-konteyner-diregi": { caption: "Pole on top of a site container" },
           "08-elektrik-diregi-bina": { caption: "Pole in front of a new building" },
-        },
+        }),
       },
       {
         id: "kayit-ekranlari",
         title: "Recorder screens",
-        captions: {
+        photos: folderPhotos("kayit-ekranlari", {
           "01-13-kamerali-ekran": { caption: "13 cameras on one screen" },
           "02-monitor-ve-kayit-cihazi": { caption: "Monitor and recorder box" },
           "03-monitor-yakin": { caption: "Ceiling-mounted monitor" },
           "04-monitor-kapi-ustu": { caption: "Monitor mounted above a door" },
-        },
+        }),
       },
       {
         id: "agac-direk-montaj",
         title: "Tree and pole mounts",
-        captions: {
+        photos: folderPhotos("agac-direk-montaj", {
           "01-agaca-uc-kamera": { caption: "Three cameras on one tree" },
           "02-agaca-baglanti-kutusu": { caption: "Tidy wiring with a junction box" },
           "03-merdivenle-montaj": { caption: "During installation" },
@@ -366,7 +370,7 @@ export const site: SiteContent = {
           "05-palmiye-govdesi": { caption: "On a palm trunk" },
           "06-palmiye-gunes-paneli": { caption: "On a palm with a solar panel" },
           "07-cam-agaci-gunes-paneli": { caption: "On a pine with a solar panel" },
-        },
+        }),
       },
     ],
     allLink: "All projects",

@@ -2,7 +2,7 @@
 import UseCaseTabs from "@/components/motion/UseCaseTabs";
 import { getSiteContent } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const u = s.useCases;
 const labels = { tabs: s.ui.useCasesTabs, recommended: s.ui.recommended, base: s.ui.baseSetup, optional: s.ui.optionalSetup };
 ---

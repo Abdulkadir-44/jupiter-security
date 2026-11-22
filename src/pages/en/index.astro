@@ -1,6 +1,9 @@
 ---
 // İngilizce ana sayfa ("/en/")
 import HomePage from "@/components/HomePage.astro";
+
+// Her istekte sunucuda oluşturulur: içerik veritabanından güncel okunur (src/middleware.ts).
+export const prerender = false;
 ---
 
 <HomePage />

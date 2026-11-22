@@ -12,7 +12,7 @@ import StatusList from "@/components/ui/StatusList.astro";
 import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, whatsappHref } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 const r = s.remote;
 ---
 

@@ -3,7 +3,7 @@ import { Globe, Menu, X } from "lucide-react";
 import Logo from "@/components/Logo.astro";
 import { getSiteContent, localePath, otherLocales, telHref } from "@/lib/data";
 
-const s = getSiteContent(Astro.currentLocale);
+const s = getSiteContent(Astro);
 // Dil değiştirici: diğer dilin ana sayfasına gider (şimdilik tek sayfa olduğu için)
 const langs = otherLocales(Astro.currentLocale).map((l) => ({
   href: localePath(l),
