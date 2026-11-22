@@ -129,6 +129,14 @@
  * Bölüm geçişlerinde kılcal çizgi olmasın: telefonda yükseklik piksel arasına denk gelince iki bölüm
  * arasından sayfa zemini sızabiliyor. Her bölüm bir öncekinin üstüne 1px biner (gözle görülmez).
  */
+/* Güvenlik ağı: mobil/tablette sayfa yana taşmasın (bir öğe sığmazsa sayfa genişlemez). "clip" yapışkan öğeleri bozmaz. */
+@media (width < 64rem) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
 #icerik > section + section {
   margin-top: -1px;
 }
