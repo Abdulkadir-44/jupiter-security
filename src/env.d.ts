@@ -4,6 +4,8 @@ declare namespace App {
   interface Locals {
     /** Bu isteğin iki dildeki içeriği (veritabanı + içerik dosyası). src/middleware.ts doldurur. */
     site?: Record<import("@/lib/data").Locale, import("@/content/site.tr").SiteContent>;
+    /** Admin panelinde: geçerli oturum (src/middleware.ts doldurur) */
+    admin?: import("@/lib/auth").Session;
   }
 }
 

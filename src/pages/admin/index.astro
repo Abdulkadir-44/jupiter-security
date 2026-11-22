@@ -1,0 +1,63 @@
+---
+/**
+ * Panel ana sayfası. 2. aşamada sadece "giriş başarılı" ekranı; 3. aşamada "Genel bakış" (sidebar, sayılar,
+ * son değişiklikler) olacak.
+ */
+import { env } from "cloudflare:workers";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { getAdmin } from "@/lib/auth";
+
+export const prerender = false;
+
+const session = Astro.locals.admin!;
+const admin = await getAdmin(env.DB);
+const backupLeft = admin ? (JSON.parse(admin.backup_codes) as string[]).length : 0;
+const recent = await env.DB.prepare("SELECT action, created_at FROM activity_log ORDER BY id DESC LIMIT 5").all<{
+  action: string;
+  created_at: string;
+}>();
+const fmt = (d: string) =>
+  new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(
+    new Date(d.replace(" ", "T") + "Z"),
+  );
+---
+
+<AdminLayout title="Panel">
+  <p class="font-mono text-[11px] tracking-[0.14em] text-teal-ink uppercase">Giriş başarılı</p>
+  <h1 class="mt-1 font-title text-[2rem] leading-tight">Hoş geldiniz</h1>
+  <p class="mt-1.5 text-[0.95rem] text-ink-soft">
+    {admin?.email}. Yönetim ekranları (iletişim, paketler, yorumlar, fotoğraflar…) sonraki aşamalarda buraya eklenecek.
+  </p>
+
+  {
+    backupLeft <= 3 && (
+      <p class="admin-error mt-4">
+        Yedek kodunuz {backupLeft === 0 ? "kalmadı" : `${backupLeft} tane kaldı`}. Yenilemek için: npm run admin:reset-2fa
+      </p>
+    )
+  }
+
+  {
+    recent.results.length > 0 && (
+      <section class="mt-6">
+        <h2 class="text-sm font-semibold">Son hareketler</h2>
+        <ul class="mt-2 divide-y divide-ink/10 text-sm">
+          {recent.results.map((r) => (
+            <li class="flex items-baseline justify-between gap-3 py-2">
+              <span>{r.action}</span>
+              <span class="shrink-0 font-mono text-[11px] text-ink-soft">{fmt(r.created_at)}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <div class="mt-6 grid gap-3">
+    <a href="/" class="admin-btn admin-btn-ghost" target="_blank" rel="noopener">Siteyi görüntüle</a>
+    <form method="post" action="/admin/cikis">
+      <input type="hidden" name="csrf" value={session.csrf} />
+      <button class="admin-btn" type="submit">Çıkış yap</button>
+    </form>
+  </div>
+</AdminLayout>

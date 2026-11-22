@@ -1,0 +1,67 @@
+---
+/**
+ * Panel girişi, 1. adım: e-posta + şifre.
+ * Doğruysa: 2FA kuruluysa → /admin/dogrulama, değilse (ilk giriş) → /admin/2fa-kurulum.
+ * Hata mesajı genel tutulur (hangisinin yanlış olduğu söylenmez). Deneme sınırı: src/lib/auth.ts.
+ */
+import { env } from "cloudflare:workers";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import { createSession, getAdmin, hashPassword, lockedMinutes, recordAttempt, verifyPassword } from "@/lib/auth";
+
+export const prerender = false;
+
+const db = env.DB;
+const ip = Astro.clientAddress;
+let error = "";
+let email = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  email = String(form.get("email") ?? "").trim().slice(0, 200);
+  const password = String(form.get("password") ?? "").slice(0, 500);
+  const wait = await lockedMinutes(db, ip);
+
+  if (wait) {
+    error = `Çok fazla hatalı deneme. ${wait} dakika sonra tekrar deneyin.`;
+  } else {
+    const admin = await getAdmin(db);
+    if (!admin) {
+      error = "Henüz admin hesabı oluşturulmamış. Bilgisayarda: npm run admin:create";
+    } else {
+      const emailOk = admin.email.toLowerCase() === email.toLowerCase();
+      // E-posta yanlış olsa da şifre hesaplanır: yanıt süresinden e-postanın doğru olduğu anlaşılmasın
+      const passOk = emailOk
+        ? await verifyPassword(password, admin.password_salt, admin.password_hash, admin.pbkdf2_iter)
+        : (await hashPassword(password, admin.password_salt, admin.pbkdf2_iter), false);
+      if (emailOk && passOk) {
+        await createSession(db, Astro.cookies, admin.totp_secret ? "password" : "setup", {
+          ip,
+          userAgent: Astro.request.headers.get("user-agent") ?? "",
+        });
+        return Astro.redirect(admin.totp_secret ? "/admin/dogrulama" : "/admin/2fa-kurulum", 303);
+      }
+      await recordAttempt(db, ip, false);
+      error = "E-posta ya da şifre hatalı.";
+    }
+  }
+}
+---
+
+<AdminLayout title="Giriş">
+  <h1 class="font-title text-[2rem] leading-tight">Panele giriş</h1>
+  <p class="mt-1.5 mb-6 text-[0.95rem] text-ink-soft">E-posta adresiniz ve şifrenizle giriş yapın.</p>
+
+  {error && <p class="admin-error" role="alert">{error}</p>}
+
+  <form method="post" class="grid gap-4">
+    <div>
+      <label class="admin-label" for="email">E-posta</label>
+      <input class="admin-input" id="email" name="email" type="email" autocomplete="username" required value={email} autofocus={!email} />
+    </div>
+    <div>
+      <label class="admin-label" for="password">Şifre</label>
+      <input class="admin-input" id="password" name="password" type="password" autocomplete="current-password" required autofocus={!!email} />
+    </div>
+    <button class="admin-btn mt-2" type="submit">Devam et</button>
+  </form>
+</AdminLayout>

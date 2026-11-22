@@ -22,6 +22,7 @@
 
 - **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `baaa82f` (sürüm 00512d0c, 22.11.2026; sayfalar D1'den). **wrangler.jsonc'a `not_found_handling` eklenmez** (tarayıcıda ana sayfa 404 oluyordu). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
 - **Google'a kapalı (noindex):** `*.workers.dev` adresinde otomatik. Alan adına geçince kendiliğinden açılır; **sahte yorumlar ve Instagram yer tutucusu dururken açılmamalı** (bkz. bölüm 5).
+- **Push edildi, deploy bekliyor:** `a28bc12` (mobil menü beyaz + arama düğmesi, masaüstü süreç kartı animasyonu, KDV notu etiketin altında). Kullanıcı: işler bitince toplu deploy.
 - **Canlı içerik veritabanından:** telefon, fiyatlar, paketler, yorumlar, ürünler, fotoğraf açıklamaları D1'de. `site.*.ts`'te bunları değiştirmek canlıya yansımaz (panel gelene kadar Claude D1'e SQL ile girer). Deploy'da Astro oturumları için `jupiter-kamera-session` KV alanı otomatik oluştu (kullanılmıyor, ücretsiz).
 - **Sitede olanlar (kısaca):** hero, hizmet bölgeleri, süreç ("iş emri" kartları), kapsama (görüş konili maddeler), insan algılama videosu (açık bölüm), kullanım alanları (kanal satırları), ürün vitrini (geçici görseller), güneş enerjili 4G (6 gerçek fotoğraf, 8.999 TL etiketi), Wi-Fi (açık bölüm, fotoğraflar bekleniyor, 6.999 TL etiketi), paketler (9.999 / 14.999 / 29.999 TL, KDV ve montaj dahil), yorumlar (SAHTE, yer tutucu), yaptığımız kurulumlar (4 klasör + macOS penceresi, 28 gerçek fotoğraf), iletişim (gelen arama, WhatsApp balonu, Instagram profil satırı, randevu kartı), 404 TR/EN.
 - **Logo:** müşteri mevcut logoyu beğenmedi; **profesyonel tasarımcıya yaptırılacak**. Claude'un 4 SVG konsepti (fikir olarak gösterilebilir): https://claude.ai/artifact/8Mr3Y3eshAY1K2wPp4CR3G. Gelince: `Logo.astro`, favicon, apple-touch-icon, `og.jpg` / `og-en.jpg`. Tasarımcıdan SVG istenmeli.
@@ -39,7 +40,16 @@
 - Doğrulama: metin canlıyla birebir (tek fark ürün kartı "WhatsApp"), 120 görsel adresi 200, yerelde DB değişikliği anında sayfada, preview'da sayfa ~55 ms.
 - Canlı ölçüm: ana sayfa ilk yanıtı statik dosyalardan ~0,05-0,2 sn fazla; loglarda D1 hatası yok. Lighthouse tekrar ölçülmedi (istenirse).
 
-**Sıradaki: 2. aşama (giriş sistemi).** Kullanıcı "başla" deyince.
+**2. aşama (giriş sistemi): BİTTİ (22.11.2026), commit/deploy bekliyor.**
+- Sayfalar: `/admin/giris` (e-posta + şifre) → ilk girişte `/admin/2fa-kurulum` (QR + elle anahtar, kod onayı, 10 yedek kod bir kez gösterilir) → sonraki girişlerde `/admin/dogrulama` (6 haneli kod ya da yedek kod) → `/admin` (geçici "giriş başarılı" + son hareketler + çıkış). `/admin/cikis` sadece POST.
+- Kod: `src/lib/auth.ts` (PBKDF2 100.000 tur = Workers üst sınırı, TOTP RFC 6238 ±1 adım + tekrar kullanım engeli, yedek kod özetleri, oturum, deneme sınırı), `src/middleware.ts` (aşamaya göre yönlendirme, Origin + CSRF, panelde `X-Robots-Tag: noindex` + `no-store`, panelde site içeriği okunmaz), `src/layouts/AdminLayout.astro`, QR: `uqr` paketi. Migration `0002_auth.sql` (totp_pending, totp_last_step, sessions.stage, sessions.csrf).
+- Oturum: `__Host-jupiter_admin` çerezi (HttpOnly, Secure, SameSite=Strict), şifre adımı 10 dk, tam oturum 7 gün; DB'de sadece özet.
+- Komutlar: `npm run admin:create | admin:reset-password | admin:reset-2fa` (varsayılan yerel; canlı: `-- --remote`). Şifre terminalde gizli sorulur.
+- Test (yerel, uçtan uca script): 23 kontrolün 22'si geçti; 1'i test scriptinin çerez okuma hatası (kod doğru). Yanlış şifre, başka siteden form, CSRF'siz form, yanlış/tekrar kullanılan kod, yedek kodla giriş, kullanılmış yedek kod, 5 hatada kilit, çıkış: hepsi doğru.
+- Yerelde deneme hesabı: `test@ornek.com` / `GeciciTest-2026` (2FA sıfır; kullanıcı telefonla deneyecek). Canlıda hesap YOK.
+- **Deploy öncesi yapılacak:** `npm run db:migrate:remote` (0002) → deploy → kullanıcı kendi terminalinde `npm run admin:create -- --remote` (gerçek e-posta + şifre) → telefonla 2FA kurulumu.
+
+**Sıradaki: 3. aşama (panel iskeleti: sidebar, responsive düzen, Genel bakış).** Kullanıcı "başla" deyince.
 
 **Admin paneli tasarım kararları (karar defteri, 20.11.2026'dan itibaren)**
 Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşağıdaki **tasarım dokümanında**; kullanıcı onayından sonra uygulama aşamalarına geçilecek.

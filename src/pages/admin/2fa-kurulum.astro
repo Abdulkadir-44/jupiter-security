@@ -1,0 +1,156 @@
+---
+/**
+ * İlk giriş: 2FA kurulumu. Sadece şifresi doğru, 2FA'sı olmayan oturumla açılır (src/middleware.ts).
+ *  1. QR kod + elle girilecek anahtar gösterilir (anahtar onaylanana kadar admin_user.totp_pending'de).
+ *  2. Uygulamadaki kod girilince anahtar kalıcı olur, 10 yedek kod üretilir ve BİR KEZ gösterilir.
+ */
+import { env } from "cloudflare:workers";
+import { renderSVG } from "uqr";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import {
+  createSession,
+  getAdmin,
+  lockedMinutes,
+  logActivity,
+  newBackupCodes,
+  newTotpSecret,
+  recordAttempt,
+  sha256,
+  totpUri,
+  verifyTotp,
+} from "@/lib/auth";
+
+export const prerender = false;
+
+const db = env.DB;
+const ip = Astro.clientAddress;
+const session = Astro.locals.admin!;
+const admin = await getAdmin(db);
+if (!admin) return Astro.redirect("/admin/giris", 303);
+if (admin.totp_secret) return Astro.redirect("/admin/dogrulama", 303);
+
+// Anahtar sadece boşsa yazılır: sayfa aynı anda iki kez açılırsa okutulan QR sessizce değişmesin
+let secret = admin.totp_pending;
+if (!secret) {
+  await db.prepare("UPDATE admin_user SET totp_pending = ? WHERE id = 1 AND totp_pending IS NULL").bind(newTotpSecret()).run();
+  secret = (await db.prepare("SELECT totp_pending FROM admin_user WHERE id = 1").first<string>("totp_pending"))!;
+}
+
+let error = "";
+let backupCodes: string[] | null = null;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const code = String(form.get("code") ?? "").trim().slice(0, 20);
+  const wait = await lockedMinutes(db, ip);
+  const step = wait ? null : await verifyTotp(secret, code);
+
+  if (wait) {
+    error = `Çok fazla hatalı deneme. ${wait} dakika sonra tekrar deneyin.`;
+  } else if (step === null) {
+    await recordAttempt(db, ip, false);
+    error = "Kod tutmadı. QR kodu okuttuğunuzdan emin olun ve uygulamadaki güncel kodu girin.";
+  } else {
+    const codes = newBackupCodes();
+    const hashes = await Promise.all(codes.map(sha256));
+    const r = await db
+      .prepare(
+        `UPDATE admin_user SET totp_secret = ?, totp_pending = NULL, totp_last_step = ?, backup_codes = ?,
+         updated_at = datetime('now') WHERE id = 1 AND totp_secret IS NULL AND totp_pending = ?`,
+      )
+      .bind(secret, step, JSON.stringify(hashes), secret)
+      .run();
+    if (r.meta.changes !== 1) return Astro.redirect("/admin/giris", 303);
+    await recordAttempt(db, ip, true);
+    await createSession(db, Astro.cookies, "full", { ip, userAgent: Astro.request.headers.get("user-agent") ?? "" });
+    await logActivity(db, "İki adımlı doğrulama kuruldu");
+    backupCodes = codes;
+  }
+}
+
+const qr = renderSVG(totpUri(secret, admin.email), { ecc: "M", border: 1, blackColor: "#1a2418", whiteColor: "#ffffff" });
+const grouped = secret.match(/.{1,4}/g)!.join(" ");
+---
+
+<AdminLayout title="İki adımlı doğrulama">
+  {
+    backupCodes ? (
+      <>
+        <h1 class="font-title text-[2rem] leading-tight">Yedek kodlarınız</h1>
+        <p class="mt-1.5 text-[0.95rem] text-ink-soft">
+          Doğrulama kuruldu. Telefonunuz kaybolursa bu kodlarla girebilirsiniz. Her biri <strong>bir kez</strong> kullanılır.
+        </p>
+        <p class="admin-error mt-4">Bu kodlar bir daha gösterilmeyecek. Şimdi yazın ya da ekran görüntüsünü alıp güvenli bir yerde saklayın.</p>
+        <ol class="grid grid-cols-2 gap-2 rounded-2xl bg-paper p-4 font-mono text-[1.05rem] ring-1 ring-ink/10">
+          {backupCodes.map((c) => (
+            <li class="text-center tabular-nums">{c}</li>
+          ))}
+        </ol>
+        <a href="/admin" class="admin-btn mt-6">
+          Kodları kaydettim, panele geç
+        </a>
+      </>
+    ) : (
+      <>
+        <h1 class="font-title text-[2rem] leading-tight">İki adımlı doğrulama</h1>
+        <p class="mt-1.5 mb-5 text-[0.95rem] text-ink-soft">İlk girişe özel, bir kez yapılır. Şifreniz çalınsa bile telefonunuz olmadan kimse giremez.</p>
+
+        {error && <p class="admin-error" role="alert">{error}</p>}
+
+        <ol class="grid gap-5 text-[0.95rem]">
+          <li>
+            <p>
+              <strong>1.</strong> Telefonunuza <strong>Google Authenticator</strong> ya da <strong>Microsoft Authenticator</strong>{" "}
+              uygulamasını kurun.
+            </p>
+          </li>
+          <li>
+            <p>
+              <strong>2.</strong> Uygulamada "+" ya da "Hesap ekle" → "QR kodu tara" ile aşağıdaki kodu okutun.
+            </p>
+            <div class="mx-auto mt-3 w-48 overflow-hidden rounded-xl ring-1 ring-ink/10" set:html={qr} />
+            <details class="mt-3 text-sm text-ink-soft">
+              <summary class="cursor-pointer font-semibold text-ink">QR okutamıyorum (bu telefondayım)</summary>
+              <p class="mt-2">Uygulamada "Kurulum anahtarı gir" seçin, hesap adına "Jüpiter Panel" yazıp bu anahtarı girin:</p>
+              <p class="mt-2 rounded-lg bg-paper px-3 py-2 text-center font-mono text-[0.95rem] break-all text-ink select-all ring-1 ring-ink/10">
+                {grouped}
+              </p>
+            </details>
+          </li>
+          <li>
+            <p>
+              <strong>3.</strong> Uygulamada görünen 6 haneli kodu girin.
+            </p>
+            <form method="post" class="mt-3 grid gap-4">
+              <input type="hidden" name="csrf" value={session.csrf} />
+              <label class="sr-only" for="code">
+                Kod
+              </label>
+              <input
+                class="admin-input admin-input-code"
+                id="code"
+                name="code"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="7"
+                placeholder="000000"
+                required
+              />
+              <button class="admin-btn" type="submit">
+                Doğrula ve bitir
+              </button>
+            </form>
+          </li>
+        </ol>
+      </>
+    )
+  }
+</AdminLayout>
+
+<style>
+  div :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>

@@ -1,0 +1,115 @@
+---
+/**
+ * Panel girişi, 2. adım: Authenticator uygulamasındaki 6 haneli kod ya da yedek kod.
+ * Sadece şifresi doğrulanmış oturumla açılır (src/middleware.ts). Başarılıysa 7 günlük oturum.
+ */
+import { env } from "cloudflare:workers";
+import AdminLayout from "@/layouts/AdminLayout.astro";
+import {
+  createSession,
+  getAdmin,
+  lockedMinutes,
+  logActivity,
+  normalizeBackupCode,
+  recordAttempt,
+  sha256,
+  verifyTotp,
+} from "@/lib/auth";
+
+export const prerender = false;
+
+const db = env.DB;
+const ip = Astro.clientAddress;
+const session = Astro.locals.admin!;
+let error = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const code = String(form.get("code") ?? "").trim().slice(0, 40);
+  const wait = await lockedMinutes(db, ip);
+  const admin = await getAdmin(db);
+
+  if (wait) {
+    error = `Çok fazla hatalı deneme. ${wait} dakika sonra tekrar deneyin.`;
+  } else if (!admin?.totp_secret) {
+    return Astro.redirect("/admin/giris", 303);
+  } else {
+    let ok = false;
+    let note = "";
+    const step = await verifyTotp(admin.totp_secret, code, admin.totp_last_step);
+    if (step !== null) {
+      // Aynı kod ikinci kez kullanılamasın (şart: son adım hâlâ eskisi)
+      const r = await db
+        .prepare("UPDATE admin_user SET totp_last_step = ? WHERE id = 1 AND totp_last_step < ?")
+        .bind(step, step)
+        .run();
+      ok = r.meta.changes === 1;
+    } else {
+      const backup = normalizeBackupCode(code);
+      if (backup) {
+        const hashes: string[] = JSON.parse(admin.backup_codes);
+        const h = await sha256(backup);
+        if (hashes.includes(h)) {
+          const rest = hashes.filter((x) => x !== h);
+          const r = await db
+            .prepare("UPDATE admin_user SET backup_codes = ? WHERE id = 1 AND backup_codes = ?")
+            .bind(JSON.stringify(rest), admin.backup_codes)
+            .run();
+          ok = r.meta.changes === 1;
+          note = ` (yedek kodla; ${rest.length} yedek kod kaldı)`;
+        }
+      }
+    }
+
+    if (ok) {
+      await recordAttempt(db, ip, true);
+      await createSession(db, Astro.cookies, "full", { ip, userAgent: Astro.request.headers.get("user-agent") ?? "" });
+      await logActivity(db, `Panele giriş yapıldı${note}`);
+      return Astro.redirect("/admin", 303);
+    }
+    await recordAttempt(db, ip, false);
+    error = "Kod hatalı ya da süresi geçmiş. Uygulamadaki güncel kodu girin.";
+  }
+}
+---
+
+<AdminLayout title="Doğrulama">
+  <h1 class="font-title text-[2rem] leading-tight">Doğrulama kodu</h1>
+  <p class="mt-1.5 mb-6 text-[0.95rem] text-ink-soft">
+    Telefonunuzdaki Authenticator uygulamasında <strong>Jüpiter Panel</strong> satırındaki 6 haneli kodu girin.
+  </p>
+
+  {error && <p class="admin-error" role="alert">{error}</p>}
+
+  <form method="post" class="grid gap-4">
+    <input type="hidden" name="csrf" value={session.csrf} />
+    <div>
+      <label class="admin-label" for="code">Kod</label>
+      <input
+        class="admin-input admin-input-code"
+        id="code"
+        name="code"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="9"
+        placeholder="000000"
+        required
+        autofocus
+      />
+    </div>
+    <button class="admin-btn mt-2" type="submit">Giriş yap</button>
+  </form>
+
+  <details class="mt-5 text-sm text-ink-soft">
+    <summary class="cursor-pointer font-semibold text-ink">Telefonum yanımda değil</summary>
+    <p class="mt-2">
+      İlk girişte verilen yedek kodlardan birini (örn. <span class="font-mono">k7m2-q9xt</span>) yukarıdaki alana yazın. Her yedek
+      kod bir kez kullanılır.
+    </p>
+  </details>
+
+  <form method="post" action="/admin/cikis" class="mt-5">
+    <input type="hidden" name="csrf" value={session.csrf} />
+    <button class="admin-btn admin-btn-ghost" type="submit">Vazgeç</button>
+  </form>
+</AdminLayout>
