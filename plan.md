@@ -20,9 +20,10 @@
 
 ## 2. Şu anki durum (22.11.2026)
 
-- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `baaa82f` (sürüm 00512d0c, 22.11.2026; sayfalar D1'den). **wrangler.jsonc'a `not_found_handling` eklenmez** (tarayıcıda ana sayfa 404 oluyordu). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
+- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `5453a5a` (sürüm c361fec5, 22.11.2026; admin paneli 1-4 + fiyatlar canlıda). **wrangler.jsonc'a `not_found_handling` eklenmez** (tarayıcıda ana sayfa 404 oluyordu). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
 - **Google'a kapalı (noindex):** `*.workers.dev` adresinde otomatik. Alan adına geçince kendiliğinden açılır; **sahte yorumlar ve Instagram yer tutucusu dururken açılmamalı** (bkz. bölüm 5).
-- **Push edildi, deploy bekliyor:** `a28bc12` (mobil menü beyaz + arama düğmesi, masaüstü süreç kartı animasyonu, KDV notu etiketin altında). Kullanıcı: işler bitince toplu deploy.
+- **Müşteri için panel rehberi (link):** https://claude.ai/artifact/GXmTK99bgZQ2uiHn3LWyW3 (ilk giriş, 2FA, şifre değiştirme, bölümler, sorunlar). Panel değişince güncellenmeli (5. aşama fotoğraf bölümleri, alan adı değişince panel adresi).
+- **Canlıda admin hesabı:** kullanıcı kendi terminalinde `npm run admin:create -- --remote` ile oluşturacak (şifre sohbete yazılmaz), sonra telefonla 2FA. Ziyaretçi kartı için `CF_API_TOKEN` + `CF_ACCOUNT_ID` secret'ları bekliyor.
 - **Canlı içerik veritabanından:** telefon, fiyatlar, paketler, yorumlar, ürünler, fotoğraf açıklamaları D1'de. `site.*.ts`'te bunları değiştirmek canlıya yansımaz (panel gelene kadar Claude D1'e SQL ile girer). Deploy'da Astro oturumları için `jupiter-kamera-session` KV alanı otomatik oluştu (kullanılmıyor, ücretsiz).
 - **Sitede olanlar (kısaca):** hero, hizmet bölgeleri, süreç ("iş emri" kartları), kapsama (görüş konili maddeler), insan algılama videosu (açık bölüm), kullanım alanları (kanal satırları), ürün vitrini (geçici görseller), güneş enerjili 4G (6 gerçek fotoğraf, 8.999 TL etiketi), Wi-Fi (açık bölüm, fotoğraflar bekleniyor, 6.999 TL etiketi), paketler (9.999 / 14.999 / 29.999 TL, KDV ve montaj dahil), yorumlar (SAHTE, yer tutucu), yaptığımız kurulumlar (4 klasör + macOS penceresi, 28 gerçek fotoğraf), iletişim (gelen arama, WhatsApp balonu, Instagram profil satırı, randevu kartı), 404 TR/EN.
 - **Logo:** müşteri mevcut logoyu beğenmedi; **profesyonel tasarımcıya yaptırılacak**. Claude'un 4 SVG konsepti (fikir olarak gösterilebilir): https://claude.ai/artifact/8Mr3Y3eshAY1K2wPp4CR3G. Gelince: `Logo.astro`, favicon, apple-touch-icon, `og.jpg` / `og-en.jpg`. Tasarımcıdan SVG istenmeli.
@@ -199,6 +200,7 @@ Gelince Claude girer (iki dil + Google'a giden bilgi). Kullanıcı "müşteri bi
 
 - **Windows yol sorunu:** proje küçük harfli sürücüyle (`c:\...`) açılınca Vite build'de CSS bağlantısı eklemiyordu. `scripts/astro.mjs` sürücü harfini büyütür. Her zaman `npm run dev/build/preview/deploy` kullanılır, `npx astro ...` değil.
 - **Sunucuyu durdurma:** `npm run stop` (4321-4330 portlarındaki Astro/wrangler süreçleri). Yeni bileşen dosyası eklenince açık dev sunucusu "Cannot find module" verebilir: durdurup yeniden başlat.
+- **Yana taşma tuzağı:** kaydırıcı (overflow-x: auto) içindeki `position: absolute` öğenin (örn. `sr-only`) konumlanmış bir atası yoksa sayfaya göre konumlanır, kaydırıcının kırpmasından kaçar ve mobilde kaydırdıkça sayfayı genişletir; `overflow-x: clip` bunu durdurmaz. Kaydırıcılara ve içindeki düğmelere `relative` verilir (ürün vitrini, 22.11.2026).
 - **Dev sunucusu sadece IPv6'da dinler** (`[::1]:4321`); Playwright `http://localhost:4321` ile açabilir.
 - **CSP:** `astro.config.mjs` → `security.csp`. Yeni dış kaynak (font, harita, video, dış görsel, form servisi) eklenirse izin eklenmeli, yoksa tarayıcı engeller. Diğer güvenlik başlıkları `public/_headers`.
 - **404:** `wrangler.jsonc` → `not_found_handling: "404-page"`; `build.format: "preserve"`; `trailingSlash: "always"` KULLANILMAZ.

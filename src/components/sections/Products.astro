@@ -52,7 +52,7 @@ const total = String(p.items.length).padStart(2, "0");
 
     <!-- Kartlar -->
     <ul
-      class="pr-track mt-12 -mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 md:-mx-10 md:mt-16 md:gap-5 md:px-10"
+      class="pr-track relative mt-12 -mx-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-8 pb-4 md:-mx-10 md:mt-16 md:gap-5 md:px-10"
       data-pr-track
       tabindex="0"
       role="region"
@@ -115,7 +115,7 @@ const total = String(p.items.length).padStart(2, "0");
                       href={whatsappHref(s.contact, fill(p.message, { name: it.name }))}
                       target="_blank"
                       rel="noopener"
-                      class="pr-ask flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-paper transition-colors duration-200 hover:bg-teal-ink"
+                      class="pr-ask relative flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-paper transition-colors duration-200 hover:bg-teal-ink"
                     >
                       <WhatsAppIcon className="size-4 shrink-0" />
                       {/* Mobilde sadece "WhatsApp" (dar kartta sığmıyordu); tam metin ekran okuyucuda kalır */}
@@ -166,6 +166,10 @@ const total = String(p.items.length).padStart(2, "0");
     transition: transform 0.3s var(--ease-out-expo);
   }
 
+  /*
+   * "relative": içerideki gizli ekran okuyucu yazısı (sr-only, position: absolute) konumunu kaydırıcıya göre alsın.
+   * Yoksa sayfaya göre alıp kaydırıcının kırpmasından kaçıyordu: mobilde kaydırdıkça sayfa sağa genişliyordu (22.11.2026).
+   */
   .pr-track {
     scrollbar-width: none;
     scroll-padding-inline: 2rem;
