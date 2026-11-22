@@ -1,5 +1,5 @@
 ---
-import { Globe, Menu, X } from "lucide-react";
+import { Globe, Menu, Phone, X } from "lucide-react";
 import Logo from "@/components/Logo.astro";
 import { getSiteContent, localePath, otherLocales, telHref } from "@/lib/data";
 
@@ -72,30 +72,122 @@ const langs = otherLocales(Astro.currentLocale).map((l) => ({
     </div>
   </div>
 
-  <div id="mobile-menu" hidden class="mx-auto mt-2 max-w-[1040px] rounded-[1.5rem] bg-navy/95 p-5 shadow-2xl ring-1 ring-paper/10 backdrop-blur-md lg:hidden">
+  <div id="mobile-menu" hidden class="mx-auto mt-2 max-w-[1040px] rounded-[1.5rem] bg-white p-5 text-ink shadow-2xl ring-1 ring-ink/10 lg:hidden">
     <nav aria-label={s.ui.mobileNav}>
       <ul class="grid">
         {
           s.nav.map((n) => (
             <li>
-              <a href={n.href} class="block border-b border-paper/10 py-3.5 font-title text-[1.6rem]" data-close-menu>
+              <a href={n.href} class="block border-b border-ink/10 py-3 font-title text-[1.3rem] transition-colors duration-200 hover:text-teal-ink" data-close-menu>
                 {n.label}
               </a>
             </li>
           ))
         }
       </ul>
-      <a
-        href={telHref(s.contact)}
-        class="mt-5 flex min-h-12 items-center justify-center gap-2 rounded-full bg-teal font-semibold text-ink"
-      >
-        {s.ui.call}: <span class="tabular-nums">{s.contact.phoneDisplay}</span>
+      <!-- Arama düğmesi: iletişim bölümündeki "gelen arama" kartının menü hali. Menü açılınca halkalar yayılır. -->
+      <a href={telHref(s.contact)} class="m-call" aria-label={`${s.contactSection.callLabel}: ${s.contact.phoneDisplay}`}>
+        <span class="m-call-icon" aria-hidden="true">
+          <span class="m-call-wave"></span>
+          <span class="m-call-wave m-call-wave-2"></span>
+          <Phone className="m-call-phone size-[1.15rem]" strokeWidth={2.2} />
+        </span>
+        <span class="flex min-w-0 flex-col text-left">
+          <span class="font-mono text-[10px] tracking-[0.16em] text-paper/70 uppercase">{s.contactSection.callLabel}</span>
+          <span class="font-title text-[1.45rem] leading-[1.1] whitespace-nowrap tabular-nums">{s.contact.phoneDisplay}</span>
+        </span>
       </a>
     </nav>
   </div>
 </header>
 
 <style>
+  /* ---------- Mobil menü: arama düğmesi ---------- */
+  .m-call {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    overflow: hidden; /* halkalar düğmenin kenarında kesilir */
+    margin-top: 1.25rem;
+    padding: 0.55rem 1.25rem 0.55rem 0.55rem;
+    border-radius: 999px;
+    background: var(--color-teal-ink);
+    color: var(--color-paper);
+    box-shadow: 0 16px 30px -18px color-mix(in srgb, var(--color-ink) 70%, transparent);
+    transition:
+      background-color 0.25s ease,
+      transform 0.35s var(--ease-out-expo);
+  }
+  .m-call:hover,
+  .m-call:focus-visible {
+    background: var(--color-navy-3);
+  }
+  .m-call:focus-visible {
+    outline: 2px solid var(--color-teal-ink);
+    outline-offset: 3px;
+  }
+  .m-call-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.9rem;
+    height: 2.9rem;
+    border-radius: 999px;
+    background: var(--color-paper);
+    color: var(--color-teal-ink);
+  }
+  .m-call-wave {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-paper);
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .m-call:active {
+      transform: scale(0.98);
+    }
+    /* Menü her açıldığında (hidden kalkınca animasyon baştan başlar) */
+    #mobile-menu:not([hidden]) .m-call-wave {
+      animation: m-call-wave 1.3s ease-out 0.25s 2;
+    }
+    #mobile-menu:not([hidden]) .m-call-wave-2 {
+      animation-delay: 0.6s;
+    }
+    #mobile-menu:not([hidden]) :global(.m-call-phone) {
+      animation: m-call-ring 0.9s ease-in-out 0.25s;
+    }
+  }
+  @keyframes m-call-wave {
+    0% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.7);
+    }
+  }
+  @keyframes m-call-ring {
+    0%,
+    70%,
+    100% {
+      transform: rotate(0);
+    }
+    10%,
+    30%,
+    50% {
+      transform: rotate(-14deg);
+    }
+    20%,
+    40%,
+    60% {
+      transform: rotate(14deg);
+    }
+  }
+
   .nav-bar {
     position: relative;
     max-width: 80rem;

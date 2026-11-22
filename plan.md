@@ -20,7 +20,7 @@
 
 ## 2. Şu anki durum (22.11.2026)
 
-- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `3cff294` (sürüm 72478d6d, 22.11.2026; sayfalar artık D1'den). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
+- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `baaa82f` (sürüm 00512d0c, 22.11.2026; sayfalar D1'den). **wrangler.jsonc'a `not_found_handling` eklenmez** (tarayıcıda ana sayfa 404 oluyordu). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
 - **Google'a kapalı (noindex):** `*.workers.dev` adresinde otomatik. Alan adına geçince kendiliğinden açılır; **sahte yorumlar ve Instagram yer tutucusu dururken açılmamalı** (bkz. bölüm 5).
 - **Canlı içerik veritabanından:** telefon, fiyatlar, paketler, yorumlar, ürünler, fotoğraf açıklamaları D1'de. `site.*.ts`'te bunları değiştirmek canlıya yansımaz (panel gelene kadar Claude D1'e SQL ile girer). Deploy'da Astro oturumları için `jupiter-kamera-session` KV alanı otomatik oluştu (kullanılmıyor, ücretsiz).
 - **Sitede olanlar (kısaca):** hero, hizmet bölgeleri, süreç ("iş emri" kartları), kapsama (görüş konili maddeler), insan algılama videosu (açık bölüm), kullanım alanları (kanal satırları), ürün vitrini (geçici görseller), güneş enerjili 4G (6 gerçek fotoğraf, 8.999 TL etiketi), Wi-Fi (açık bölüm, fotoğraflar bekleniyor, 6.999 TL etiketi), paketler (9.999 / 14.999 / 29.999 TL, KDV ve montaj dahil), yorumlar (SAHTE, yer tutucu), yaptığımız kurulumlar (4 klasör + macOS penceresi, 28 gerçek fotoğraf), iletişim (gelen arama, WhatsApp balonu, Instagram profil satırı, randevu kartı), 404 TR/EN.

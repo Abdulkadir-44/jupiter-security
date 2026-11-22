@@ -46,7 +46,7 @@ const w = s.wifi;
       </div>
 
       <!-- Fiyat butonu ve not: mobilde slider'ın altında, masaüstünde sol sütunda metnin altında -->
-      <div class="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7 lg:col-start-1 lg:row-start-3 lg:mt-12">
+      <div class="mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-7 lg:col-start-1 lg:row-start-3 lg:mt-12 lg:flex-col lg:items-start lg:gap-6">
         {
           w.priceTag ? (
             <PriceTag href={whatsappHref(s.contact, w.whatsappMessage)} {...w.priceTag} accent="sun" notch="var(--color-cream)" tone="light" />

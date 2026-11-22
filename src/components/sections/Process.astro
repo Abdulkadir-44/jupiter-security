@@ -23,7 +23,7 @@ const p = getSiteContent(Astro).process;
     <ol data-steps class="mt-14 grid gap-4 md:mt-20 lg:grid-cols-5 lg:gap-3 xl:gap-4">
       {
         p.steps.map((st, i) => (
-          <li style={`--drop-rot:${i % 2 ? 10 : -10}deg`} class="max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg]">
+          <li style={`--drop-rot:${i % 2 ? 10 : -10}deg; --i:${i}`} class="max-lg:odd:mr-4 max-lg:odd:-rotate-[1.6deg] max-lg:even:ml-4 max-lg:even:rotate-[1.6deg]">
             <article class="step-card group relative h-full overflow-hidden rounded-[1.25rem] bg-paper p-5 ring-1 ring-ink/10 shadow-[0_18px_36px_-22px_color-mix(in_srgb,var(--color-ink)_45%,transparent)] sm:p-6 lg:p-5 xl:p-6">
               <span class="step-num pointer-events-none absolute -right-3 -bottom-10 font-tall text-[9rem] leading-none select-none lg:-bottom-8 lg:text-[7rem] xl:text-[8rem]" aria-hidden="true">
                 {String(i + 1).padStart(2, "0")}
@@ -102,6 +102,25 @@ const p = getSiteContent(Astro).process;
       rotate: var(--drop-rot);
     }
   }
+
+  /*
+   * Masaüstü: bölüm ekrana girince beş kart soldan sağa sırayla, masaya bırakılan iş emri gibi
+   * aşağıdan hafif yatık gelip düzleşerek oturur (bir kez). data-deal sadece JS çalışınca eklenir.
+   */
+  @media (width >= 64rem) and (prefers-reduced-motion: no-preference) {
+    [data-deal] > li {
+      transition:
+        translate 0.8s cubic-bezier(0.34, 1.4, 0.64, 1),
+        rotate 0.8s cubic-bezier(0.34, 1.4, 0.64, 1),
+        opacity 0.45s ease-out;
+      transition-delay: calc(var(--i) * 110ms);
+    }
+    [data-deal] > li:not(.is-in) {
+      opacity: 0;
+      translate: 0 3.5rem;
+      rotate: calc(var(--drop-rot) * 0.35);
+    }
+  }
 </style>
 
 <script>
@@ -126,5 +145,20 @@ const p = getSiteContent(Astro).process;
       { rootMargin: "0px 0px -15% 0px", threshold: 0.2 },
     );
     cards.forEach((c) => io.observe(c));
+  }
+
+  // Masaüstü: kartlar tek sıra olduğu için sıra ekrana girince hepsi birlikte tetiklenir (gecikme CSS'te)
+  if (list && !mobile && !reduced && "IntersectionObserver" in window && list.getBoundingClientRect().top > innerHeight * 0.85) {
+    const cards = [...list.querySelectorAll<HTMLElement>(":scope > li")];
+    list.setAttribute("data-deal", "");
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        cards.forEach((c) => c.classList.add("is-in"));
+        io.disconnect();
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.15 },
+    );
+    io.observe(list);
   }
 </script>
