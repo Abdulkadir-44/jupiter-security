@@ -20,15 +20,15 @@
 
 ## 2. Şu anki durum (22.11.2026)
 
-- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `85b12af`. Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
+- **Canlı:** https://jupiter-kamera.abdulkadirozenc-freelance-44e.workers.dev (Worker: `jupiter-kamera`), son deploy `3cff294` (sürüm 72478d6d, 22.11.2026; sayfalar artık D1'den). Yayın: `npm run deploy`. Repo: https://github.com/Abdulkadir-44/jupiter-security (main).
 - **Google'a kapalı (noindex):** `*.workers.dev` adresinde otomatik. Alan adına geçince kendiliğinden açılır; **sahte yorumlar ve Instagram yer tutucusu dururken açılmamalı** (bkz. bölüm 5).
-- **Commit edilmemiş (push/deploy bekliyor):** admin 1. aşama (veritabanı) + `Products.astro` (ürün kartı düğmesi mobilde sadece "WhatsApp") + plan düzenlemesi + `plan-arsiv.md`. Canlı site hâlâ eski (statik) sürüm; D1 canlıda hazır ve dolu, deploy edilince kullanılmaya başlar.
+- **Canlı içerik veritabanından:** telefon, fiyatlar, paketler, yorumlar, ürünler, fotoğraf açıklamaları D1'de. `site.*.ts`'te bunları değiştirmek canlıya yansımaz (panel gelene kadar Claude D1'e SQL ile girer). Deploy'da Astro oturumları için `jupiter-kamera-session` KV alanı otomatik oluştu (kullanılmıyor, ücretsiz).
 - **Sitede olanlar (kısaca):** hero, hizmet bölgeleri, süreç ("iş emri" kartları), kapsama (görüş konili maddeler), insan algılama videosu (açık bölüm), kullanım alanları (kanal satırları), ürün vitrini (geçici görseller), güneş enerjili 4G (6 gerçek fotoğraf, 8.999 TL etiketi), Wi-Fi (açık bölüm, fotoğraflar bekleniyor, 6.999 TL etiketi), paketler (9.999 / 14.999 / 29.999 TL, KDV ve montaj dahil), yorumlar (SAHTE, yer tutucu), yaptığımız kurulumlar (4 klasör + macOS penceresi, 28 gerçek fotoğraf), iletişim (gelen arama, WhatsApp balonu, Instagram profil satırı, randevu kartı), 404 TR/EN.
 - **Logo:** müşteri mevcut logoyu beğenmedi; **profesyonel tasarımcıya yaptırılacak**. Claude'un 4 SVG konsepti (fikir olarak gösterilebilir): https://claude.ai/artifact/8Mr3Y3eshAY1K2wPp4CR3G. Gelince: `Logo.astro`, favicon, apple-touch-icon, `og.jpg` / `og-en.jpg`. Tasarımcıdan SVG istenmeli.
 
 ## 3. Sıradaki iş: Admin paneli (tasarım dokümanı aşağıda, ONAYLANDI)
 
-**1. aşama (veritabanı): BİTTİ (22.11.2026), deploy bekliyor.** Yapılanlar:
+**1. aşama (veritabanı): BİTTİ ve CANLIDA (22.11.2026, `3cff294`).** Yapılanlar:
 - D1 `jupiter-kamera` (EEUR, id `5fdf08a9-…`), `wrangler.jsonc` → binding `DB`. Tablolar `db/migrations/0001_init.sql` (aşağıdaki veri modelinin tamamı; admin tabloları boş). Yerel + canlı veritabanına uygulandı ve dolduruldu.
 - Seed: `scripts/db-seed.ts` içerik dosyalarından `db/seed.sql` üretir; `INSERT OR IGNORE` + sabit kimlik (tekrar çalıştırmak panel düzenlemelerini ezmez).
 - `/` ve `/en/` artık her istekte sunucuda oluşturuluyor (`prerender = false`); 404 ve robots.txt build'de. `src/middleware.ts` her istekte tek D1 batch okur → `Astro.locals.site`; hata olursa içerik dosyaları (test edildi). Bileşenler `getSiteContent(Astro)`. Güvenlik başlıkları da middleware'de (`_headers` Worker yanıtlarına uygulanmaz).
@@ -37,7 +37,7 @@
 - **Fotoğraflar:** sunucuda oluşturulan sayfada Astro görsel küçültmesi çalışmadığı için `scripts/media.mjs` (sharp) WebP 480/960/1600 (hero: AVIF+WebP 640-2400) üretir → `public/medya/foto/<anahtar>-<w>.webp` + `src/content/media.manifest.json` (ikisi gitignore'da, dev/build'de kendiliğinden). `Img.astro` + `src/lib/photo.ts`. 5. aşamada R2 aynı adres düzenini kullanacak.
 - Kampanya şeridi sayfada hiç yoktu: veritabanında kapalı (`enabled = 0`). **4. aşamada `Announcement.astro` HomePage'e eklenecek** (kapalıyken hiçbir şey göstermez).
 - Doğrulama: metin canlıyla birebir (tek fark ürün kartı "WhatsApp"), 120 görsel adresi 200, yerelde DB değişikliği anında sayfada, preview'da sayfa ~55 ms.
-- Not: deploy sonrası canlıda Lighthouse tekrar ölçülmeli (sunucu tarafı + D1 gidiş-dönüşü).
+- Canlı ölçüm: ana sayfa ilk yanıtı statik dosyalardan ~0,05-0,2 sn fazla; loglarda D1 hatası yok. Lighthouse tekrar ölçülmedi (istenirse).
 
 **Sıradaki: 2. aşama (giriş sistemi).** Kullanıcı "başla" deyince.
 
