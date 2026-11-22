@@ -1,0 +1,129 @@
+---
+/**
+ * Şifre ve güvenlik (/admin/hesap): şifre değiştirme, yedek kod durumu, diğer cihazlardan çıkış.
+ * Şifre değişince bu cihaz dışındaki tüm oturumlar kapanır. Mevcut şifre yanlış girilirse deneme sınırına sayılır.
+ * 2FA'yı sıfırlamak panelden yapılmaz (çalınmış oturumla kapatılamasın): npm run admin:reset-2fa
+ */
+import { env } from "cloudflare:workers";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import { getAdmin, lockedMinutes, logActivity, newPasswordHash, recordAttempt, verifyPassword } from "@/lib/auth";
+
+export const prerender = false;
+
+const db = env.DB;
+const ip = Astro.clientAddress;
+const session = Astro.locals.admin!;
+const admin = (await getAdmin(db))!;
+let error = "";
+let errorField = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const action = form.get("action");
+
+  if (action === "password") {
+    const current = String(form.get("current") ?? "");
+    const next = String(form.get("next") ?? "").slice(0, 500);
+    const repeat = String(form.get("repeat") ?? "");
+    const wait = await lockedMinutes(db, ip);
+    if (wait) {
+      error = `Çok fazla hatalı deneme. ${wait} dakika sonra tekrar deneyin.`;
+    } else if (!(await verifyPassword(current, admin.password_salt, admin.password_hash, admin.pbkdf2_iter))) {
+      await recordAttempt(db, ip, false);
+      error = "Mevcut şifre hatalı.";
+      errorField = "current";
+    } else if (next.length < 10) {
+      error = "Yeni şifre en az 10 karakter olmalı.";
+      errorField = "next";
+    } else if (next !== repeat) {
+      error = "Yeni şifreler aynı değil.";
+      errorField = "repeat";
+    } else if (next === current) {
+      error = "Yeni şifre eskisiyle aynı olamaz.";
+      errorField = "next";
+    } else {
+      const h = await newPasswordHash(next);
+      await db.batch([
+        db
+          .prepare("UPDATE admin_user SET password_hash = ?, password_salt = ?, pbkdf2_iter = ?, updated_at = datetime('now') WHERE id = 1")
+          .bind(h.hash, h.salt, h.iter),
+        db.prepare("DELETE FROM sessions WHERE id_hash != ?").bind(session.idHash),
+      ]);
+      await logActivity(db, "Şifre değiştirildi (diğer cihazlardan çıkış yapıldı)");
+      return Astro.redirect("/admin/hesap?ok=sifre", 303);
+    }
+  } else if (action === "logout-others") {
+    await db.prepare("DELETE FROM sessions WHERE id_hash != ?").bind(session.idHash).run();
+    await logActivity(db, "Diğer cihazlardan çıkış yapıldı");
+    return Astro.redirect("/admin/hesap?ok=cikis", 303);
+  }
+}
+
+const others = await db
+  .prepare("SELECT COUNT(*) AS n FROM sessions WHERE id_hash != ? AND stage = 'full' AND expires_at > datetime('now')")
+  .bind(session.idHash)
+  .first<number>("n");
+const backupLeft = (JSON.parse(admin.backup_codes) as string[]).length;
+const ok = Astro.url.searchParams.get("ok");
+---
+
+<PanelLayout title="Şifre ve güvenlik" eyebrow="Hesap" lead={`Giriş e-postası: ${admin.email}`}>
+  {ok === "sifre" && <p class="p-toast" role="status">Şifreniz değişti. Diğer cihazlardaki oturumlar kapatıldı.</p>}
+  {ok === "cikis" && <p class="p-toast" role="status">Diğer cihazlardan çıkış yapıldı.</p>}
+
+  <div class="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
+    <section class="p-card" aria-labelledby="sifre-baslik">
+      <h2 id="sifre-baslik" class="font-title text-[1.5rem]">Şifre değiştir</h2>
+      {error && <p class="admin-error mt-3" role="alert">{error}</p>}
+      <form method="post" class="mt-4 grid gap-4">
+        <input type="hidden" name="csrf" value={session.csrf} />
+        <input type="hidden" name="action" value="password" />
+        <div>
+          <label class="admin-label" for="current">Mevcut şifre</label>
+          <input class="admin-input" id="current" name="current" type="password" autocomplete="current-password" required aria-invalid={errorField === "current" ? "true" : undefined} />
+        </div>
+        <div>
+          <label class="admin-label" for="next">Yeni şifre</label>
+          <input class="admin-input" id="next" name="next" type="password" autocomplete="new-password" minlength="10" required aria-describedby="next-help" aria-invalid={errorField === "next" ? "true" : undefined} />
+          <p id="next-help" class="mt-1.5 text-xs text-ink-soft">En az 10 karakter. Başka hiçbir yerde kullanmadığınız bir şifre seçin.</p>
+        </div>
+        <div>
+          <label class="admin-label" for="repeat">Yeni şifre (tekrar)</label>
+          <input class="admin-input" id="repeat" name="repeat" type="password" autocomplete="new-password" required aria-invalid={errorField === "repeat" ? "true" : undefined} />
+        </div>
+        <button class="admin-btn mt-1 sm:w-auto sm:justify-self-start sm:px-7" type="submit">Şifreyi değiştir</button>
+      </form>
+    </section>
+
+    <div class="grid content-start gap-5">
+      <section class="p-card" aria-labelledby="iki-baslik">
+        <h2 id="iki-baslik" class="font-title text-[1.5rem]">İki adımlı doğrulama</h2>
+        <p class="mt-2 font-mono text-[11px] tracking-[0.14em] text-teal-ink uppercase">
+          <span class="mr-1.5 inline-block size-2 rounded-full bg-teal-ink align-middle"></span>Açık
+        </p>
+        <p class="mt-3 text-[0.95rem] text-ink-soft">
+          Yedek kod: <strong class="text-ink">{backupLeft} / 10</strong>. Telefonunuzu kaybederseniz ya da değiştirirseniz geliştiricinize haber verin; doğrulama
+          sıfırlanır ve yeni telefona kurulur.
+        </p>
+      </section>
+
+      <section class="p-card" aria-labelledby="oturum-baslik">
+        <h2 id="oturum-baslik" class="font-title text-[1.5rem]">Açık oturumlar</h2>
+        <p class="mt-2 text-[0.95rem] text-ink-soft">
+          {others ? `Bu cihaz dışında ${others} cihazda panel açık.` : "Panel sadece bu cihazda açık."} Oturumlar 7 gün sonra kendiliğinden kapanır.
+        </p>
+        {
+          !!others && (
+            <form method="post" class="mt-4">
+              <input type="hidden" name="csrf" value={session.csrf} />
+              <input type="hidden" name="action" value="logout-others" />
+              <button class="admin-btn admin-btn-ghost sm:w-auto sm:px-6" type="submit">
+                Diğer cihazlardan çıkış yap
+              </button>
+            </form>
+          )
+        }
+      </section>
+    </div>
+  </div>
+</PanelLayout>

@@ -1,0 +1,84 @@
+/* Admin paneli ortak stilleri (giriş sayfaları + panel). Renkler global.css token'larından. */
+/* Sitenin koyu varsayılan zemini panelde geçerli değil */
+  .admin-body {
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+  }
+  .admin-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .admin-input {
+    display: block;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.95rem;
+    border-radius: 0.85rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 1rem;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 16%, transparent);
+    transition: box-shadow 0.2s ease;
+  }
+  .admin-input:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--color-teal-ink);
+  }
+  .admin-input-code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 1.5rem;
+    letter-spacing: 0.35em;
+    text-align: center;
+  }
+  .admin-btn {
+    display: inline-flex;
+    width: 100%;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    background: var(--color-teal-ink);
+    color: var(--color-paper);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .admin-btn:hover {
+    background: var(--color-navy-3);
+  }
+  .admin-btn:focus-visible {
+    outline: 2px solid var(--color-teal-ink);
+    outline-offset: 3px;
+  }
+  .admin-btn-ghost {
+    background: transparent;
+    color: var(--color-ink-soft);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-ink) 16%, transparent);
+  }
+  .admin-btn-ghost:hover {
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  .admin-error {
+    margin-bottom: 1rem;
+    padding: 0.75rem 0.95rem;
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--color-coral) 10%, white);
+    color: #9a2f1a;
+    font-size: 0.9rem;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-coral) 30%, transparent);
+  }
+
+/* Başarılı işlem bildirimi */
+.p-toast {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--color-teal) 18%, white);
+  color: var(--color-ink);
+  font-size: 0.9rem;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-teal-ink) 30%, transparent);
+}

@@ -16,5 +16,8 @@ declare namespace App {
 declare module "cloudflare:workers" {
   export const env: {
     DB: import("@cloudflare/workers-types").D1Database;
+    /** Ziyaretçi kartı için (gizli değişken, opsiyonel): src/lib/analytics.ts */
+    CF_API_TOKEN?: string;
+    CF_ACCOUNT_ID?: string;
   };
 }

@@ -49,7 +49,15 @@
 - Yerelde deneme hesabı: `test@ornek.com` / `GeciciTest-2026` (2FA sıfır; kullanıcı telefonla deneyecek). Canlıda hesap YOK.
 - **Deploy öncesi yapılacak:** `npm run db:migrate:remote` (0002) → deploy → kullanıcı kendi terminalinde `npm run admin:create -- --remote` (gerçek e-posta + şifre) → telefonla 2FA kurulumu.
 
-**Sıradaki: 3. aşama (panel iskeleti: sidebar, responsive düzen, Genel bakış).** Kullanıcı "başla" deyince.
+**3. aşama (panel iskeleti): BİTTİ (22.11.2026), commit/deploy bekliyor.**
+- `src/layouts/PanelLayout.astro`: masaüstünde solda sabit koyu yeşil sidebar, mobilde üst çubuk + soldan açılan çekmece (`<dialog>`). Menü `src/lib/admin-nav.ts` (`ready: false` = "yakında", tıklanmaz; her aşamada açılır). Ortak stiller `src/styles/admin.css`. Giriş sayfaları `AdminLayout.astro`'da kaldı.
+- `/admin` Genel bakış: kampanya aç/kapa anahtarı (metin boşsa açılmaz; bitiş tarihi geçmişse açarken temizlenir), içerik sayıları (iş fotoğrafı, ürün, slider, paket, yorum), son 7 gün ziyaret/görüntüleme (geçen haftayla kıyas), son 8 hareket.
+- `/admin/hesap`: şifre değiştirme (mevcut şifre yanlışsa deneme sınırına sayılır; değişince diğer oturumlar kapanır), 2FA durumu + kalan yedek kod, diğer cihazlardan çıkış. 2FA sıfırlama bilerek panelde yok.
+- **Kampanya şeridi artık ana sayfada** (`HomePage.astro`, hero'nun altı). Kapalıyken hiçbir şey göstermez; veritabanında kapalı.
+- Ziyaretçi kartı (`src/lib/analytics.ts`): Worker gizli değişkenleri `CF_API_TOKEN` (Account Analytics: Read) + `CF_ACCOUNT_ID` gerekir; yoksa "kurulum bekliyor". **Deploy'da kullanıcı Cloudflare'de okuma token'ı oluşturacak** (Claude adım adım anlatır), `npx wrangler secret put` ile eklenecek.
+- Test (yerel, uçtan uca): 17/17 (giriş, genel bakış, kampanya aç → sitede görünür → kapat, şifre değiştirme hataları + başarı, son hareketler, çıkış).
+
+**Sıradaki: 4. aşama (basit modüller: iletişim + markalar, kampanya, yorumlar, paketler + "İngilizceye çevir").** Kullanıcı "başla" deyince.
 
 **Admin paneli tasarım kararları (karar defteri, 20.11.2026'dan itibaren)**
 Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşağıdaki **tasarım dokümanında**; kullanıcı onayından sonra uygulama aşamalarına geçilecek.

@@ -1,0 +1,303 @@
+---
+/**
+ * Admin paneli düzeni: masaüstünde solda sabit koyu yeşil sidebar, sağda açık içerik alanı.
+ * Mobilde (< 64rem) üstte ince çubuk (logo + menü düğmesi); menü soldan açılan çekmece (<dialog>: Esc kapatır,
+ * odak içeride kalır). Menü listesi: src/lib/admin-nav.ts.
+ */
+import "@/styles/global.css";
+import "@/styles/admin.css";
+import {
+  BadgePercent,
+  ExternalLink,
+  Images,
+  LayoutDashboard,
+  LogOut,
+  Megaphone,
+  Menu,
+  MessageSquareQuote,
+  Package,
+  Phone,
+  ShieldCheck,
+  Video,
+  X,
+  FolderOpen,
+} from "lucide-react";
+import Logo from "@/components/Logo.astro";
+import { adminNav, type AdminIcon } from "@/lib/admin-nav";
+
+interface Props {
+  title: string;
+  /** Başlığın üstündeki küçük etiket */
+  eyebrow?: string;
+  /** Başlığın altındaki açıklama */
+  lead?: string;
+}
+const { title, eyebrow, lead } = Astro.props;
+const session = Astro.locals.admin!;
+const current = Astro.url.pathname.replace(/\/+$/, "") || "/admin";
+
+const icons: Record<AdminIcon, typeof LayoutDashboard> = {
+  overview: LayoutDashboard,
+  folders: FolderOpen,
+  products: Video,
+  sliders: Images,
+  prices: BadgePercent,
+  packages: Package,
+  reviews: MessageSquareQuote,
+  contact: Phone,
+  campaign: Megaphone,
+  account: ShieldCheck,
+};
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>{title} | Jüpiter Panel</title>
+  </head>
+  <body class="admin-body min-h-svh antialiased">
+    <a href="#panel-icerik" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
+      İçeriğe geç
+    </a>
+
+    <!-- Mobil üst çubuk -->
+    <header class="sticky top-0 z-30 flex h-16 items-center justify-between bg-navy px-4 text-paper lg:hidden">
+      <a href="/admin" class="flex items-center" aria-label="Genel bakış"><Logo spin={false} /></a>
+      <button type="button" class="p-icon-btn" data-drawer-open aria-controls="p-drawer" aria-expanded="false">
+        <Menu className="size-5" aria-hidden="true" />
+        <span class="sr-only">Menüyü aç</span>
+      </button>
+    </header>
+
+    <div class="lg:grid lg:min-h-svh lg:grid-cols-[17rem_1fr]">
+      <!-- Masaüstü sidebar (mobilde aynı içerik çekmecede) -->
+      <aside class="hidden lg:block">
+        <div class="sticky top-0 h-svh">
+          <nav class="p-side" aria-label="Panel menüsü">
+            <a href="/admin" class="mb-8 flex items-center px-2 pt-1" aria-label="Genel bakış"><Logo spin={false} /></a>
+            <div data-nav-source>
+              {
+                adminNav.map((g) => (
+                  <div class="mb-6">
+                    {g.title && <p class="p-side-title">{g.title}</p>}
+                    <ul class="grid gap-0.5">
+                      {g.items.map((it) => {
+                        const Icon = icons[it.icon];
+                        const active = current === it.href;
+                        return (
+                          <li>
+                            {it.ready ? (
+                              <a href={it.href} class="p-link" aria-current={active ? "page" : undefined}>
+                                <Icon className="size-[1.1rem] shrink-0" aria-hidden="true" />
+                                <span class="truncate">{it.label}</span>
+                              </a>
+                            ) : (
+                              <span class="p-link p-link-off" aria-disabled="true" title={`${it.phase}. aşamada eklenecek`}>
+                                <Icon className="size-[1.1rem] shrink-0" aria-hidden="true" />
+                                <span class="truncate">{it.label}</span>
+                                <span class="p-soon">yakında</span>
+                              </span>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))
+              }
+            </div>
+            <div class="mt-auto grid gap-0.5 border-t border-paper/10 pt-4" data-nav-foot-source>
+              <a href="/" target="_blank" rel="noopener" class="p-link">
+                <ExternalLink className="size-[1.1rem] shrink-0" aria-hidden="true" />
+                <span>Siteyi görüntüle</span>
+              </a>
+              <form method="post" action="/admin/cikis">
+                <input type="hidden" name="csrf" value={session.csrf} />
+                <button type="submit" class="p-link w-full cursor-pointer">
+                  <LogOut className="size-[1.1rem] shrink-0" aria-hidden="true" />
+                  <span>Çıkış yap</span>
+                </button>
+              </form>
+            </div>
+          </nav>
+        </div>
+      </aside>
+
+      <!-- İçerik -->
+      <main id="panel-icerik" class="min-w-0 px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
+        <div class="mx-auto max-w-[68rem]">
+          <header class="mb-8">
+            {eyebrow && <p class="font-mono text-[11px] tracking-[0.14em] text-teal-ink uppercase">{eyebrow}</p>}
+            <h1 class="mt-1 font-title text-[clamp(2rem,4vw,2.6rem)] leading-[1.05]">{title}</h1>
+            {lead && <p class="mt-2 max-w-[60ch] text-[0.98rem] text-ink-soft">{lead}</p>}
+          </header>
+          <slot />
+        </div>
+      </main>
+    </div>
+
+    <!-- Mobil çekmece: içine masaüstü menüsünün kopyası konur (aşağıdaki script) -->
+    <dialog id="p-drawer" class="p-drawer" aria-label="Panel menüsü">
+      <div class="p-side">
+        <div class="mb-6 flex items-center justify-between px-2">
+          <Logo spin={false} />
+          <button type="button" class="p-icon-btn" data-drawer-close>
+            <X className="size-5" aria-hidden="true" />
+            <span class="sr-only">Menüyü kapat</span>
+          </button>
+        </div>
+        <div data-nav-target></div>
+        <div data-nav-foot></div>
+      </div>
+    </dialog>
+  </body>
+</html>
+
+<script>
+  // Mobil çekmece: masaüstü menüsünü (aynı HTML) çekmeceye kopyalar; aç/kapat, Esc, dışına dokununca kapanır
+  const dialog = document.getElementById("p-drawer") as HTMLDialogElement | null;
+  const openBtn = document.querySelector<HTMLButtonElement>("[data-drawer-open]");
+  const source = document.querySelector("[data-nav-source]");
+  const foot = document.querySelector("[data-nav-foot-source]");
+  if (dialog && openBtn && source) {
+    dialog.querySelector("[data-nav-target]")!.append(source.cloneNode(true));
+    if (foot) dialog.querySelector("[data-nav-foot]")!.append(foot.cloneNode(true));
+    const close = () => dialog.close();
+    openBtn.addEventListener("click", () => {
+      dialog.showModal();
+      openBtn.setAttribute("aria-expanded", "true");
+    });
+    dialog.addEventListener("close", () => openBtn.setAttribute("aria-expanded", "false"));
+    dialog.querySelector("[data-drawer-close]")?.addEventListener("click", close);
+    // Arka plana (çekmecenin dışına) dokununca kapanır
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) close();
+    });
+  }
+</script>
+
+<style is:global>
+  .p-side {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-y: auto;
+    padding: 1.5rem 1rem 1.25rem;
+    background: var(--color-navy);
+    color: var(--color-paper);
+  }
+  .p-side-title {
+    margin: 0 0 0.4rem;
+    padding: 0 0.75rem;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-paper) 50%, transparent);
+  }
+  .p-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    color: color-mix(in srgb, var(--color-paper) 82%, transparent);
+    text-align: left;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+  a.p-link:hover,
+  button.p-link:hover {
+    background: color-mix(in srgb, var(--color-paper) 8%, transparent);
+    color: var(--color-paper);
+  }
+  .p-link:focus-visible {
+    outline: 2px solid var(--color-teal-soft);
+    outline-offset: -2px;
+  }
+  .p-link[aria-current="page"] {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .p-link-off {
+    color: color-mix(in srgb, var(--color-paper) 42%, transparent);
+    cursor: default;
+  }
+  .p-soon {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 0.1rem 0.45rem;
+    border-radius: 999px;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-paper) 18%, transparent);
+  }
+  .p-icon-btn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    color: var(--color-paper);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-paper) 20%, transparent);
+    cursor: pointer;
+  }
+  .p-icon-btn:hover {
+    background: color-mix(in srgb, var(--color-paper) 10%, transparent);
+  }
+  /* Mobil çekmece */
+  .p-drawer {
+    margin: 0;
+    width: min(19rem, 86vw);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .p-drawer::backdrop {
+    background: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .p-drawer[open] {
+      animation: p-drawer-in 0.32s var(--ease-out-expo, ease-out);
+    }
+    .p-drawer[open]::backdrop {
+      animation: p-fade 0.32s ease-out;
+    }
+  }
+  @keyframes p-drawer-in {
+    from {
+      translate: -100% 0;
+    }
+  }
+  @keyframes p-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  /* Panel kartı */
+  .p-card {
+    border-radius: 1.25rem;
+    background: #fff;
+    padding: 1.25rem;
+    box-shadow: 0 18px 40px -30px color-mix(in srgb, var(--color-ink) 50%, transparent);
+    outline: 1px solid color-mix(in srgb, var(--color-ink) 9%, transparent);
+  }
+  @media (width >= 40rem) {
+    .p-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

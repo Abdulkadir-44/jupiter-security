@@ -1,63 +1,252 @@
 ---
 /**
- * Panel ana sayfası. 2. aşamada sadece "giriş başarılı" ekranı; 3. aşamada "Genel bakış" (sidebar, sayılar,
- * son değişiklikler) olacak.
+ * Genel bakış (/admin): kampanya şeridi aç/kapa, içerik sayıları, bu haftanın ziyaretçileri, son hareketler.
+ * Form gönderimi (kampanya) aynı sayfaya POST; sonra yönlendirme (sayfa yenilenince form tekrar gönderilmez).
  */
 import { env } from "cloudflare:workers";
-import AdminLayout from "@/layouts/AdminLayout.astro";
-import { getAdmin } from "@/lib/auth";
+import { ArrowUpRight, Eye, Users } from "lucide-react";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import { getAdmin, logActivity } from "@/lib/auth";
+import { adminNav } from "@/lib/admin-nav";
+import { weeklyVisits } from "@/lib/analytics";
 
 export const prerender = false;
 
+const db = env.DB;
 const session = Astro.locals.admin!;
-const admin = await getAdmin(env.DB);
+const todayTr = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+
+type CampaignRow = { enabled: number; text_tr: string; cta_tr: string; ends_at: string | null };
+let error = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  if (form.get("action") === "campaign") {
+    const c = await db.prepare("SELECT enabled, text_tr, cta_tr, ends_at FROM campaign WHERE id = 1").first<CampaignRow>();
+    const turnOn = form.get("enabled") === "1";
+    if (turnOn && !c?.text_tr.trim()) {
+      error = "Kampanya metni boş. Önce Kampanya şeridi sayfasından metni yazın.";
+    } else {
+      // Bitiş tarihi geçmişse açarken tarih temizlenir (yoksa açılır açılmaz kendiliğinden kapalı görünürdü)
+      const clearDate = turnOn && c?.ends_at && c.ends_at < todayTr;
+      await db
+        .prepare(`UPDATE campaign SET enabled = ?, ${clearDate ? "ends_at = NULL," : ""} updated_at = datetime('now') WHERE id = 1`)
+        .bind(turnOn ? 1 : 0)
+        .run();
+      await logActivity(db, turnOn ? "Kampanya şeridi açıldı" : "Kampanya şeridi kapatıldı");
+      return Astro.redirect(`/admin?ok=${turnOn ? "kampanya-acik" : "kampanya-kapali"}`, 303);
+    }
+  }
+}
+
+const [campaignR, countsR, activityR] = await db.batch([
+  db.prepare("SELECT enabled, text_tr, cta_tr, ends_at FROM campaign WHERE id = 1"),
+  db.prepare(`SELECT
+      (SELECT COUNT(*) FROM photos WHERE place LIKE 'folder:%' AND published = 1 AND photo_key IS NOT NULL) AS work_photos,
+      (SELECT COUNT(*) FROM folders WHERE published = 1) AS folders,
+      (SELECT COUNT(*) FROM products WHERE published = 1) AS products,
+      (SELECT COUNT(*) FROM photos WHERE place LIKE 'slider:%' AND published = 1 AND photo_key IS NOT NULL) AS slider_photos,
+      (SELECT COUNT(*) FROM packages WHERE published = 1) AS packages,
+      (SELECT COUNT(*) FROM reviews WHERE published = 1) AS reviews`),
+  db.prepare("SELECT action, created_at FROM activity_log ORDER BY id DESC LIMIT 8"),
+]);
+const campaign = campaignR.results[0] as unknown as CampaignRow | undefined;
+const counts = countsR.results[0] as unknown as Record<string, number>;
+const activity = activityR.results as unknown as { action: string; created_at: string }[];
+const campaignLive = !!campaign && campaign.enabled === 1 && (!campaign.ends_at || todayTr <= campaign.ends_at);
+
+const admin = await getAdmin(db);
 const backupLeft = admin ? (JSON.parse(admin.backup_codes) as string[]).length : 0;
-const recent = await env.DB.prepare("SELECT action, created_at FROM activity_log ORDER BY id DESC LIMIT 5").all<{
-  action: string;
-  created_at: string;
-}>();
-const fmt = (d: string) =>
-  new Intl.DateTimeFormat("tr-TR", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Istanbul" }).format(
+const visits = await weeklyVisits(env, new URL(Astro.site ?? Astro.url).hostname);
+
+// İçerik kartları: menüde hazır olan sayfaya bağlanır, hazır değilse "yakında"
+const ready = new Map(adminNav.flatMap((g) => g.items).map((i) => [i.href, i]));
+const cards = [
+  { label: "İş fotoğrafı", value: counts.work_photos, note: `${counts.folders} klasörde`, href: "/admin/yapilan-isler" },
+  { label: "Ürün", value: counts.products, note: "vitrinde", href: "/admin/urunler" },
+  { label: "Slider fotoğrafı", value: counts.slider_photos, note: "güneş + Wi-Fi", href: "/admin/sliderlar" },
+  { label: "Paket", value: counts.packages, note: "fiyatlı", href: "/admin/paketler" },
+  { label: "Yorum", value: counts.reviews, note: "yayında", href: "/admin/yorumlar" },
+];
+
+const fmtDate = (d: string) =>
+  new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul" }).format(
     new Date(d.replace(" ", "T") + "Z"),
   );
+const num = (n: number) => n.toLocaleString("tr-TR");
+const change = (a: number, b: number) => (b === 0 ? null : Math.round(((a - b) / b) * 100));
+
+const ok = Astro.url.searchParams.get("ok");
+const okText: Record<string, string> = {
+  "kampanya-acik": "Kampanya şeridi açıldı. Sitede hero'nun altında görünüyor.",
+  "kampanya-kapali": "Kampanya şeridi kapatıldı.",
+};
 ---
 
-<AdminLayout title="Panel">
-  <p class="font-mono text-[11px] tracking-[0.14em] text-teal-ink uppercase">Giriş başarılı</p>
-  <h1 class="mt-1 font-title text-[2rem] leading-tight">Hoş geldiniz</h1>
-  <p class="mt-1.5 text-[0.95rem] text-ink-soft">
-    {admin?.email}. Yönetim ekranları (iletişim, paketler, yorumlar, fotoğraflar…) sonraki aşamalarda buraya eklenecek.
-  </p>
-
+<PanelLayout title="Genel bakış" eyebrow="Jüpiter Panel" lead="Sitenizin özeti. Soldaki menüden bölümleri düzenleyebilirsiniz.">
+  {ok && okText[ok] && <p class="p-toast" role="status">{okText[ok]}</p>}
+  {error && <p class="admin-error" role="alert">{error}</p>}
   {
     backupLeft <= 3 && (
-      <p class="admin-error mt-4">
-        Yedek kodunuz {backupLeft === 0 ? "kalmadı" : `${backupLeft} tane kaldı`}. Yenilemek için: npm run admin:reset-2fa
+      <p class="admin-error">
+        Yedek kodunuz {backupLeft === 0 ? "kalmadı" : `${backupLeft} tane kaldı`}. Telefonunuzu kaybederseniz giriş yapamayabilirsiniz;
+        yenilemek için geliştiricinize haber verin.
       </p>
     )
   }
 
-  {
-    recent.results.length > 0 && (
-      <section class="mt-6">
-        <h2 class="text-sm font-semibold">Son hareketler</h2>
-        <ul class="mt-2 divide-y divide-ink/10 text-sm">
-          {recent.results.map((r) => (
-            <li class="flex items-baseline justify-between gap-3 py-2">
-              <span>{r.action}</span>
-              <span class="shrink-0 font-mono text-[11px] text-ink-soft">{fmt(r.created_at)}</span>
+  <div class="grid gap-5 lg:grid-cols-[1.2fr_1fr]">
+    <!-- Kampanya şeridi -->
+    <section class="p-card" aria-labelledby="kampanya-baslik">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <h2 id="kampanya-baslik" class="text-sm font-semibold">Kampanya şeridi</h2>
+          <p class:list={["mt-1 font-mono text-[11px] tracking-[0.14em] uppercase", campaignLive ? "text-teal-ink" : "text-ink-soft"]}>
+            <span class:list={["mr-1.5 inline-block size-2 rounded-full align-middle", campaignLive ? "bg-teal-ink" : "bg-ink/25"]}></span>
+            {campaignLive ? "Sitede görünüyor" : "Kapalı"}
+          </p>
+        </div>
+        <form method="post">
+          <input type="hidden" name="csrf" value={session.csrf} />
+          <input type="hidden" name="action" value="campaign" />
+          <input type="hidden" name="enabled" value={campaignLive ? "0" : "1"} />
+          <button type="submit" class="p-switch" role="switch" aria-checked={campaignLive ? "true" : "false"} aria-labelledby="kampanya-baslik">
+            <span class="sr-only">{campaignLive ? "Kapat" : "Aç"}</span>
+          </button>
+        </form>
+      </div>
+      <div class="mt-4 rounded-xl bg-paper px-4 py-3 text-[0.95rem] ring-1 ring-ink/10">
+        {campaign?.text_tr ? <p>{campaign.text_tr}</p> : <p class="text-ink-soft">Henüz metin yok.</p>}
+        {campaign?.cta_tr && <p class="mt-1 text-sm text-ink-soft">Düğme: {campaign.cta_tr}</p>}
+      </div>
+      <p class="mt-3 text-sm text-ink-soft">
+        {
+          campaign?.ends_at
+            ? `Bitiş: ${new Intl.DateTimeFormat("tr-TR", { dateStyle: "long" }).format(new Date(campaign.ends_at + "T12:00:00"))} (o gün bitince kendiliğinden kapanır)`
+            : "Bitiş tarihi yok. Metni ve tarihi değiştirmek: Kampanya şeridi sayfası (4. aşama)."
+        }
+      </p>
+    </section>
+
+    <!-- Ziyaretçiler -->
+    <section class="p-card" aria-labelledby="ziyaret-baslik">
+      <h2 id="ziyaret-baslik" class="text-sm font-semibold">Son 7 gün</h2>
+      {
+        visits.ok ? (
+          <div class="mt-4 grid grid-cols-2 gap-4">
+            {[
+              { icon: Users, label: "Ziyaret", a: visits.stats.thisWeek.visits, b: visits.stats.lastWeek.visits },
+              { icon: Eye, label: "Sayfa görüntüleme", a: visits.stats.thisWeek.views, b: visits.stats.lastWeek.views },
+            ].map((m) => {
+              const c = change(m.a, m.b);
+              return (
+                <div>
+                  <p class="flex items-center gap-1.5 text-sm text-ink-soft">
+                    <m.icon className="size-4" aria-hidden="true" />
+                    {m.label}
+                  </p>
+                  <p class="mt-1 font-title text-[2.4rem] leading-none tabular-nums">{num(m.a)}</p>
+                  <p class="mt-1.5 text-xs text-ink-soft">
+                    {c === null ? "Geçen hafta veri yok" : `Geçen haftaya göre ${c > 0 ? "+" : ""}${c}%`}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p class="mt-3 text-[0.95rem] text-ink-soft">
+            {visits.reason === "not-configured"
+              ? "Kurulum bekliyor. Cloudflare okuma anahtarı eklenince burada haftalık ziyaretçi sayısı görünecek."
+              : "Ziyaretçi verisi şu an alınamadı. Biraz sonra tekrar deneyin."}
+          </p>
+        )
+      }
+    </section>
+  </div>
+
+  <!-- İçerik sayıları -->
+  <section class="mt-8" aria-labelledby="icerik-baslik">
+    <h2 id="icerik-baslik" class="mb-3 text-sm font-semibold">Sitedeki içerik</h2>
+    <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+      {
+        cards.map((c) => {
+          const nav = ready.get(c.href);
+          const inner = (
+            <>
+              <p class="text-sm text-ink-soft">{c.label}</p>
+              <p class="mt-1 font-title text-[2.2rem] leading-none tabular-nums">{num(c.value)}</p>
+              <p class="mt-2 flex items-center justify-between gap-2 text-xs text-ink-soft">
+                <span>{c.note}</span>
+                {nav?.ready ? <ArrowUpRight className="size-4 text-teal-ink" aria-hidden="true" /> : <span class="font-mono text-[10px] uppercase">yakında</span>}
+              </p>
+            </>
+          );
+          return <li>{nav?.ready ? <a href={c.href} class="p-card p-stat block">{inner}</a> : <div class="p-card p-stat">{inner}</div>}</li>;
+        })
+      }
+    </ul>
+  </section>
+
+  <!-- Son hareketler -->
+  <section class="p-card mt-8" aria-labelledby="hareket-baslik">
+    <h2 id="hareket-baslik" class="text-sm font-semibold">Son hareketler</h2>
+    {
+      activity.length ? (
+        <ul class="mt-3 divide-y divide-ink/10">
+          {activity.map((a) => (
+            <li class="flex items-baseline justify-between gap-4 py-2.5 text-[0.95rem]">
+              <span class="min-w-0">{a.action}</span>
+              <time class="shrink-0 font-mono text-[11px] text-ink-soft" datetime={a.created_at.replace(" ", "T") + "Z"}>
+                {fmtDate(a.created_at)}
+              </time>
             </li>
           ))}
         </ul>
-      </section>
-    )
-  }
+      ) : (
+        <p class="mt-3 text-[0.95rem] text-ink-soft">Henüz hareket yok.</p>
+      )
+    }
+  </section>
+</PanelLayout>
 
-  <div class="mt-6 grid gap-3">
-    <a href="/" class="admin-btn admin-btn-ghost" target="_blank" rel="noopener">Siteyi görüntüle</a>
-    <form method="post" action="/admin/cikis">
-      <input type="hidden" name="csrf" value={session.csrf} />
-      <button class="admin-btn" type="submit">Çıkış yap</button>
-    </form>
-  </div>
-</AdminLayout>
+<style>
+  /* Aç/kapa anahtarı: form düğmesi (JS gerekmez) */
+  .p-switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 3.4rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .p-switch::after {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+    transition: translate 0.25s var(--ease-out-expo, ease-out);
+  }
+  .p-switch[aria-checked="true"] {
+    background: var(--color-teal-ink);
+  }
+  .p-switch[aria-checked="true"]::after {
+    translate: 1.4rem 0;
+  }
+  .p-switch:focus-visible {
+    outline: 2px solid var(--color-teal-ink);
+    outline-offset: 3px;
+  }
+  .p-stat {
+    transition: translate 0.25s var(--ease-out-expo, ease-out);
+  }
+  a.p-stat:hover {
+    translate: 0 -2px;
+  }
+</style>

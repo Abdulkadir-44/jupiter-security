@@ -5,6 +5,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import WhatsAppFloat from "@/components/WhatsAppFloat.astro";
 import Hero from "@/components/sections/Hero.astro";
+import Announcement from "@/components/sections/Announcement.astro";
 import Areas from "@/components/sections/Areas.astro";
 import Process from "@/components/sections/Process.astro";
 import Coverage from "@/components/sections/Coverage.astro";
@@ -24,6 +25,8 @@ import Footer from "@/components/sections/Footer.astro";
   <Header />
   <main id="icerik">
     <Hero />
+    <!-- Kampanya şeridi: panelden açılır (Genel bakış / Kampanya); kapalıyken hiçbir şey göstermez -->
+    <Announcement />
     <Areas />
     <Process />
     <Coverage />
