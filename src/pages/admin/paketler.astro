@@ -1,0 +1,194 @@
+---
+/**
+ * Hazır paketler (/admin/paketler): liste (sırala, gizle/göster, sil) + ekleme/düzenleme formu (?id=yeni | ?id=<no>).
+ * "Öne çıkan" en fazla bir paket olur (işaretlenince diğerlerinden kalkar). "KDV ve montaj dahil" notu sitede sabit.
+ * Fiyat burada da, 6. aşamadaki Fiyatlar sayfasında da değiştirilebilir (aynı alan).
+ */
+import { env } from "cloudflare:workers";
+import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Star, Trash2 } from "lucide-react";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import Field from "@/components/admin/Field.astro";
+import BiField from "@/components/admin/BiField.astro";
+import TranslateButton from "@/components/admin/TranslateButton.astro";
+import { logActivity } from "@/lib/auth";
+import { checked, lines, listAction, nextSort, str, toLines } from "@/lib/admin-form";
+
+export const prerender = false;
+
+type Pkg = {
+  id: number;
+  name_tr: string;
+  name_en: string;
+  cameras_tr: string;
+  cameras_en: string;
+  for_tr: string;
+  for_en: string;
+  features_tr: string;
+  features_en: string;
+  price_from: number | string;
+  featured: number;
+  published: number;
+};
+const db = env.DB;
+const session = Astro.locals.admin!;
+const editId = Astro.url.searchParams.get("id");
+const errors: Record<string, string> = {};
+let draft: Pkg | null = null;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const op = str(form, "op", 10);
+  const id = Number(form.get("id"));
+
+  if (op === "save") {
+    const priceRaw = str(form, "price_from", 12).replace(/[.\s]/g, "");
+    const price = Number(priceRaw);
+    const featuresTr = lines(form, "features_tr", 12, 120);
+    const featuresEn = lines(form, "features_en", 12, 120);
+    draft = {
+      id,
+      name_tr: str(form, "name_tr", 40),
+      name_en: str(form, "name_en", 40),
+      cameras_tr: str(form, "cameras_tr", 40),
+      cameras_en: str(form, "cameras_en", 40),
+      for_tr: str(form, "for_tr", 80),
+      for_en: str(form, "for_en", 80),
+      features_tr: JSON.stringify(featuresTr),
+      features_en: JSON.stringify(featuresEn),
+      price_from: priceRaw,
+      featured: checked(form, "featured") ? 1 : 0,
+      published: 1,
+    };
+    if (!draft.name_tr) errors.name = "Paket adı boş olamaz.";
+    if (!draft.cameras_tr) errors.cameras = "Kamera sayısını yazın (örn. 4 kamera).";
+    if (!featuresTr.length) errors.features = "En az bir özellik yazın.";
+    if (!/^\d{3,7}$/.test(priceRaw) || price < 100) errors.price = "Fiyatı sadece rakamla yazın (örn. 14999).";
+
+    if (!Object.keys(errors).length) {
+      const values = [draft.name_tr, draft.name_en, draft.cameras_tr, draft.cameras_en, draft.for_tr, draft.for_en, draft.features_tr, draft.features_en, price, draft.featured];
+      let savedId = id;
+      if (id) {
+        await db
+          .prepare(
+            `UPDATE packages SET name_tr = ?, name_en = ?, cameras_tr = ?, cameras_en = ?, for_tr = ?, for_en = ?, features_tr = ?, features_en = ?,
+               price_from = ?, featured = ?, updated_at = datetime('now') WHERE id = ?`,
+          )
+          .bind(...values, id)
+          .run();
+      } else {
+        const r = await db
+          .prepare(
+            `INSERT INTO packages (name_tr, name_en, cameras_tr, cameras_en, for_tr, for_en, features_tr, features_en, price_from, featured, sort)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+          )
+          .bind(...values, await nextSort(db, "packages"))
+          .first<number>("id");
+        savedId = r ?? 0;
+      }
+      if (draft.featured) await db.prepare("UPDATE packages SET featured = 0 WHERE id != ?").bind(savedId).run();
+      await logActivity(db, `Paket ${id ? "düzenlendi" : "eklendi"}: ${draft.name_tr}`);
+      return Astro.redirect(`/admin/paketler?ok=${id ? "kaydedildi" : "eklendi"}`, 303);
+    }
+  } else if (id) {
+    const name = (await db.prepare("SELECT name_tr FROM packages WHERE id = ?").bind(id).first<string>("name_tr")) ?? "";
+    const done = await listAction(db, "packages", id, op);
+    const text = { up: "sırası değişti", down: "sırası değişti", toggle: "gösterildi/gizlendi", delete: "silindi" } as const;
+    if (done) await logActivity(db, `Paket ${text[done]}: ${name}`);
+    return Astro.redirect(`/admin/paketler${done === "delete" ? "?ok=silindi" : ""}`, 303);
+  }
+}
+
+const packages = (await db.prepare("SELECT * FROM packages ORDER BY sort, id").all<Pkg>()).results;
+const blank: Pkg = { id: 0, name_tr: "", name_en: "", cameras_tr: "", cameras_en: "", for_tr: "", for_en: "", features_tr: "[]", features_en: "[]", price_from: "", featured: 0, published: 1 };
+const editing: Pkg | null = draft ?? (editId === "yeni" ? blank : (packages.find((p) => String(p.id) === editId) ?? null));
+const tl = (n: number | string) => `${Number(n).toLocaleString("tr-TR")} TL`;
+const ok = Astro.url.searchParams.get("ok");
+const okText: Record<string, string> = { kaydedildi: "Paket kaydedildi.", eklendi: "Paket eklendi; listenin sonunda.", silindi: "Paket silindi." };
+---
+
+<PanelLayout title="Paketler" eyebrow="Bilgiler" lead="Sitedeki 'Hazır kamera sistemi paketleri'. Fiyatın yanına sitede otomatik olarak 'KDV ve montaj dahil' yazılır.">
+  {ok && okText[ok] && <p class="p-toast" role="status">{okText[ok]}</p>}
+
+  {
+    editing ? (
+      <form method="post" class="grid gap-6" data-guard>
+        <input type="hidden" name="csrf" value={session.csrf} />
+        <input type="hidden" name="op" value="save" />
+        <input type="hidden" name="id" value={editing.id} />
+        <section class="p-card grid gap-5">
+          <h2 class="font-title text-[1.5rem]">{editing.id ? "Paketi düzenle" : "Yeni paket"}</h2>
+          <BiField name="name" label="Paket adı" tr={editing.name_tr} en={editing.name_en} maxlength={40} required error={errors.name} placeholder="Ev ve dükkan" />
+          <BiField name="cameras" label="Kamera sayısı" tr={editing.cameras_tr} en={editing.cameras_en} maxlength={40} required error={errors.cameras} placeholder="4 kamera" />
+          <BiField name="for" label="Kimler için" tr={editing.for_tr} en={editing.for_en} maxlength={80} placeholder="Müstakil ev, dükkan" />
+          <BiField name="features" label="Paket içeriği" tr={toLines(editing.features_tr)} en={toLines(editing.features_en)} rows={6} required error={errors.features} help="Her satıra bir madde." />
+          <div class="grid gap-4 sm:grid-cols-2 sm:items-end">
+            <Field name="price_from" label="Başlangıç fiyatı (TL)" inputmode="numeric" value={editing.price_from} required error={errors.price} help="Sadece rakam: 14999 → sitede '14.999 TL'den başlayan'." />
+            <label class="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl bg-paper px-4 ring-1 ring-ink/10">
+              <input type="checkbox" name="featured" class="size-5 accent-[var(--color-teal-ink)]" checked={editing.featured === 1} />
+              <span class="text-sm"><strong>Öne çıkan paket</strong> (sitede vurgulu; tek paket olur)</span>
+            </label>
+          </div>
+        </section>
+        <div class="p-savebar">
+          <TranslateButton csrf={session.csrf} />
+          <div class="flex gap-3">
+            <a href="/admin/paketler" class="admin-btn admin-btn-ghost w-auto px-6">Vazgeç</a>
+            <button class="admin-btn" type="submit">Kaydet</button>
+          </div>
+        </div>
+      </form>
+    ) : (
+      <>
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <p class="text-sm text-ink-soft">{packages.length} paket · {packages.filter((p) => p.published).length} tanesi sitede</p>
+          <a href="/admin/paketler?id=yeni" class="admin-btn w-auto px-5">
+            <Plus className="size-4" aria-hidden="true" />
+            Paket ekle
+          </a>
+        </div>
+        <ul class="grid gap-3" data-sortable>
+          {packages.map((p, i) => (
+            <li class:list={["p-card flex flex-col gap-3 sm:flex-row sm:items-center", !p.published && "opacity-60"]}>
+              <div class="min-w-0 flex-1">
+                <p class="flex flex-wrap items-center gap-2">
+                  <strong class="font-title text-[1.4rem] leading-none">{p.name_tr}</strong>
+                  <span class="text-sm text-ink-soft">{p.cameras_tr}</span>
+                  {p.featured === 1 && (
+                    <span class="p-badge !text-teal-ink">
+                      <Star className="mr-1 size-3" aria-hidden="true" />
+                      öne çıkan
+                    </span>
+                  )}
+                  {!p.published && <span class="p-badge">gizli</span>}
+                </p>
+                <p class="mt-1.5 text-sm text-ink-soft">
+                  <strong class="text-ink tabular-nums">{tl(p.price_from)}</strong>'den · {(JSON.parse(p.features_tr) as string[]).length} madde
+                  {p.for_tr && ` · ${p.for_tr}`}
+                </p>
+              </div>
+              <form method="post" class="flex shrink-0 items-center gap-0.5 self-end sm:self-center">
+                <input type="hidden" name="csrf" value={session.csrf} />
+                <input type="hidden" name="id" value={p.id} />
+                <button class="p-mini" name="op" value="up" disabled={i === 0} aria-label={`${p.name_tr}: yukarı taşı`}>
+                  <ArrowUp className="size-4" aria-hidden="true" />
+                </button>
+                <button class="p-mini" name="op" value="down" disabled={i === packages.length - 1} aria-label={`${p.name_tr}: aşağı taşı`}>
+                  <ArrowDown className="size-4" aria-hidden="true" />
+                </button>
+                <button class="p-mini" name="op" value="toggle" aria-label={`${p.name_tr}: ${p.published ? "sitede gizle" : "sitede göster"}`} title={p.published ? "Gizle" : "Göster"}>
+                  {p.published ? <Eye className="size-4" aria-hidden="true" /> : <EyeOff className="size-4" aria-hidden="true" />}
+                </button>
+                <a class="p-mini" href={`/admin/paketler?id=${p.id}`} aria-label={`${p.name_tr}: düzenle`} title="Düzenle">
+                  <Pencil className="size-4" aria-hidden="true" />
+                </a>
+                <button class="p-mini p-mini-danger" name="op" value="delete" aria-label={`${p.name_tr}: sil`} title="Sil" data-confirm={`"${p.name_tr}" paketi silinsin mi? Bu geri alınamaz.`}>
+                  <Trash2 className="size-4" aria-hidden="true" />
+                </button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+</PanelLayout>

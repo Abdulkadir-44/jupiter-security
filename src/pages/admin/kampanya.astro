@@ -1,0 +1,125 @@
+---
+/**
+ * Kampanya şeridi (/admin/kampanya): aç/kapa, metin, düğme yazısı, bitiş tarihi. Sitede hero'nun hemen altında görünür.
+ * Düğmeye basan müşteri WhatsApp'a kampanya metniyle yönlenir. Bitiş tarihi geçince şerit kendiliğinden kalkar.
+ */
+import { env } from "cloudflare:workers";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import Field from "@/components/admin/Field.astro";
+import BiField from "@/components/admin/BiField.astro";
+import TranslateButton from "@/components/admin/TranslateButton.astro";
+import { logActivity } from "@/lib/auth";
+import { checked, str } from "@/lib/admin-form";
+import type { CampaignRow } from "@/lib/db";
+
+export const prerender = false;
+
+const db = env.DB;
+const session = Astro.locals.admin!;
+const todayTr = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+const errors: Record<string, string> = {};
+let row = (await db.prepare("SELECT * FROM campaign WHERE id = 1").first<CampaignRow>())!;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const next: CampaignRow = {
+    enabled: checked(form, "enabled") ? 1 : 0,
+    text_tr: str(form, "text_tr", 160),
+    text_en: str(form, "text_en", 160),
+    cta_tr: str(form, "cta_tr", 40),
+    cta_en: str(form, "cta_en", 40),
+    ends_at: str(form, "ends_at", 10) || null,
+  };
+  if (next.enabled && !next.text_tr) errors.text = "Şeridi açmak için kampanya metnini yazın.";
+  if (next.ends_at && !/^\d{4}-\d{2}-\d{2}$/.test(next.ends_at)) errors.ends_at = "Geçerli bir tarih seçin.";
+  else if (next.enabled && next.ends_at && next.ends_at < todayTr) errors.ends_at = "Bitiş tarihi geçmiş. İleri bir tarih seçin ya da boş bırakın.";
+
+  if (!Object.keys(errors).length) {
+    await db
+      .prepare(
+        "UPDATE campaign SET enabled = ?, text_tr = ?, text_en = ?, cta_tr = ?, cta_en = ?, ends_at = ?, updated_at = datetime('now') WHERE id = 1",
+      )
+      .bind(next.enabled, next.text_tr, next.text_en, next.cta_tr, next.cta_en, next.ends_at)
+      .run();
+    await logActivity(db, `Kampanya şeridi kaydedildi (${next.enabled ? "açık" : "kapalı"})`);
+    return Astro.redirect("/admin/kampanya?ok=1", 303);
+  }
+  row = next;
+}
+
+const live = row.enabled === 1 && !!row.text_tr && (!row.ends_at || todayTr <= row.ends_at);
+---
+
+<PanelLayout title="Kampanya şeridi" eyebrow="Bilgiler" lead="Sitede hero'nun hemen altında görünen duyuru şeridi. Müşteri düğmeye basınca WhatsApp'a kampanya metniyle yönlenir.">
+  {Astro.url.searchParams.has("ok") && <p class="p-toast" role="status">Kaydedildi.{live ? " Şerit sitede görünüyor." : " Şerit sitede görünmüyor."}</p>}
+
+  <!-- Önizleme: sitedeki şeridin aynısı -->
+  <section class="mb-6" aria-label="Önizleme">
+    <p class="mb-2 text-sm font-semibold">Önizleme <span class:list={["p-badge ml-1", live && "!text-teal-ink"]}>{live ? "sitede" : "kapalı"}</span></p>
+    <div class:list={["overflow-hidden rounded-2xl bg-teal text-ink", !live && "opacity-55"]}>
+      <div class="flex flex-col items-start gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <p class="font-semibold">{row.text_tr || "Kampanya metni burada görünecek"}</p>
+        {row.cta_tr && <span class="inline-flex min-h-11 shrink-0 items-center rounded-full bg-ink px-4 font-semibold text-paper">{row.cta_tr}</span>}
+      </div>
+    </div>
+  </section>
+
+  <form method="post" class="grid gap-6" data-guard>
+    <input type="hidden" name="csrf" value={session.csrf} />
+    <section class="p-card grid gap-5">
+      <label class="flex cursor-pointer items-center justify-between gap-4">
+        <span>
+          <span class="block font-semibold">Şerit açık</span>
+          <span class="block text-sm text-ink-soft">Kapalıyken sitede hiçbir şey görünmez; metin saklı kalır.</span>
+        </span>
+        <input type="checkbox" name="enabled" class="p-check" checked={row.enabled === 1} />
+      </label>
+      <BiField name="text" label="Kampanya metni" tr={row.text_tr} en={row.text_en} rows={2} maxlength={160} error={errors.text} help="Kısa ve net: örn. 'Aralık ayına özel: 4 kameralı pakette kurulum ücretsiz.'" />
+      <BiField name="cta" label="Düğme yazısı" tr={row.cta_tr} en={row.cta_en} maxlength={40} help="Boş bırakılırsa düğme gösterilmez." />
+      <div class="max-w-xs">
+        <Field name="ends_at" label="Bitiş tarihi" type="date" value={row.ends_at} error={errors.ends_at} help="Bu günün sonunda şerit kendiliğinden kalkar." />
+      </div>
+    </section>
+
+    <div class="p-savebar">
+      <TranslateButton csrf={session.csrf} />
+      <button class="admin-btn" type="submit">Kaydet</button>
+    </div>
+  </form>
+</PanelLayout>
+
+<style>
+  .p-check {
+    appearance: none;
+    position: relative;
+    flex-shrink: 0;
+    width: 3.4rem;
+    height: 2rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-ink) 18%, transparent);
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+  }
+  .p-check::after {
+    content: "";
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.2);
+    transition: translate 0.25s var(--ease-out-expo, ease-out);
+  }
+  .p-check:checked {
+    background: var(--color-teal-ink);
+  }
+  .p-check:checked::after {
+    translate: 1.4rem 0;
+  }
+  .p-check:focus-visible {
+    outline: 2px solid var(--color-teal-ink);
+    outline-offset: 3px;
+  }
+</style>

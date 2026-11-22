@@ -1,0 +1,44 @@
+---
+/**
+ * Panel form alanı: etiket + kutu (tek satır ya da çok satır) + yardım metni + hata (alanın hemen altında).
+ */
+interface Props {
+  name: string;
+  label: string;
+  value?: string | number | null;
+  type?: "text" | "number" | "date" | "url" | "tel";
+  /** Çok satırlı (textarea); sayı = satır yüksekliği */
+  rows?: number;
+  help?: string;
+  error?: string;
+  required?: boolean;
+  placeholder?: string;
+  maxlength?: number;
+  inputmode?: "numeric" | "tel" | "url" | "text";
+  /** Çeviri düğmesi için işaret: data-tr / data-en */
+  tr?: string;
+  en?: string;
+}
+const { name, label, value, type = "text", rows, help, error, required, placeholder, maxlength, inputmode, tr, en } = Astro.props;
+const id = `f-${name}`;
+const describedBy = [help && `${id}-help`, error && `${id}-err`].filter(Boolean).join(" ") || undefined;
+const common = {
+  id,
+  name,
+  class: "admin-input",
+  required,
+  placeholder,
+  maxlength,
+  "aria-describedby": describedBy,
+  "aria-invalid": error ? ("true" as const) : undefined,
+  "data-tr": tr,
+  "data-en": en,
+};
+---
+
+<div>
+  <label class="admin-label" for={id}>{label}{!required && <span class="font-normal text-ink-soft"> (isteğe bağlı)</span>}</label>
+  {rows ? <textarea {...common} rows={rows}>{value ?? ""}</textarea> : <input {...common} type={type} inputmode={inputmode} value={value ?? ""} />}
+  {help && <p id={`${id}-help`} class="mt-1.5 text-xs text-ink-soft">{help}</p>}
+  {error && <p id={`${id}-err`} class="admin-field-error">{error}</p>}
+</div>

@@ -11,6 +11,9 @@
   // Veritabanı (Cloudflare D1, Doğu Avrupa). Kodda: import { env } from "cloudflare:workers" → env.DB
   // Tablolar: db/migrations/ (npm run db:migrate:local|remote), ilk içerik: npm run db:seed:local|remote
   // Yerel geliştirmede `npm run dev` bilgisayardaki kopyayı kullanır (.wrangler/state), canlıyı değil.
+  // "İngilizceye çevir" düğmesi (Workers AI, ücretsiz günlük kota; ayrıntı src/lib/translate.ts).
+  // Yerel geliştirmede de Cloudflare'in gerçek servisine gider (wrangler girişi gerekir).
+  "ai": { "binding": "AI" },
   "d1_databases": [
     {
       "binding": "DB",

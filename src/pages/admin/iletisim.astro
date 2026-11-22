@@ -1,0 +1,143 @@
+---
+/**
+ * İletişim ve markalar (/admin/iletisim): telefon, WhatsApp, Instagram, Facebook, çalışma saatleri, hizmet bölgesi,
+ * ilçeler, kullanılan markalar. Tek satırlık `settings` tablosu.
+ * Telefon her biçimde yazılabilir; tıkla-ara ve WhatsApp bağlantıları buradan otomatik üretilir.
+ * Google için açılış saatleri (opening_hours) panelde yok: esnek çalışma, geliştirici gerekirse girer.
+ */
+import { env } from "cloudflare:workers";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import Field from "@/components/admin/Field.astro";
+import BiField from "@/components/admin/BiField.astro";
+import TranslateButton from "@/components/admin/TranslateButton.astro";
+import { logActivity } from "@/lib/auth";
+import { items, parsePhone, str, toLines } from "@/lib/admin-form";
+import type { SettingsRow } from "@/lib/db";
+
+export const prerender = false;
+
+const db = env.DB;
+const session = Astro.locals.admin!;
+const errors: Record<string, string> = {};
+let row = (await db.prepare("SELECT * FROM settings WHERE id = 1").first<SettingsRow>())!;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const phone = parsePhone(str(form, "phone"));
+  const waInput = str(form, "whatsapp");
+  const wa = waInput ? parsePhone(waInput) : phone;
+  const igRaw = str(form, "instagram", 100).replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/.*$/, "");
+  const fb = str(form, "facebook", 300);
+
+  if (!phone) errors.phone = "Geçerli bir telefon numarası girin (örn. 0545 142 31 31).";
+  if (!wa) errors.whatsapp = "Geçerli bir WhatsApp numarası girin ya da boş bırakın (telefonla aynı olur).";
+  if (igRaw && !/^[A-Za-z0-9._]{1,30}$/.test(igRaw)) errors.instagram = "Sadece kullanıcı adını yazın (örn. jupiterkamera).";
+  if (fb && !/^https:\/\/(www\.|m\.)?facebook\.com\/\S+$/.test(fb)) errors.facebook = "facebook.com ile başlayan tam adresi yapıştırın ya da boş bırakın.";
+  const next = {
+    whatsapp_message_tr: str(form, "whatsapp_message_tr", 300),
+    whatsapp_message_en: str(form, "whatsapp_message_en", 300),
+    hours_tr: str(form, "hours_tr", 120),
+    hours_en: str(form, "hours_en", 120),
+    region_tr: str(form, "region_tr", 120),
+    region_en: str(form, "region_en", 120),
+    service_areas: items(form, "service_areas"),
+    brands_cctv: items(form, "brands_cctv"),
+    brands_solar: items(form, "brands_solar"),
+  };
+  if (!next.whatsapp_message_tr) errors.whatsapp_message = "WhatsApp karşılama mesajı boş olamaz.";
+  if (!next.hours_tr) errors.hours = "Çalışma saatleri boş olamaz.";
+  if (!next.region_tr) errors.region = "Hizmet bölgesi boş olamaz.";
+  if (!next.service_areas.length) errors.service_areas = "En az bir ilçe yazın.";
+
+  if (!Object.keys(errors).length && phone && wa) {
+    await db
+      .prepare(
+        `UPDATE settings SET phone_display = ?, phone_e164 = ?, whatsapp = ?, whatsapp_message_tr = ?, whatsapp_message_en = ?,
+           instagram_handle = ?, instagram_url = ?, facebook_name = ?, facebook_url = ?, hours_tr = ?, hours_en = ?,
+           region_tr = ?, region_en = ?, service_areas = ?, brands_cctv = ?, brands_solar = ?, updated_at = datetime('now')
+         WHERE id = 1`,
+      )
+      .bind(
+        phone.display,
+        phone.e164,
+        wa.wa,
+        next.whatsapp_message_tr,
+        next.whatsapp_message_en,
+        igRaw ? `@${igRaw}` : "",
+        igRaw ? `https://instagram.com/${igRaw}` : "",
+        fb ? "Facebook" : "",
+        fb,
+        next.hours_tr,
+        next.hours_en,
+        next.region_tr,
+        next.region_en,
+        JSON.stringify(next.service_areas),
+        JSON.stringify(next.brands_cctv),
+        JSON.stringify(next.brands_solar),
+      )
+      .run();
+    await logActivity(db, "İletişim bilgileri güncellendi");
+    return Astro.redirect("/admin/iletisim?ok=1", 303);
+  }
+  // Hatalıysa girilen değerler formda kalsın
+  row = {
+    ...row,
+    ...next,
+    phone_display: str(form, "phone"),
+    whatsapp: waInput,
+    instagram_handle: str(form, "instagram"),
+    facebook_url: fb,
+    service_areas: JSON.stringify(next.service_areas),
+    brands_cctv: JSON.stringify(next.brands_cctv),
+    brands_solar: JSON.stringify(next.brands_solar),
+  };
+}
+
+const waDisplay = row.whatsapp && row.whatsapp === row.phone_e164.replace("+", "") ? "" : (parsePhone(row.whatsapp)?.display ?? row.whatsapp);
+---
+
+<PanelLayout title="İletişim ve markalar" eyebrow="Bilgiler" lead="Sitedeki tüm telefon, WhatsApp ve sosyal medya bağlantıları buradan gelir. Kaydedince sitede hemen değişir.">
+  {Astro.url.searchParams.has("ok") && <p class="p-toast" role="status">Kaydedildi. Sitede güncellendi.</p>}
+  {Object.keys(errors).length > 0 && <p class="admin-error" role="alert">Bazı alanlarda hata var, aşağıda işaretli.</p>}
+
+  <form method="post" class="grid gap-6" data-guard>
+    <input type="hidden" name="csrf" value={session.csrf} />
+
+    <section class="p-card grid gap-5" aria-labelledby="h-tel">
+      <h2 id="h-tel" class="font-title text-[1.5rem]">Telefon ve WhatsApp</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <Field name="phone" label="Telefon" type="tel" inputmode="tel" value={row.phone_display} required error={errors.phone} help="Sitede bu şekilde görünür; tıkla-ara bağlantısı otomatik." />
+        <Field name="whatsapp" label="WhatsApp numarası" type="tel" inputmode="tel" value={waDisplay} error={errors.whatsapp} help="Boş bırakırsanız telefonla aynı numara kullanılır." />
+      </div>
+      <BiField name="whatsapp_message" label="WhatsApp karşılama mesajı" tr={row.whatsapp_message_tr} en={row.whatsapp_message_en} rows={2} required error={errors.whatsapp_message} help="Müşteri WhatsApp düğmesine basınca mesaj kutusunda hazır yazan metin." />
+    </section>
+
+    <section class="p-card grid gap-5" aria-labelledby="h-sosyal">
+      <h2 id="h-sosyal" class="font-title text-[1.5rem]">Sosyal medya</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <Field name="instagram" label="Instagram kullanıcı adı" value={row.instagram_handle.replace(/^@/, "")} error={errors.instagram} placeholder="jupiterkamera" help="Sadece kullanıcı adı; @ işareti olmadan da olur." />
+        <Field name="facebook" label="Facebook sayfası adresi" type="url" value={row.facebook_url} error={errors.facebook} placeholder="https://facebook.com/..." />
+      </div>
+    </section>
+
+    <section class="p-card grid gap-5" aria-labelledby="h-bolge">
+      <h2 id="h-bolge" class="font-title text-[1.5rem]">Çalışma saatleri ve bölge</h2>
+      <BiField name="hours" label="Çalışma saatleri" tr={row.hours_tr} en={row.hours_en} required error={errors.hours} maxlength={120} />
+      <BiField name="region" label="Hizmet bölgesi" tr={row.region_tr} en={row.region_en} required error={errors.region} maxlength={120} />
+      <Field name="service_areas" label="Hizmet verilen ilçeler" rows={3} value={toLines(row.service_areas)} required error={errors.service_areas} help="Her satıra bir ilçe (ya da virgülle ayırın). Özel isim olduğu için çevrilmez." />
+    </section>
+
+    <section class="p-card grid gap-5" aria-labelledby="h-marka">
+      <h2 id="h-marka" class="font-title text-[1.5rem]">Kullanılan markalar</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <Field name="brands_cctv" label="Kamera sistemleri" rows={4} value={toLines(row.brands_cctv)} help="Paketler bölümünde görünür. Her satıra bir marka." />
+        <Field name="brands_solar" label="Güneş enerjili kameralar" rows={4} value={toLines(row.brands_solar)} help="Güneş enerjili bölümde görünür." />
+      </div>
+    </section>
+
+    <div class="p-savebar">
+      <TranslateButton csrf={session.csrf} />
+      <button class="admin-btn" type="submit">Kaydet</button>
+    </div>
+  </form>
+</PanelLayout>

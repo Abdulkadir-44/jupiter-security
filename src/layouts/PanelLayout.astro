@@ -64,13 +64,13 @@ const icons: Record<AdminIcon, typeof LayoutDashboard> = {
       İçeriğe geç
     </a>
 
-    <!-- Mobil üst çubuk -->
+    <!-- Mobil üst çubuk: menü düğmesi solda (çekmece soldan açılır), logo sağda -->
     <header class="sticky top-0 z-30 flex h-16 items-center justify-between bg-navy px-4 text-paper lg:hidden">
-      <a href="/admin" class="flex items-center" aria-label="Genel bakış"><Logo spin={false} /></a>
       <button type="button" class="p-icon-btn" data-drawer-open aria-controls="p-drawer" aria-expanded="false">
         <Menu className="size-5" aria-hidden="true" />
         <span class="sr-only">Menüyü aç</span>
       </button>
+      <a href="/admin" class="flex items-center" aria-label="Genel bakış"><Logo spin={false} /></a>
     </header>
 
     <div class="lg:grid lg:min-h-svh lg:grid-cols-[17rem_1fr]">
@@ -143,8 +143,7 @@ const icons: Record<AdminIcon, typeof LayoutDashboard> = {
     <!-- Mobil çekmece: içine masaüstü menüsünün kopyası konur (aşağıdaki script) -->
     <dialog id="p-drawer" class="p-drawer" aria-label="Panel menüsü">
       <div class="p-side">
-        <div class="mb-6 flex items-center justify-between px-2">
-          <Logo spin={false} />
+        <div class="mb-5 flex items-center px-2">
           <button type="button" class="p-icon-btn" data-drawer-close>
             <X className="size-5" aria-hidden="true" />
             <span class="sr-only">Menüyü kapat</span>
@@ -166,7 +165,25 @@ const icons: Record<AdminIcon, typeof LayoutDashboard> = {
   if (dialog && openBtn && source) {
     dialog.querySelector("[data-nav-target]")!.append(source.cloneNode(true));
     if (foot) dialog.querySelector("[data-nav-foot]")!.append(foot.cloneNode(true));
-    const close = () => dialog.close();
+    // Kapanış da animasyonlu: önce sola kayarak çıkar, animasyon bitince dialog kapanır
+    const close = () => {
+      if (!dialog.open || dialog.classList.contains("is-closing")) return;
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return dialog.close();
+      dialog.classList.add("is-closing");
+      dialog.addEventListener(
+        "animationend",
+        () => {
+          dialog.classList.remove("is-closing");
+          dialog.close();
+        },
+        { once: true },
+      );
+    };
+    // Esc tuşu: tarayıcının anında kapatması yerine animasyonlu kapanış
+    dialog.addEventListener("cancel", (e) => {
+      e.preventDefault();
+      close();
+    });
     openBtn.addEventListener("click", () => {
       dialog.showModal();
       openBtn.setAttribute("aria-expanded", "true");
@@ -178,6 +195,70 @@ const icons: Record<AdminIcon, typeof LayoutDashboard> = {
       if (e.target === dialog) close();
     });
   }
+
+  // Kaydedilmemiş değişiklik uyarısı: data-guard işaretli formda bir şey değişip kaydedilmeden sayfadan çıkılırsa tarayıcı sorar
+  let dirty = false;
+  document.querySelectorAll<HTMLFormElement>("form[data-guard]").forEach((f) => {
+    f.addEventListener("input", () => (dirty = true));
+    f.addEventListener("change", () => (dirty = true));
+    f.addEventListener("submit", () => (dirty = false));
+  });
+  addEventListener("beforeunload", (e) => {
+    if (dirty) e.preventDefault();
+  });
+
+  // Sıralama (yukarı/aşağı): sayfa yenilenmeden kaydedilir, kartlar kayarak yer değiştirir.
+  // ul[data-sortable] içindeki op=up|down düğmeleri. JS yoksa normal form gönderimi çalışır.
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const refreshEdges = (list: Element) => {
+    const rows = [...list.children];
+    rows.forEach((li, i) => {
+      li.querySelector<HTMLButtonElement>('button[value="up"]')!.disabled = i === 0;
+      li.querySelector<HTMLButtonElement>('button[value="down"]')!.disabled = i === rows.length - 1;
+    });
+  };
+  document.querySelectorAll("ul[data-sortable]").forEach((list) => {
+    let busy = false;
+    list.addEventListener("click", async (e) => {
+      const btn = (e.target as Element).closest<HTMLButtonElement>('button[name="op"][value="up"], button[name="op"][value="down"]');
+      if (!btn) return;
+      e.preventDefault();
+      if (busy || btn.disabled) return;
+      const li = btn.closest("li")!;
+      const other = (btn.value === "up" ? li.previousElementSibling : li.nextElementSibling) as HTMLElement | null;
+      if (!other) return;
+      busy = true;
+      const body = new FormData(btn.form!);
+      body.set("op", btn.value);
+      try {
+        const r = await fetch(location.pathname, { method: "POST", body });
+        if (!r.ok) throw new Error();
+        // FLIP: eski konumları al, yer değiştir, eski konumdan yenisine kaydır
+        const a = li.getBoundingClientRect().top;
+        const b = other.getBoundingClientRect().top;
+        if (btn.value === "up") list.insertBefore(li, other);
+        else list.insertBefore(other, li);
+        refreshEdges(list);
+        if (!reduceMotion) {
+          const opts = { duration: 380, easing: "cubic-bezier(0.22, 1, 0.36, 1)" };
+          li.animate([{ transform: `translateY(${a - li.getBoundingClientRect().top}px)` }, { transform: "none" }], opts);
+          other.animate([{ transform: `translateY(${b - other.getBoundingClientRect().top}px)` }, { transform: "none" }], opts);
+          li.animate([{ boxShadow: "0 0 0 2px var(--color-teal-ink)" }, { boxShadow: "0 0 0 2px transparent" }], { duration: 900 });
+        }
+        btn.focus();
+      } catch {
+        alert("Sıralama kaydedilemedi. Sayfayı yenileyip tekrar deneyin.");
+      } finally {
+        busy = false;
+      }
+    });
+  });
+
+  // Silme gibi geri alınamaz işlemler: data-confirm metniyle onay sorulur
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>("[data-confirm]");
+    if (btn && !confirm(btn.dataset.confirm!)) e.preventDefault();
+  });
 </script>
 
 <style is:global>
@@ -275,6 +356,22 @@ const icons: Record<AdminIcon, typeof LayoutDashboard> = {
     }
     .p-drawer[open]::backdrop {
       animation: p-fade 0.32s ease-out;
+    }
+    .p-drawer.is-closing {
+      animation: p-drawer-out 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+    .p-drawer.is-closing::backdrop {
+      animation: p-fade-out 0.26s ease-in forwards;
+    }
+  }
+  @keyframes p-drawer-out {
+    to {
+      translate: -100% 0;
+    }
+  }
+  @keyframes p-fade-out {
+    to {
+      opacity: 0;
     }
   }
   @keyframes p-drawer-in {

@@ -57,7 +57,14 @@
 - Ziyaretçi kartı (`src/lib/analytics.ts`): Worker gizli değişkenleri `CF_API_TOKEN` (Account Analytics: Read) + `CF_ACCOUNT_ID` gerekir; yoksa "kurulum bekliyor". **Deploy'da kullanıcı Cloudflare'de okuma token'ı oluşturacak** (Claude adım adım anlatır), `npx wrangler secret put` ile eklenecek.
 - Test (yerel, uçtan uca): 17/17 (giriş, genel bakış, kampanya aç → sitede görünür → kapat, şifre değiştirme hataları + başarı, son hareketler, çıkış).
 
-**Sıradaki: 4. aşama (basit modüller: iletişim + markalar, kampanya, yorumlar, paketler + "İngilizceye çevir").** Kullanıcı "başla" deyince.
+**4. aşama (basit modüller): BİTTİ (22.11.2026), commit/deploy bekliyor.**
+- `/admin/iletisim`: telefon (her biçimde yazılır → görünen + tıkla-ara + wa.me otomatik), WhatsApp (boşsa telefonla aynı), karşılama mesajı, Instagram kullanıcı adı, Facebook adresi, saatler, bölge, ilçeler, markalar. Google açılış saatleri panelde yok (esnek çalışma).
+- `/admin/kampanya`: aç/kapa, metin, düğme, bitiş tarihi, sitedeki şeridin önizlemesi. Metinsiz açılmaz, geçmiş tarih reddedilir.
+- `/admin/yorumlar`, `/admin/paketler`: liste (yukarı/aşağı, gizle/göster, düzenle, sil + onay) + form (`?id=yeni|<no>`). Paket: fiyat sayı (59.999 da kabul), öne çıkan tek paket. Ortak: `src/lib/admin-form.ts` (alan okuma, `parsePhone`, `listAction`), `src/components/admin/{Field,BiField,TranslateButton}.astro`, kaydedilmemiş değişiklik uyarısı + silme onayı (PanelLayout script).
+- **İngilizceye çevir:** `src/lib/translate.ts` + `/admin/api/cevir`. Model `@cf/google/gemma-4-26b-a4b-it`, **düşünme kapalı** (`chat_template_kwargs.enable_thinking=false`; açıkken 10-20 sn). Tüm form tek istekte, işletme bağlamıyla; liste alanlarında satır sayısı korunur. Ölçüm: ~1-2 sn, form başına ~1,5 neuron (günlük ücretsiz 10.000). m2m100 denendi, kalitesiz ("Telefondan izleme" → "Watch the phone"). Günlük 200 tıklama sınırı (`ai_usage`). `wrangler.jsonc` → `"ai": { "binding": "AI" }`.
+- Test (yerel, uçtan uca): 24 kontrolün 23'ü geçti; 1'i test scriptinin okuma hatası (sıralama DB'de doğru). Telefon/Instagram değişince sitede 7 yer + tel/wa bağlantıları güncellendi; kampanya TR ve EN (EN boşken Türkçesi); yorum ekle/taşı/gizle/sil; paket ekle/öne çıkan/sil; çeviri; CSRF'siz çeviri reddi. Test verileri geri alındı.
+
+**Sıradaki: 5. aşama (R2 + fotoğraf modülleri).** Kullanıcıdan önce: Cloudflare'de R2'yi etkinleştirme + düşük limitli sanal kart + Billing → Notifications kullanım uyarısı. Kullanıcı "başla" deyince.
 
 **Admin paneli tasarım kararları (karar defteri, 20.11.2026'dan itibaren)**
 Kararlar kullanıcıyla tek tek soru-cevapla alındı (1-10). Ayrıntılar aşağıdaki **tasarım dokümanında**; kullanıcı onayından sonra uygulama aşamalarına geçilecek.

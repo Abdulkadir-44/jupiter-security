@@ -1,0 +1,148 @@
+---
+/**
+ * Müşteri yorumları (/admin/yorumlar): liste (sırala, gizle/göster, sil) + ekleme/düzenleme formu (?id=yeni | ?id=<no>).
+ * Gizli yorumlar sitede görünmez ama silinmez.
+ */
+import { env } from "cloudflare:workers";
+import { ArrowDown, ArrowUp, Eye, EyeOff, Pencil, Plus, Trash2 } from "lucide-react";
+import PanelLayout from "@/layouts/PanelLayout.astro";
+import Field from "@/components/admin/Field.astro";
+import BiField from "@/components/admin/BiField.astro";
+import TranslateButton from "@/components/admin/TranslateButton.astro";
+import { logActivity } from "@/lib/auth";
+import { listAction, nextSort, str } from "@/lib/admin-form";
+
+export const prerender = false;
+
+type Review = { id: number; quote_tr: string; quote_en: string; name: string; place_tr: string; place_en: string; published: number };
+const db = env.DB;
+const session = Astro.locals.admin!;
+const editId = Astro.url.searchParams.get("id");
+const errors: Record<string, string> = {};
+let draft: Review | null = null;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const op = str(form, "op", 10);
+  const id = Number(form.get("id"));
+
+  if (op === "save") {
+    draft = {
+      id,
+      quote_tr: str(form, "quote_tr", 400),
+      quote_en: str(form, "quote_en", 400),
+      name: str(form, "name", 60),
+      place_tr: str(form, "place_tr", 80),
+      place_en: str(form, "place_en", 80),
+      published: 1,
+    };
+    if (!draft.quote_tr) errors.quote = "Yorum metni boş olamaz.";
+    if (!draft.name) errors.name = "İsim boş olamaz.";
+    if (!Object.keys(errors).length) {
+      if (id) {
+        await db
+          .prepare("UPDATE reviews SET quote_tr = ?, quote_en = ?, name = ?, place_tr = ?, place_en = ?, updated_at = datetime('now') WHERE id = ?")
+          .bind(draft.quote_tr, draft.quote_en, draft.name, draft.place_tr, draft.place_en, id)
+          .run();
+        await logActivity(db, `Yorum düzenlendi: ${draft.name}`);
+      } else {
+        await db
+          .prepare("INSERT INTO reviews (quote_tr, quote_en, name, place_tr, place_en, sort) VALUES (?, ?, ?, ?, ?, ?)")
+          .bind(draft.quote_tr, draft.quote_en, draft.name, draft.place_tr, draft.place_en, await nextSort(db, "reviews"))
+          .run();
+        await logActivity(db, `Yorum eklendi: ${draft.name}`);
+      }
+      return Astro.redirect(`/admin/yorumlar?ok=${id ? "kaydedildi" : "eklendi"}`, 303);
+    }
+  } else if (id) {
+    const name = (await db.prepare("SELECT name FROM reviews WHERE id = ?").bind(id).first<string>("name")) ?? "";
+    const done = await listAction(db, "reviews", id, op);
+    const text = { up: "sırası değişti", down: "sırası değişti", toggle: "gösterildi/gizlendi", delete: "silindi" } as const;
+    if (done) await logActivity(db, `Yorum ${text[done]}: ${name}`);
+    return Astro.redirect(`/admin/yorumlar${done === "delete" ? "?ok=silindi" : ""}`, 303);
+  }
+}
+
+const reviews = (await db.prepare("SELECT * FROM reviews ORDER BY sort, id").all<Review>()).results;
+const editing: Review | null =
+  draft ?? (editId === "yeni" ? { id: 0, quote_tr: "", quote_en: "", name: "", place_tr: "", place_en: "", published: 1 } : (reviews.find((r) => String(r.id) === editId) ?? null));
+const ok = Astro.url.searchParams.get("ok");
+const okText: Record<string, string> = { kaydedildi: "Yorum kaydedildi.", eklendi: "Yorum eklendi; listenin sonunda.", silindi: "Yorum silindi." };
+---
+
+<PanelLayout title="Yorumlar" eyebrow="Bilgiler" lead="Sitedeki 'Müşterilerimiz ne diyor' bölümü. Gerçek müşteri yorumlarını isim + soyadının baş harfi ile girin (örn. Mehmet K.).">
+  {ok && okText[ok] && <p class="p-toast" role="status">{okText[ok]}</p>}
+
+  {
+    editing ? (
+      <form method="post" class="grid gap-6" data-guard>
+        <input type="hidden" name="csrf" value={session.csrf} />
+        <input type="hidden" name="op" value="save" />
+        <input type="hidden" name="id" value={editing.id} />
+        <section class="p-card grid gap-5">
+          <h2 class="font-title text-[1.5rem]">{editing.id ? "Yorumu düzenle" : "Yeni yorum"}</h2>
+          <BiField name="quote" label="Yorum" tr={editing.quote_tr} en={editing.quote_en} rows={4} maxlength={400} required error={errors.quote} />
+          <div class="max-w-sm">
+            <Field name="name" label="İsim" value={editing.name} required maxlength={60} error={errors.name} placeholder="Mehmet K." help="Kişisel veri: tam soyadı yazmayın." />
+          </div>
+          <BiField name="place" label="Kim / nerede" tr={editing.place_tr} en={editing.place_en} maxlength={80} placeholder="Market sahibi, İskenderun" />
+        </section>
+        <div class="p-savebar">
+          <TranslateButton csrf={session.csrf} />
+          <div class="flex gap-3">
+            <a href="/admin/yorumlar" class="admin-btn admin-btn-ghost w-auto px-6">Vazgeç</a>
+            <button class="admin-btn" type="submit">Kaydet</button>
+          </div>
+        </div>
+      </form>
+    ) : (
+      <>
+        <div class="mb-4 flex items-center justify-between gap-3">
+          <p class="text-sm text-ink-soft">{reviews.length} yorum · {reviews.filter((r) => r.published).length} tanesi sitede</p>
+          <a href="/admin/yorumlar?id=yeni" class="admin-btn w-auto px-5">
+            <Plus className="size-4" aria-hidden="true" />
+            Yorum ekle
+          </a>
+        </div>
+        {reviews.length === 0 ? (
+          <p class="p-card text-ink-soft">Henüz yorum yok. Sitede bu bölüm boş görünür.</p>
+        ) : (
+          <ul class="grid gap-3" data-sortable>
+            {reviews.map((r, i) => (
+              <li class:list={["p-card flex flex-col gap-3 sm:flex-row sm:items-start", !r.published && "opacity-60"]}>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[0.98rem]">“{r.quote_tr}”</p>
+                  <p class="mt-2 text-sm text-ink-soft">
+                    <strong class="text-ink">{r.name}</strong>
+                    {r.place_tr && ` · ${r.place_tr}`}
+                    {!r.published && <span class="p-badge ml-2">gizli</span>}
+                    {!r.quote_en && <span class="p-badge ml-2">İngilizcesi yok</span>}
+                  </p>
+                </div>
+                <form method="post" class="flex shrink-0 items-center gap-0.5 self-end sm:self-start">
+                  <input type="hidden" name="csrf" value={session.csrf} />
+                  <input type="hidden" name="id" value={r.id} />
+                  <button class="p-mini" name="op" value="up" disabled={i === 0} aria-label={`${r.name}: yukarı taşı`}>
+                    <ArrowUp className="size-4" aria-hidden="true" />
+                  </button>
+                  <button class="p-mini" name="op" value="down" disabled={i === reviews.length - 1} aria-label={`${r.name}: aşağı taşı`}>
+                    <ArrowDown className="size-4" aria-hidden="true" />
+                  </button>
+                  <button class="p-mini" name="op" value="toggle" aria-label={`${r.name}: ${r.published ? "sitede gizle" : "sitede göster"}`} title={r.published ? "Gizle" : "Göster"}>
+                    {r.published ? <Eye className="size-4" aria-hidden="true" /> : <EyeOff className="size-4" aria-hidden="true" />}
+                  </button>
+                  <a class="p-mini" href={`/admin/yorumlar?id=${r.id}`} aria-label={`${r.name}: düzenle`} title="Düzenle">
+                    <Pencil className="size-4" aria-hidden="true" />
+                  </a>
+                  <button class="p-mini p-mini-danger" name="op" value="delete" aria-label={`${r.name}: sil`} title="Sil" data-confirm={`"${r.name}" yorumu silinsin mi? Bu geri alınamaz.`}>
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    )
+  }
+</PanelLayout>

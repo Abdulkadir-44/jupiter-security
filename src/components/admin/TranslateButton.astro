@@ -1,0 +1,70 @@
+---
+/**
+ * "İngilizceye çevir": bulunduğu formdaki Türkçe alanları (data-tr) çevirip İngilizce alanlara (data-en) yazar.
+ * İngilizce alanlarda yazı varsa önce sorar. Sonuç elle düzeltilebilir; kaydetmek için formu kaydetmek gerekir.
+ */
+import { Languages } from "lucide-react";
+
+interface Props {
+  csrf: string;
+}
+const { csrf } = Astro.props;
+---
+
+<div class="flex flex-wrap items-center gap-3" data-translate>
+  <button type="button" class="admin-btn admin-btn-ghost w-auto px-5" data-translate-btn data-csrf={csrf}>
+    <Languages className="size-4" aria-hidden="true" />
+    <span data-translate-label>İngilizceye çevir</span>
+  </button>
+  <p class="text-xs text-ink-soft" data-translate-msg aria-live="polite">Türkçe alanları otomatik çevirir; sonucu kontrol edip kaydedin.</p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-translate-btn]").forEach((btn) => {
+    const form = btn.closest("form");
+    const box = btn.closest("[data-translate]")!;
+    const msg = box.querySelector<HTMLElement>("[data-translate-msg]")!;
+    const label = box.querySelector<HTMLElement>("[data-translate-label]")!;
+    if (!form) return;
+
+    btn.addEventListener("click", async () => {
+      const trEls = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-tr]")];
+      const fields: Record<string, string> = {};
+      for (const el of trEls) if (el.value.trim()) fields[el.dataset.tr!] = el.value;
+      if (!Object.keys(fields).length) {
+        msg.textContent = "Önce Türkçe alanları doldurun.";
+        return;
+      }
+      const enEls = new Map(
+        [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>("[data-en]")].map((el) => [el.dataset.en!, el]),
+      );
+      const filled = [...enEls.entries()].some(([k, el]) => k in fields && el.value.trim());
+      if (filled && !confirm("İngilizce alanlarda yazı var. Çeviri bunların üzerine yazılsın mı?")) return;
+
+      btn.disabled = true;
+      label.textContent = "Çevriliyor…";
+      msg.textContent = "";
+      try {
+        const body = new FormData();
+        body.set("csrf", btn.dataset.csrf!);
+        body.set("fields", JSON.stringify(fields));
+        const r = await fetch("/admin/api/cevir", { method: "POST", body });
+        const data = (await r.json().catch(() => ({}))) as { fields?: Record<string, string>; error?: string };
+        if (!r.ok || !data.fields) throw new Error(data.error ?? "Çeviri yapılamadı.");
+        for (const [k, v] of Object.entries(data.fields)) {
+          const el = enEls.get(k);
+          if (el && v) {
+            el.value = v;
+            el.dispatchEvent(new Event("input", { bubbles: true })); // kaydedilmemiş değişiklik uyarısı için
+          }
+        }
+        msg.textContent = "Çevrildi. Kontrol edip kaydedin.";
+      } catch (e) {
+        msg.textContent = e instanceof Error ? e.message : "Çeviri yapılamadı.";
+      } finally {
+        btn.disabled = false;
+        label.textContent = "İngilizceye çevir";
+      }
+    });
+  });
+</script>

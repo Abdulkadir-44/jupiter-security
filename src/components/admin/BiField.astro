@@ -1,0 +1,27 @@
+---
+/**
+ * İki dilli alan: solda Türkçe (zorunlu olabilir), sağda İngilizce (boşsa İngilizce sayfada Türkçe gösterilir).
+ * Alan adları: `<name>_tr` ve `<name>_en`. "İngilizceye çevir" düğmesi data-tr/data-en işaretleriyle eşleştirir.
+ */
+import Field from "./Field.astro";
+
+interface Props {
+  name: string;
+  label: string;
+  tr?: string | null;
+  en?: string | null;
+  rows?: number;
+  help?: string;
+  error?: string;
+  required?: boolean;
+  maxlength?: number;
+  placeholder?: string;
+}
+const { name, label, tr, en, rows, help, error, required, maxlength, placeholder } = Astro.props;
+---
+
+<fieldset class="grid gap-3 md:grid-cols-2 md:gap-4">
+  <legend class="sr-only">{label}</legend>
+  <Field name={`${name}_tr`} label={label} value={tr} rows={rows} help={help} error={error} required={required} maxlength={maxlength} placeholder={placeholder} tr={name} />
+  <Field name={`${name}_en`} label={`${label} · İngilizce`} value={en} rows={rows} maxlength={maxlength} help="Boş kalırsa İngilizce sayfada Türkçesi görünür." en={name} />
+</fieldset>
