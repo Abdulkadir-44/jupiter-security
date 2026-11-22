@@ -101,18 +101,27 @@ const total = String(p.items.length).padStart(2, "0");
                         {sp}
                       </li>
                     ))}
+                    {/* Marka da bir madde olarak (eskiden sağ altta küçük yazıydı) */}
+                    {it.brand && (
+                      <li class="flex items-start gap-2.5">
+                        <span class="mt-[0.55em] size-1.5 shrink-0 rounded-full bg-teal" aria-hidden="true" />
+                        <span>
+                          <span class="font-semibold text-ink">{p.brandLabel}:</span> {it.brand}
+                        </span>
+                      </li>
+                    )}
                   </ul>
-                  <div class="mt-auto flex items-end justify-between gap-3 pt-6">
-                    <span class="text-xs text-ink-soft">{it.brand}</span>
+                  {/* Kartın en altında, tam genişlikte WhatsApp düğmesi */}
+                  <div class="mt-auto pt-6">
                     <a
                       href={whatsappHref(s.contact, fill(p.message, { name: it.name }))}
                       target="_blank"
                       rel="noopener"
-                      class="pr-ask inline-flex min-h-11 items-center gap-2 rounded-full px-1 text-sm font-semibold text-ink transition-colors duration-200 hover:text-teal-ink"
+                      class="pr-ask flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ink px-4 text-sm font-semibold text-paper transition-colors duration-200 hover:bg-teal-ink"
                     >
-                      <WhatsAppIcon className="size-4" />
+                      <WhatsAppIcon className="size-4 shrink-0" />
                       {p.ask}
-                      <ArrowRight className="pr-ask-arrow size-4" aria-hidden="true" />
+                      <ArrowRight className="pr-ask-arrow size-4 shrink-0" aria-hidden="true" />
                     </a>
                   </div>
                 </div>

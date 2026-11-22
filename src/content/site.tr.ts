@@ -129,6 +129,8 @@ export interface SiteContent {
     lead: string;
     /** Kartlardaki WhatsApp bağlantısı */
     ask: string;
+    /** Özellik listesindeki marka satırının etiketi ("Marka: Dahua · Hikvision") */
+    brandLabel: string;
     /** WhatsApp mesajı; {name} ürün adıyla değişir */
     message: string;
     prev: string;
@@ -272,6 +274,12 @@ export interface SiteContent {
     callLabel: string;
     whatsappLabel: string;
     instagramLabel: string;
+    /** Instagram kartındaki düğme */
+    followLabel: string;
+    /** Saat kartındaki küçük etiket */
+    hoursLabel: string;
+    /** WhatsApp balonundaki saat yerine yazı */
+    nowLabel: string;
     areasTitle: string;
   };
   footer: {
@@ -478,6 +486,7 @@ export const site: SiteContent = {
     title: "Taktığımız kameralar ve cihazlar",
     lead: "Kurulumlarda kullandığımız ürünlerden bazıları. Hepsi garantili; hangisinin size uygun olduğunu keşifte birlikte seçiyoruz.",
     ask: "WhatsApp'tan sor",
+    brandLabel: "Marka",
     message: "Merhaba, {name} hakkında bilgi almak istiyorum.",
     prev: "Önceki ürün",
     next: "Sonraki ürün",
@@ -731,6 +740,9 @@ export const site: SiteContent = {
     callLabel: "Telefonla arayın",
     whatsappLabel: "WhatsApp'tan yazın",
     instagramLabel: "Instagram'da takip edin",
+    followLabel: "Takip et",
+    hoursLabel: "Çalışma saatleri",
+    nowLabel: "şimdi",
     areasTitle: "Hizmet verdiğimiz yerler",
   },
 

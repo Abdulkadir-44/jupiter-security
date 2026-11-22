@@ -1,5 +1,5 @@
 ---
-import { Clock, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { getSiteContent, telHref, whatsappHref } from "@/lib/data";
 
@@ -19,40 +19,446 @@ const c = s.closing;
     </h2>
     <p class="mt-8 max-w-[44ch] text-[1.15rem] text-mist">{c.lead}</p>
 
-    <a
-      href={telHref(s.contact)}
-      class="group mt-10 inline-flex items-center gap-3 rounded-md font-title text-[clamp(2.4rem,6vw,4rem)] whitespace-nowrap tabular-nums"
-    >
-      <Phone className="size-[0.6em] text-teal" strokeWidth={2} aria-hidden="true" />
-      <span class="underline decoration-teal decoration-2 underline-offset-[0.18em] transition-colors duration-200 group-hover:text-teal">
-        {s.contact.phoneDisplay}
+    <!--
+      Telefon: "gelen arama" düğmesi. Yeşil daire içinde telefon, etrafından sinyal halkaları yayılır.
+      Ekrana girince halkalar iki kez yayılır; üzerine gelince telefon çalar gibi titrer, halkalar yeniden yayılır.
+    -->
+    <a href={telHref(s.contact)} class="call-card" data-call aria-label={`${s.contactSection.callLabel}: ${s.contact.phoneDisplay}`}>
+      <span class="call-icon" aria-hidden="true">
+        <span class="call-wave"></span>
+        <span class="call-wave call-wave-2"></span>
+        <Phone className="call-phone size-[1.35rem]" strokeWidth={2.2} />
+      </span>
+      <span class="flex min-w-0 flex-col text-left">
+        <span class="font-mono text-[10.5px] tracking-[0.16em] text-paper/55 uppercase">{s.contactSection.callLabel}</span>
+        <span class="call-number font-title whitespace-nowrap tabular-nums">{s.contact.phoneDisplay}</span>
       </span>
     </a>
 
-    <div class="mt-10 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row">
-      <a
-        href={whatsappHref(s.contact)}
-        target="_blank"
-        rel="noopener"
-        class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full bg-paper px-6 font-semibold text-ink transition-colors duration-200 hover:bg-cream-2"
-      >
-        <WhatsAppIcon className="size-[1.1rem] text-[#1da851]" />
-        {s.contactSection.whatsappLabel}
+    <!--
+      Bağlantının kendi dünyasından düğmeler:
+      WhatsApp = mesaj balonu (kuyruk, numara, "şimdi ✓✓"; ekrana girince mesaj gibi belirir, üzerine gelince tikler maviye döner)
+      Instagram = profil satırı (hikâye halkalı avatar, kullanıcı adı, "Takip et"; üzerine gelince halka döner)
+      Halka rengi sıcak (sarı → mercan): Instagram'ın kendi geçişi mor içerir, sitede mor yok.
+    -->
+    <div class="mt-12 flex w-full max-w-[22rem] flex-col items-stretch gap-4 sm:w-auto sm:max-w-none sm:flex-row sm:items-center sm:gap-6" data-social>
+      <a href={whatsappHref(s.contact)} target="_blank" rel="noopener" class="wa-bubble" aria-label={`${s.contactSection.whatsappLabel}: ${s.contact.phoneDisplay}`}>
+        <span class="wa-icon" aria-hidden="true"><WhatsAppIcon className="size-[1.15rem]" /></span>
+        <span class="flex min-w-0 flex-col text-left">
+          <span class="font-semibold leading-tight">{s.contactSection.whatsappLabel}</span>
+          <span class="mt-0.5 text-[13px] tabular-nums text-ink-soft">{s.contact.phoneDisplay}</span>
+        </span>
+        <span class="wa-meta" aria-hidden="true">
+          {s.contactSection.nowLabel}
+          <svg class="wa-ticks" viewBox="0 0 18 11" fill="none">
+            <path d="M1 6.2 3.8 9 9.6 2.2M7.4 8l1 1 5.8-6.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
       </a>
-      <a
-        href={s.contact.instagram.url}
-        target="_blank"
-        rel="noopener"
-        class="inline-flex min-h-12 items-center justify-center gap-2.5 rounded-full border border-paper/35 px-6 font-semibold transition-colors duration-200 hover:border-paper hover:bg-paper/10"
-      >
-        <InstagramIcon className="size-[1.1rem]" />
-        {s.contact.instagram.handle}
+
+      <a href={s.contact.instagram.url} target="_blank" rel="noopener" class="ig-chip" aria-label={`${s.contactSection.instagramLabel}: ${s.contact.instagram.handle}`}>
+        <span class="ig-avatar" aria-hidden="true">
+          <span class="ig-ring"></span>
+          <span class="ig-face"><InstagramIcon className="size-[1.1rem]" /></span>
+        </span>
+        <span class="flex min-w-0 flex-col text-left">
+          <span class="truncate font-semibold leading-tight">{s.contact.instagram.handle}</span>
+          <span class="mt-0.5 text-[13px] text-mist">{s.contactSection.instagramLabel}</span>
+        </span>
+        <span class="ig-follow" aria-hidden="true">{s.contactSection.followLabel}</span>
       </a>
     </div>
 
-    <p class="mt-8 flex items-center gap-2 text-mist">
-      <Clock className="size-4 text-teal" strokeWidth={2.2} aria-hidden="true" />
-      {s.contact.hours}
+    <!-- Randevu kartı: saat ikonu (ekrana girince akrep ve yelkovan bir tur döner) + etiket + çalışma saati metni -->
+    <p class="hours-card" data-hours>
+      <span class="hours-clock" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"></circle>
+          <path class="hand-h" d="M12 12V8" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <path class="hand-m" d="M12 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          <circle cx="12" cy="12" r="1.2" fill="currentColor"></circle>
+        </svg>
+      </span>
+      <span class="flex min-w-0 flex-col text-left">
+        <span class="font-mono text-[10.5px] tracking-[0.16em] text-paper/55 uppercase">{s.contactSection.hoursLabel}</span>
+        <span class="mt-0.5 text-[0.95rem] leading-snug text-paper/90">{s.contact.hours}</span>
+      </span>
     </p>
   </div>
 </section>
+
+<style>
+  /* ---------- WhatsApp: mesaj balonu ---------- */
+  .wa-bubble {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 3.5rem;
+    padding: 0.65rem 0.9rem 0.65rem 0.7rem;
+    border-radius: 1.15rem 1.15rem 1.15rem 0.3rem;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    box-shadow: 0 14px 30px -16px rgb(0 0 0 / 0.6);
+    transform-origin: 0% 100%;
+    transition: transform 0.35s var(--ease-out-expo);
+  }
+  /* Kuyruk (sol alt) */
+  .wa-bubble::before {
+    content: "";
+    position: absolute;
+    left: -6px;
+    bottom: 0;
+    width: 14px;
+    height: 14px;
+    background: var(--color-paper);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
+  .wa-icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: var(--color-wa);
+    color: #fff;
+  }
+  .wa-meta {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+    padding-left: 0.4rem;
+    font-size: 11px;
+    color: var(--color-ink-soft);
+    white-space: nowrap;
+  }
+  .wa-ticks {
+    width: 16px;
+    height: 10px;
+    color: color-mix(in srgb, var(--color-ink) 45%, transparent);
+    transition: color 0.3s ease;
+  }
+  .wa-bubble:hover .wa-ticks,
+  .wa-bubble:focus-visible .wa-ticks {
+    color: #34b7f1; /* okundu */
+  }
+
+  /* ---------- Instagram: profil satırı ---------- */
+  .ig-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    min-height: 3.5rem;
+    padding: 0.55rem 0.6rem 0.55rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-paper) 22%, transparent);
+    background: color-mix(in srgb, var(--color-paper) 4%, transparent);
+    color: var(--color-paper);
+    transition:
+      transform 0.35s var(--ease-out-expo),
+      border-color 0.3s ease,
+      background-color 0.3s ease;
+  }
+  .ig-avatar {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+  .ig-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: conic-gradient(from 200deg, var(--color-sun), var(--color-coral), #f59e5b, var(--color-sun));
+    transition: transform 0.9s var(--ease-out-expo);
+  }
+  .ig-face {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: calc(100% - 5px);
+    height: calc(100% - 5px);
+    border-radius: 999px;
+    background: var(--color-navy);
+    box-shadow: 0 0 0 2px var(--color-navy);
+    color: var(--color-paper);
+  }
+  .ig-follow {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-paper) 35%, transparent);
+    font-size: 13px;
+    font-weight: 600;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  .ig-chip:hover,
+  .ig-chip:focus-visible {
+    border-color: color-mix(in srgb, var(--color-paper) 45%, transparent);
+    background: color-mix(in srgb, var(--color-paper) 8%, transparent);
+  }
+  .ig-chip:hover .ig-follow,
+  .ig-chip:focus-visible .ig-follow {
+    background: var(--color-paper);
+    border-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  /* ---------- Telefon: gelen arama ---------- */
+  .call-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 100%;
+    margin-top: 2.5rem;
+    padding: 0.7rem 1.6rem 0.7rem 0.7rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-paper) 6%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--color-paper) 14%, transparent),
+      0 20px 40px -24px rgb(0 0 0 / 0.6);
+    color: var(--color-paper);
+    transition:
+      background-color 0.3s ease,
+      transform 0.35s var(--ease-out-expo);
+  }
+  .call-card:hover,
+  .call-card:focus-visible {
+    background: color-mix(in srgb, var(--color-paper) 10%, transparent);
+  }
+  .call-card:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 4px;
+  }
+  .call-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 999px;
+    background: var(--color-teal);
+    color: var(--color-ink);
+  }
+  .call-wave {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-teal);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .call-number {
+    font-size: clamp(1.75rem, 7.2vw, 3rem);
+    line-height: 1.05;
+    transition: color 0.25s ease;
+  }
+  .call-card:hover .call-number,
+  .call-card:focus-visible .call-number {
+    color: var(--color-teal-soft);
+  }
+
+  /* ---------- Randevu kartı ---------- */
+  .hours-card {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
+    max-width: 22rem;
+    margin-top: 1rem;
+    padding: 0.7rem 1.1rem 0.7rem 0.7rem;
+    border-radius: 1rem;
+    background: color-mix(in srgb, var(--color-paper) 5%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-paper) 12%, transparent);
+  }
+  @media (width >= 40rem) {
+    .hours-card {
+      width: auto;
+      max-width: none;
+      margin-top: 1.5rem;
+    }
+  }
+  .hours-clock {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-teal) 18%, transparent);
+    color: var(--color-teal);
+  }
+  .hours-clock svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .hand-h,
+  .hand-m {
+    transform-box: view-box;
+    transform-origin: 12px 12px;
+  }
+
+  .wa-bubble:focus-visible,
+  .ig-chip:focus-visible {
+    outline: 2px solid var(--color-teal);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .wa-bubble:hover,
+    .ig-chip:hover {
+      transform: translateY(-3px);
+    }
+    .ig-chip:hover .ig-ring,
+    .ig-chip:focus-visible .ig-ring {
+      transform: rotate(180deg);
+    }
+    /* Ekrana girince: balon yeni mesaj gibi kuyruğundan büyür, profil satırı ardından gelir */
+    [data-social][data-js] .wa-bubble,
+    [data-social][data-js] .ig-chip {
+      opacity: 0;
+      transform: scale(0.85) translateY(10px);
+    }
+    [data-social][data-on="true"] .wa-bubble,
+    [data-social][data-on="true"] .ig-chip {
+      animation: social-in 0.55s var(--ease-out-expo) forwards;
+    }
+    [data-social][data-on="true"] .ig-chip {
+      animation-delay: 0.15s;
+    }
+  }
+  /* Telefon: ekrana girince halkalar iki kez yayılır; üzerine gelince telefon titrer + halkalar */
+  @media (prefers-reduced-motion: no-preference) {
+    .call-card:hover {
+      transform: translateY(-3px);
+    }
+    [data-call][data-on="true"] .call-wave,
+    .call-card:hover .call-wave,
+    .call-card:focus-visible .call-wave {
+      animation: call-wave 1.3s ease-out 2;
+    }
+    [data-call][data-on="true"] .call-wave-2,
+    .call-card:hover .call-wave-2,
+    .call-card:focus-visible .call-wave-2 {
+      animation-delay: 0.35s;
+    }
+    .call-card:hover :global(.call-phone),
+    .call-card:focus-visible :global(.call-phone) {
+      animation: call-ring 0.9s ease-in-out;
+    }
+  }
+  @keyframes call-wave {
+    0% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.75);
+    }
+  }
+  @keyframes call-ring {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    10%,
+    30%,
+    50% {
+      transform: rotate(-14deg);
+    }
+    20%,
+    40%,
+    60% {
+      transform: rotate(14deg);
+    }
+    70% {
+      transform: rotate(0);
+    }
+  }
+
+  /* Saat: ekrana girince yelkovan bir tur, akrep çeyrek tur döner (bir kez) */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-hours][data-on="true"] .hand-m {
+      animation: hand-spin 1.4s var(--ease-out-expo) both;
+    }
+    [data-hours][data-on="true"] .hand-h {
+      animation: hand-spin-h 1.4s var(--ease-out-expo) both;
+    }
+  }
+  @keyframes hand-spin {
+    from {
+      transform: rotate(-360deg);
+    }
+  }
+  @keyframes hand-spin-h {
+    from {
+      transform: rotate(-90deg);
+    }
+  }
+  @keyframes social-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const social = document.querySelector<HTMLElement>("[data-social]");
+  if (social && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    social.setAttribute("data-js", "");
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        social.setAttribute("data-on", "true");
+        // Giriş bitince başlangıç durumu ve animasyon kalksın (hover hareketleri serbest kalsın)
+        setTimeout(() => {
+          social.removeAttribute("data-js");
+          social.removeAttribute("data-on");
+        }, 900);
+        io.disconnect();
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(social);
+  }
+
+  const call = document.querySelector<HTMLElement>("[data-call]");
+  if (call) {
+    const cio = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        call.setAttribute("data-on", "true");
+        // Giriş halkaları bitince kalksın; sonra halkalar sadece üzerine gelince yayılır
+        setTimeout(() => call.removeAttribute("data-on"), 3200);
+        cio.disconnect();
+      },
+      { threshold: 0.6 },
+    );
+    cio.observe(call);
+  }
+
+  const hours = document.querySelector<HTMLElement>("[data-hours]");
+  if (hours) {
+    const hio = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        hours.setAttribute("data-on", "true");
+        hio.disconnect();
+      },
+      { threshold: 0.6 },
+    );
+    hio.observe(hours);
+  }
+</script>

@@ -149,6 +149,7 @@ export const site: SiteContent = {
     title: "The cameras and devices we install",
     lead: "Some of the products we use in our installations. All come with a warranty; we pick the right one together during the site visit.",
     ask: "Ask on WhatsApp",
+    brandLabel: "Brand",
     message: "Hello, I'd like information about the {name}.",
     prev: "Previous product",
     next: "Next product",
@@ -404,6 +405,9 @@ export const site: SiteContent = {
     callLabel: "Call us",
     whatsappLabel: "Message on WhatsApp",
     instagramLabel: "Follow on Instagram",
+    followLabel: "Follow",
+    hoursLabel: "Working hours",
+    nowLabel: "now",
     areasTitle: "Where we work",
   },
 

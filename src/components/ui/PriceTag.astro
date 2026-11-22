@@ -21,6 +21,8 @@ interface Props {
   trail?: string;
   /** Kupon kısmındaki eylem (örn. "WhatsApp'tan sor") */
   action: string;
+  /** Dar telefonda kuponda görünen kısa eylem (varsayılan "WhatsApp"); tam metin ekran okuyucuda kalır */
+  actionShort?: string;
   /** Etiket rengi */
   accent?: "sun" | "teal";
   /** Kupon çentiklerinin rengi = bölümün arka plan rengi */
@@ -28,7 +30,7 @@ interface Props {
   /** Zemin: "dark" koyu bölüm (varsayılan), "light" açık panel (ip ve odak çerçevesi koyu) */
   tone?: "dark" | "light";
 }
-const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-ink)", tone = "dark" } = Astro.props;
+const { href, lead, amount, trail, action, actionShort = "WhatsApp", accent = "sun", notch = "var(--color-ink)", tone = "dark" } = Astro.props;
 ---
 
 <a
@@ -56,7 +58,9 @@ const { href, lead, amount, trail, action, accent = "sun", notch = "var(--color-
 
   <span class="tag-stub">
     <WhatsAppIcon className="size-5" />
-    <span class="text-[13px] leading-tight font-semibold">{action}</span>
+    <span class="text-[13px] leading-tight font-semibold max-sm:hidden">{action}</span>
+    <span class="text-[13px] leading-tight font-semibold sm:hidden" aria-hidden="true">{actionShort}</span>
+    <span class="sr-only sm:hidden">{action}</span>
     <svg class="tag-arrow size-3.5" viewBox="0 0 14 14" fill="none" aria-hidden="true">
       <path d="M4 10 10 4M5 4h5v5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
     </svg>
