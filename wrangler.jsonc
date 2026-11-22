@@ -3,11 +3,11 @@
 {
   "name": "jupiter-kamera",
   "compatibility_date": "2026-11-17",
-  "assets": {
-    // Bulunamayan adreslerde boş yanıt yerine 404.html (durum kodu 404 kalır).
-    // /en/... altındaki adreslerde de aynı (iki dilli) 404 sayfası gösterilir.
-    "not_found_handling": "404-page"
-  },
+  // Statik dosyalar (dist/client). Dosyası olmayan adresler Worker'a (Astro) gider: ana sayfalar orada oluşur,
+  // bulunamayan adreslerde Astro 404 sayfasını (src/pages/404.astro, en/404.astro) 404 koduyla döner.
+  // DİKKAT: "not_found_handling": "404-page" EKLENMEZ. O ayar tarayıcı isteklerini Worker'a hiç uğratmadan
+  // 404.html ile cevaplıyor ve ana sayfa 404 görünüyordu (22.11.2026).
+  "assets": {},
   // Veritabanı (Cloudflare D1, Doğu Avrupa). Kodda: import { env } from "cloudflare:workers" → env.DB
   // Tablolar: db/migrations/ (npm run db:migrate:local|remote), ilk içerik: npm run db:seed:local|remote
   // Yerel geliştirmede `npm run dev` bilgisayardaki kopyayı kullanır (.wrangler/state), canlıyı değil.
